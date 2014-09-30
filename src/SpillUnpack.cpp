@@ -43,16 +43,44 @@ int SpillUnpack::Unpack(){
 
 void SpillUnpack::InitBoards(){
   //init differend kind of boards
-  for (int i=0;i<nBoardTypes_;++i){
+  BoardTypes_t boardTypes;
+  for (int i=0;i<(int)_MAXBOARDTYPE_;++i){
     switch(i){
-    case 0:
-//      boards_[i] = new ;//TODO init different kind of boards. each one is a class inheriting from Board
+    case _TIME_:
+      boards_[i] = new TIME;
       break;
-    case 1:
-//      boards_[i]= new ;
+    case _CAENVX718_:
+      boards_[i]= new CAENVX718;
       break;
+    case _CAENVX1742_:
+      boards_[i]= new VX1742;
+      break;
+    case _CAENVX513_:
+      boards_[i]= new VX513;
+      break;
+    case _CAENVX262_:
+      boards_[i]= new VX262;
+      break;
+    case _CAENVX792_:
+      boards_[i]= new VX792;
+      break;
+    case _CAENVX1290_:
+      boards_[i]= new VX1290;
+      break;
+    case _CAENVX1495PU_:
+      boards_[i]= new VX1495PU;
+      break;
+    case _CAENVX560_:
+      boards_[i]= new VX560;
+      break;
+    case _UNKWN_:
+      //TO DO decide what to do.continue?
+      break;
+
+
     }
   }
+
 
 }
 
