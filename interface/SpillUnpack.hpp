@@ -4,6 +4,7 @@
 #include "interface/EventBuilder.hpp"
 #include "interface/DataType.hpp"
 #include "interface/StandardIncludes.hpp"
+#include "interface/Board.hpp"
 using namespace std;
 
 
