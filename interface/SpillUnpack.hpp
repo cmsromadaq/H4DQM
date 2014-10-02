@@ -1,26 +1,22 @@
 #ifndef SPILLUNPCK_H
 #define SPILLUNPCK_H
 
-#include <stdint.h>
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <ctype.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 //#include "interface/EventBuilder.hpp"
 //#include "interface/DataType.hpp"
-//#include "interface/StandardIncludes.hpp"
+
+#include "interface/StandardIncludes.hpp"
+#include "interface/TIME.hpp"
+#include "interface/CAEN_VX718.hpp"
+#include "interface/CAEN_V513.hpp"
+#include "interface/CAEN_V262.hpp"
+#include "interface/CAEN_V1742.hpp"
+#include "interface/CAEN_V792.hpp"
+#include "interface/CAEN_V1290.hpp"
+#include "interface/CAEN_V1495PU.hpp"
+#include "interface/CAEN_V560.hpp"
 
 #include <TFile.h>
 #include <TTree.h>
-
-#define WORDSIZE 4
-typedef unsigned long long dataTypeSize_t;
-typedef uint32_t WORD;
 
 #define MAX_ADC_CHANNELS 200
 #define MAX_DIGI_SAMPLES 100000
@@ -28,13 +24,6 @@ typedef uint32_t WORD;
 
 #define DEBUG_UNPACKER 1
 #define DEBUG_VERBOSE_UNPACKER 0
-
-// #include "interface/EventBuilder.hpp"
-// #include "interface/DataType.hpp"
-// #include "interface/StandardIncludes.hpp"
-// #include "interface/Board.hpp"
-
-using namespace std;
 
 struct spillHeader
 {
@@ -59,8 +48,8 @@ public:
   UInt_t  boardId_;//probably useless
   UInt_t  boardType_;
   UInt_t  crateId_;
-  Int_t  nBoardTypes_;
-//  map<nBoardTypes_,Board *> boards_;
+//  Int_t  nBoardTypes_;
+  map<BoardTypes_t,Board *> boards_;
   void InitBoards();//create a map between boardType and board
   int Unpack();
   void CreateTree();

@@ -1,11 +1,13 @@
 #ifndef BRD_H
 #define BRD_H
 
-#include "interface/EventBuilder.hpp"
-#include "interface/DataType.hpp"
+// #include "interface/EventBuilder.hpp"
+// #include "interface/DataType.hpp"
 #include "interface/StandardIncludes.hpp"
-using namespace std;
 
+typedef ifstream dataType;
+
+#define _MAXBOARDTYPE_ 9
 
 enum BoardTypes_t { _TIME_=1, //Fake board to get timestamps
 		    _CAENVX718_=2, //Crate Controller
@@ -19,8 +21,12 @@ enum BoardTypes_t { _TIME_=1, //Fake board to get timestamps
 		    _UNKWN_=0 };
 
 
-class Board{
+class Board {
+
 public:
   virtual int Unpack(dataType &stream)=0;
   int GetType(dataType &stream);
+
 };
+
+#endif

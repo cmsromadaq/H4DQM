@@ -43,35 +43,37 @@ int SpillUnpack::Unpack(){
 
 void SpillUnpack::InitBoards(){
   //init differend kind of boards
-  BoardTypes_t boardTypes;
-  for (int i=0;i<(int)_MAXBOARDTYPE_;++i){
+  for (int c=0;c<(BoardTypes_t)_MAXBOARDTYPE_;++c){
+
+    BoardTypes_t i = static_cast<BoardTypes_t>( c );
+
     switch(i){
     case _TIME_:
       boards_[i] = new TIME;
       break;
     case _CAENVX718_:
-      boards_[i]= new CAENVX718;
+      boards_[i]= new CAEN_VX718;
       break;
-    case _CAENVX1742_:
-      boards_[i]= new VX1742;
+    case _CAENV1742_:
+      boards_[i]= new CAEN_V1742;
       break;
-    case _CAENVX513_:
-      boards_[i]= new VX513;
+    case _CAENV513_:
+      boards_[i]= new CAEN_V513;
       break;
-    case _CAENVX262_:
-      boards_[i]= new VX262;
+    case _CAENV262_:
+      boards_[i]= new CAEN_V262;
       break;
-    case _CAENVX792_:
-      boards_[i]= new VX792;
+    case _CAENV792_:
+      boards_[i]= new CAEN_V792;
       break;
-    case _CAENVX1290_:
-      boards_[i]= new VX1290;
+    case _CAENV1290_:
+      boards_[i]= new CAEN_V1290;
       break;
-    case _CAENVX1495PU_:
-      boards_[i]= new VX1495PU;
+    case _CAENV1495PU_:
+      boards_[i]= new CAEN_V1495PU;
       break;
-    case _CAENVX560_:
-      boards_[i]= new VX560;
+    case _CAENV560_:
+      boards_[i]= new CAEN_V560;
       break;
     case _UNKWN_:
       //TO DO decide what to do.continue?

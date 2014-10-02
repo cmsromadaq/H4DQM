@@ -1,8 +1,12 @@
 #ifndef CAEN_V560_H
 #define CAEN_V560_H
 
-class CAEN_V560{
+#include "interface/Board.hpp"
+
+class CAEN_V560: public Board {
 
   int Unpack(dataType &stream);
 
 };
+
+#endif
