@@ -27,10 +27,23 @@
 
 struct spillHeader
 {
-  WORD header;
   WORD runNumber;
   WORD spillNumber;
+  WORD spillSize;
   WORD nEvents;
+};
+
+struct eventHeader
+{
+  WORD eventNumber;
+  WORD eventSize;
+  WORD nBoards;
+};
+
+struct boardHeader
+{
+  WORD boardID;
+  WORD boardSize;
 };
 
 
@@ -52,6 +65,8 @@ public:
   map<BoardTypes_t,Board *> boards_;
   void InitBoards();//create a map between boardType and board
   int Unpack();
+  void UnpackEvents( int nevents );
+  void UnpackBoards( int nboards );
   void CreateTree();
   void inline FillTree(){outTree_->Fill();};
 
