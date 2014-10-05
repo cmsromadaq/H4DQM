@@ -11,9 +11,10 @@ WORD boardTrailerValue;
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-SpillUnpack::SpillUnpack( ifstream* in, TFile* out ) {
-  rawFile=in;
-  outFile=out;
+SpillUnpack::SpillUnpack(ifstream* in, TFile* out, TTree * outTree) {
+  rawFile = in ;
+  outFile_ = out ;
+  outTree_ = outTree ;
 
   spillHeaderValue = *((uint32_t*)"SPLH");
   spillTrailerValue = *((uint32_t*)"SPLT");
@@ -21,6 +22,18 @@ SpillUnpack::SpillUnpack( ifstream* in, TFile* out ) {
   eventTrailerValue = *((uint32_t*)"EVNT");
   boardHeaderValue = *((uint32_t*)"BRDH");
   boardTrailerValue = *((uint32_t*)"BRDT");
+
+  event_ = new Event (outFile_, outTree) ;
+
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+SpillUnpack::~SpillUnpack ()
+{
+  delete event_ ;
 }
 
 
@@ -57,7 +70,7 @@ int SpillUnpack::Unpack(int events = -1){
       } 
       else 
       { 
-        cout << "[SpillUnpack][Unpack]      | ERROR corrupt RAW file. "
+        cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
              << "Expecting spill header, read " << word << endl ;
         return 1 ;
       }
@@ -141,6 +154,8 @@ void SpillUnpack::UnpackEvents (int nevents) {
       rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
       rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
 
+      event_->evtNumber = eventH.eventNumber ;
+
       if (DEBUG_UNPACKER) {
         cout << "[SpillUnpack][UnpackEvents]| ======== EVENT START ======= " << endl;
         cout << "[SpillUnpack][UnpackEvents]|  Event " << eventH.eventNumber << endl;
@@ -152,6 +167,9 @@ void SpillUnpack::UnpackEvents (int nevents) {
       }
       
       UnpackBoards (eventH.nBoards) ;
+
+      event_->Fill () ;
+
       continue;
     } 
       

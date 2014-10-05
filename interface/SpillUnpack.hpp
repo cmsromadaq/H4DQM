@@ -53,7 +53,7 @@ class SpillUnpack{
 public:
 
   SpillUnpack();
-  SpillUnpack(std::ifstream *in, TFile *out);
+  SpillUnpack(std::ifstream *in, TFile *out, TTree * outTree);
   ~SpillUnpack();
 
   void InitBoards(); //create a map between boardType and board

@@ -69,13 +69,18 @@ int main(int argc, char *argv[])
   if (!outFile->IsOpen())
     cannotOpenFile(outfname);
 
-  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile) ;
+  TTree * outTree = new TTree ("H4tree", "H4 testbeam tree") ;
+
+  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree) ;
 
   unpacker->Unpack (-1) ;
 
-  outFile->Close();
+  outFile->ls () ;
+  outFile->cd () ;
+  outTree->Write () ;
+  outFile->Close () ;
   std::cout << outfname << " is closed." << std::endl;
 
-  rawFile->close();
+  rawFile->close () ;
   std::cout << filename << " is closed." << std::endl;
 }

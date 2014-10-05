@@ -68,14 +68,11 @@ struct digiData
 
 struct Event
 {
-  Event (TFile * outFile) :
-    outFile_ (outFile)
-  {
-    outFile_->cd () ;
-    outTree_ = new TTree ("H4tree", "H4 TB 2014 data format") ;
-  }
+  Event (TFile * outFile, TTree * outTree) :
+    outFile_ (outFile), 
+    outTree_ (outTree) {  }
 
-  ~Event () {}
+  ~Event () { }
 
   unsigned int evtNumber ;
   unsigned int boardTriggerBit ;
