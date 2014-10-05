@@ -1,4 +1,5 @@
 #include "interface/Event.hpp"
+#define DEBUG_UNPACKER 1
 
 void Event::createOutBranches (TTree* tree,treeStructData& treeData)
 {
@@ -50,7 +51,10 @@ void Event::fillTreeData (treeStructData & treeData)
     treeData.triggerWord += triggerWord[i]>>i ;
 
   treeData.nAdcChannels = adcValues.size () ;
-  //  if (DEBUG_UNPACKER) printf ("FILLING %d ADC values\n", treeData.nAdcChannels) ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nAdcChannels << " ADC values\n" ;
+    }
   for (unsigned int i = 0 ;i<fmin (MAX_ADC_CHANNELS, adcValues.size ()) ;++i)
     {
       treeData.adcBoard[i] = adcValues[i].board ;
@@ -59,7 +63,10 @@ void Event::fillTreeData (treeStructData & treeData)
     }
 
   treeData.nTdcChannels = tdcValues.size () ;
-  //  if (DEBUG_UNPACKER) printf ("FILLING %d TDC values\n", treeData.nTdcChannels) ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nTdcChannels << " TDC values\n" ;
+    }
   for (unsigned int i = 0 ;i<fmin (MAX_TDC_CHANNELS, tdcValues.size ()) ;++i)
     {
       treeData.tdcBoard[i] = tdcValues[i].board ;
@@ -68,8 +75,12 @@ void Event::fillTreeData (treeStructData & treeData)
     }
 
   treeData.nDigiSamples = digiValues.size () ;
-  //  if (DEBUG_UNPACKER) printf ("FILLING %d DIGI values\n", treeData.nDigiSamples) ;
-  for (unsigned int i = 0 ;i<fmin (MAX_DIGI_SAMPLES, digiValues.size ()) ;++i)
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nDigiSamples << " DIGI values\n" ;
+    }
+
+  for (unsigned int i = 0 ; i < fmin (MAX_DIGI_SAMPLES, digiValues.size ()) ;++i)
     {
       treeData.digiGroup[i] = digiValues[i].group ;
       treeData.digiChannel[i] = digiValues[i].channel ;

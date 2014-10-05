@@ -70,7 +70,10 @@ struct Event
 {
   Event (TFile * outFile, TTree * outTree) :
     outFile_ (outFile), 
-    outTree_ (outTree) {  }
+    outTree_ (outTree) 
+    { 
+      createOutBranches (outTree_, thisTreeEvent_) ;   
+    }
 
   ~Event () { }
 

@@ -83,7 +83,6 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
 		  if (dt_type != 0x8)
 		    {
 		      cout << "[CAEN_V1742][Unpack]       | ERROR: DIGI 1742 BLOCK SEEMS CORRUPTED\n" ;
-		      //PG FIXME add the board number here
 		    }
 		  unsigned int nChWords = digRawData_ & 0xFFFFFFF ; 
 		  if (DEBUG_UNPACKER) 
@@ -134,8 +133,9 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
 		    {
 		      cout << "[CAEN_V1742][Unpack]       | ERROR: DIGI 1742 BLOCK SEEMS CORRUPTED:"
 			   << " NOT ALL THE SAMPLES WERE READOUT FOR CHANNEL " 
-			   << channelId_ << " IN GROUP " << groupId_ << "\n" ;
-		      
+			   << channelId_ << " IN GROUP " << groupId_ << "\n"
+                           << "[CAEN_V1742][Unpack]               expected " << nChannelWords_ - 3
+			   << " read " << nSamplesRead_ << "\n" ;
 		    }
 		}
 	      --nSamplesToReadout_ ;
@@ -143,6 +143,9 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
 	    }
 	} // else (i > 4)
     } //PG loop over board words
+
+  //PG FIXME maybe the reading of the end group time data is missing,
+  //PG FIXME which means that I need to decide when a group is finished being read
   
   return 0 ;
 
