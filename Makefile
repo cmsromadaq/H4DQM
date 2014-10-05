@@ -91,8 +91,10 @@ $(addprefix $(BINDIR)/,$(Packages)): $(BINDIR)/% : $(BASEDIR)/test/%.$(SrcSuf) $
 .PHONY: clean
 clean:
 	-rm -v bin/controller
+	-rm -v bin/readBinary
 	-rm -v bin/*.$(ObjSuf)
-	-rm -v bin/*.$(DllSef)
+	-rm -v bin/*.$(DllSuf)
+	-rm -v bin/*.$(StatSuf)
 
 
 ############### IMPLICIT RULES ###############
