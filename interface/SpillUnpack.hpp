@@ -23,7 +23,7 @@
 #define MAX_TDC_CHANNELS 200
 
 #define DEBUG_UNPACKER 1
-#define DEBUG_VERBOSE_UNPACKER 0
+#define DEBUG_VERBOSE_UNPACKER 1
 
 struct spillHeader
 {
@@ -63,8 +63,8 @@ public:
   UInt_t  crateId_;
 //  Int_t  nBoardTypes_;
   map<BoardTypes_t,Board *> boards_;
-  void InitBoards();//create a map between boardType and board
-  int Unpack();
+  void InitBoards(); //create a map between boardType and board
+  int Unpack(int events);
   void UnpackEvents( int nevents );
   void UnpackBoards( int nboards );
   void CreateTree();

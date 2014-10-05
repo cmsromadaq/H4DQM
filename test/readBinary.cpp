@@ -69,9 +69,9 @@ int main(int argc, char *argv[])
   if (!outFile->IsOpen())
     cannotOpenFile(outfname);
 
-  SpillUnpack *unpacker = new SpillUnpack(rawFile,outFile);
+  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile) ;
 
-  unpacker->Unpack();
+  unpacker->Unpack (1) ;
 
   outFile->Close();
   std::cout << outfname << " is closed." << std::endl;
