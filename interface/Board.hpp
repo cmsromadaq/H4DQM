@@ -4,6 +4,7 @@
 // #include "interface/EventBuilder.hpp"
 // #include "interface/DataType.hpp"
 #include "interface/StandardIncludes.hpp"
+#include "interface/Event.hpp"
 
 typedef ifstream dataType;
 
@@ -25,6 +26,7 @@ class Board {
 
 public:
   virtual int Unpack(dataType &stream)=0;
+  virtual int Unpack (dataType &stream, Event * event) { return -1 ; } ; //PG FIXME to be made purely virtual
   int GetType(dataType &stream);
 
 };
