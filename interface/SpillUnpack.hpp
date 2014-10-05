@@ -71,10 +71,9 @@ private:
   map<WORD, Board *> boards_;
 
   std::ifstream *rawFile;
-  TFile *outFile;  
   Event * event_ ;
   TFile * outFile_;
-  TTree* outTree_;
+  TTree * outTree_;
   UInt_t  boardId_;//probably useless
   UInt_t  boardType_;
   UInt_t  crateId_;

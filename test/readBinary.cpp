@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
   SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile) ;
 
-  unpacker->Unpack (1) ;
+  unpacker->Unpack (-1) ;
 
   outFile->Close();
   std::cout << outfname << " is closed." << std::endl;

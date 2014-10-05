@@ -19,7 +19,7 @@
 
 
 #define DEBUG_UNPACKER 1
-#define DEBUG_VERBOSE_UNPACKER 1
+#define DEBUG_VERBOSE_UNPACKER 0
 
 #include "interface/CAEN_V1742.hpp"
 
@@ -124,7 +124,7 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
 	          cout << "[CAEN_V1742][Unpack]       | sample " << aDigiSample.sampleIndex 
                        << " : " << aDigiSample.sampleValue << "\n" ;
                 }
-	      //	      event->digiValues.push_back (aDigiSample) ;
+	      event->digiValues.push_back (aDigiSample) ;
 	      
 	      if (1 == nSamplesToReadout_)
 		{
