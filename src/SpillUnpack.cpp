@@ -246,7 +246,7 @@ void SpillUnpack::UnpackBoards(int nboards) {
     boardHeader bH;
 
     rawFile->read ((char*)&word, WORDSIZE);
-    if (word==boardHeaderValue) {
+    if (word == boardHeaderValue) {
       nbrd++;
       rawFile->read ((char*)&bH.boardID, WORDSIZE);
       rawFile->read ((char*)&bH.boardSize, WORDSIZE);
