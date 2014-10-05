@@ -64,6 +64,21 @@ struct Event
   unsigned int evtTimeDist;
   unsigned int evtTimeStart;
   unsigned int evtTime;
+
+  int clear ()
+    {
+      evtNumber = -1 ;
+      boardTriggerBit = 0 ;
+      triggerWord.clear () ;
+      adcValues.clear () ; 
+      tdcValues.clear () ; 
+      digiValues.clear () ; 
+      evtTimeDist = -1 ;
+      evtTimeStart = -1 ;
+      evtTime = -1 ;
+    }
+
+
 };
 
 #endif

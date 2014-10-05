@@ -14,6 +14,7 @@
 #include "interface/CAEN_V1290.hpp"
 #include "interface/CAEN_V1495PU.hpp"
 #include "interface/CAEN_V560.hpp"
+#include "interface/Event.hpp"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -55,25 +56,29 @@ public:
   SpillUnpack(std::ifstream *in, TFile *out);
   ~SpillUnpack();
 
-//  EventForTree evtTree_;
-  TFile * outFile_;
-  TTree* outTree_;
-  UInt_t  boardId_;//probably useless
-  UInt_t  boardType_;
-  UInt_t  crateId_;
-//  Int_t  nBoardTypes_;
-  map<BoardTypes_t,Board *> boards_;
   void InitBoards(); //create a map between boardType and board
-  int Unpack(int events);
+  // add a board if not existing
+  int  AddBoard (boardHeader bH) ; 
+  int  Unpack(int events);
   void UnpackEvents( int nevents );
+  WORD GetBoardTypeId (WORD);
   void UnpackBoards( int nboards );
   void CreateTree();
   void inline FillTree(){outTree_->Fill();};
 
 private:
 
+  map<WORD, Board *> boards_;
+
   std::ifstream *rawFile;
   TFile *outFile;  
+  Event * event_ ;
+  TFile * outFile_;
+  TTree* outTree_;
+  UInt_t  boardId_;//probably useless
+  UInt_t  boardType_;
+  UInt_t  crateId_;
+//  Int_t  nBoardTypes_;
 
 };
 

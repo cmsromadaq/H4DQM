@@ -26,7 +26,23 @@ class Board {
 
 public:
   virtual int Unpack(dataType &stream)=0;
-  virtual int Unpack (dataType &stream, Event * event) { return -1 ; } ; //PG FIXME to be made purely virtual
+  virtual int Unpack (dataType &stream, Event * event) 
+    {
+    
+      WORD currWord = 0 ;
+      WORD boardHeaderValue = *((uint32_t*)"BRDH");
+      WORD boardTrailerValue = *((uint32_t*)"BRDT");
+      int nWords = 0 ;
+      while (currWord != boardTrailerValue)
+	{
+          stream.read ((char*)&currWord, WORDSIZE);
+          ++nWords ;
+        }
+      cout << "[Board][Unpack]            | dummy reading of " << nWords << " words\n" ; 
+
+      return -1 ; 
+    } ; 
+
   int GetType(dataType &stream);
 
 };
