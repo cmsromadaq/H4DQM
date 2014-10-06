@@ -65,7 +65,7 @@ int SpillUnpack::AddBoard (boardHeader bH)
     boards_[bH.boardID]= new CAEN_V262;
     break;
   case _CAENV792_:
-    boards_[bH.boardID]= new CAEN_V792;
+    boards_[bH.boardID]= new CAEN_V792(bH.boardSize);
     break;
   case _CAENV1290_:
     boards_[bH.boardID]= new CAEN_V1290;
@@ -122,7 +122,6 @@ int SpillUnpack::Unpack(int events = -1){
         
         if (-1 == events) events = spillH.nEvents ; 
         UnpackEvents (events) ;
-        if (-1 != events) return 0 ; 
       } 
       else 
       { 
@@ -136,12 +135,13 @@ int SpillUnpack::Unpack(int events = -1){
       if (word == spillTrailerValue) 
         {
           if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackEvents]| ========= SPILL END ======== \n" ;
+          return 1;
         }
       else 
         { 
           cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
                << "Expecting spill trailer, read " << word << endl ;
-          return 1 ;
+          return -1;
         }
 
   } // while loop
