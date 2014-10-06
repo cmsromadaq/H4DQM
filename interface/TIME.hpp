@@ -5,7 +5,8 @@
 
 class TIME: public Board {
 
-  int Unpack(dataType &stream);
+  int Unpack(dataType &stream) { return -1; };
+  int Unpack (dataType &stream, Event * event) ;
 
 };
 
