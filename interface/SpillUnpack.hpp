@@ -57,13 +57,12 @@ public:
   SpillUnpack(std::ifstream *in, TFile *out, TTree * outTree);
   ~SpillUnpack();
 
-  void InitBoards(); //create a map between boardType and board
   // add a board if not existing
   int  AddBoard (boardHeader bH) ; 
   int  Unpack(int events);
-  void UnpackEvents( int nevents );
+  void UnpackEvents( WORD nevents );
   WORD GetBoardTypeId (WORD);
-  void UnpackBoards( int nboards );
+  void UnpackBoards( WORD nboards );
   void CreateTree();
   void inline FillTree(){outTree_->Fill();};
 

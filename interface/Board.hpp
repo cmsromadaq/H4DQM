@@ -25,6 +25,7 @@ enum BoardTypes_t { _TIME_=1, //Fake board to get timestamps
 class Board {
 
 public:
+
   virtual int Unpack(dataType &stream)=0;
   virtual int Unpack (dataType &stream, Event * event) 
     {
@@ -39,7 +40,8 @@ public:
         }
       cout << "[Board][Unpack]            | dummy reading of " << nWords << " words\n" ; 
       cout << "[Board][Unpack]            | is last word trailer " 
-           << (currWord == boardTrailerValue) << "\n" ; 
+           << (currWord == boardTrailerValue) << "\n" ;
+      stream.seekg (-1 * WORDSIZE, ios::cur) ;
 
       return -1 ; 
     } ; 

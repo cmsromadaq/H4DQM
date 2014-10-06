@@ -18,7 +18,7 @@
   //              ...   = [          .....             ]
 
 
-#define DEBUG_UNPACKER 1
+#define DEBUG_UNPACKER 0
 #define DEBUG_VERBOSE_UNPACKER 0
 
 #include "interface/CAEN_V1742.hpp"
