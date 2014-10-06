@@ -60,9 +60,9 @@ public:
   // add a board if not existing
   int  AddBoard (boardHeader bH) ; 
   int  Unpack(int events);
-  void UnpackEvents( WORD nevents );
+  int UnpackEvents( WORD nevents );
   WORD GetBoardTypeId (WORD);
-  void UnpackBoards( WORD nboards );
+  int UnpackBoards( WORD nboards );
   void CreateTree();
   void inline FillTree(){outTree_->Fill();};
 

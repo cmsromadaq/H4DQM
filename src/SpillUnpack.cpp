@@ -40,112 +40,6 @@ SpillUnpack::~SpillUnpack ()
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-int SpillUnpack::Unpack(int events = -1){
-
-  WORD word;
-
-  while (!rawFile->eof()) {
-      spillHeader spillH;
-
-      rawFile->read ((char*)&word, WORDSIZE);
-      
-      cout << "[SpillUnpack][Unpack]      | reading word " << word << endl;
-      
-      if (word==spillHeaderValue) {
-        rawFile->read ((char*)&spillH.runNumber, WORDSIZE);
-        rawFile->read ((char*)&spillH.spillNumber, WORDSIZE);
-        rawFile->read ((char*)&spillH.spillSize, WORDSIZE);
-        rawFile->read ((char*)&spillH.nEvents, WORDSIZE);
-      
-        if (DEBUG_UNPACKER) {
-          cout << "[SpillUnpack][Unpack]      | ======= BEGIN SPILL ======= \n" ;
-          cout << "[SpillUnpack][Unpack]      | Spill " << spillH.spillNumber << "\n" ;
-          cout << "[SpillUnpack][Unpack]      | Events in spill " << spillH.nEvents << "\n" ;
-          cout << "[SpillUnpack][Unpack]      | unpacking " << events << " events" << endl ;
-        }
-        
-        if (-1 == events) events = spillH.nEvents ; 
-        UnpackEvents (events) ;
-        if (-1 != events) return 0 ; 
-      } 
-      else 
-      { 
-        cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
-             << "Expecting spill header, read " << word << endl ;
-        return 1 ;
-      }
-  } // while loop
-
-  return 0 ;
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
-void SpillUnpack::UnpackEvents (WORD nevents) {
-
-  WORD word;
-  WORD nevt = 1 ;
-
-  // loop over the input file
-  while (!rawFile->eof()) {
-    
-    if (nevt > nevents) break ;
-
-    eventHeader eventH;
-
-    rawFile->read ((char*)&word, WORDSIZE);
-    
-    if (word == eventHeaderValue) {
-
-      rawFile->read ((char*)&eventH.eventNumber, WORDSIZE);
-      rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
-      rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
-
-      event_->evtNumber = eventH.eventNumber ;
-
-      if (DEBUG_UNPACKER) {
-        cout << "[SpillUnpack][UnpackEvents]| ======== EVENT START ======= " << endl;
-        cout << "[SpillUnpack][UnpackEvents]|  Event " << eventH.eventNumber << endl;
-        cout << "[SpillUnpack][UnpackEvents]|  Boards in event " << eventH.nBoards << endl;
-      }
-      
-      if (eventH.eventNumber!=nevt) {
-        cout << "[SpillUnpack][UnpackEvents]| ERROR event numbering inconsistent! " << endl ;
-      }
-      
-      UnpackBoards (eventH.nBoards) ;
-
-      continue;
-    } 
-      
-    if (word == eventTrailerValue) {
-      event_->Fill () ;
-      ++nevt ;
-      if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackEvents]|  ========= EVENT END ======== \n" ;
-      continue;
-    } 
-    
-    if (word == spillTrailerValue) 
-      {
-        if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackEvents]| ========= SPILL END ======== \n" ;
-        if (DEBUG_UNPACKER || nevents!=nevt) cout << "[SpillUnpack][UnpackEvents]| Read " 
-                                                  << nevt << " events. Expected " 
-                                                  << nevents << "\n" ;
-        break;
-      }
-
-    cout << "[SpillUnpack][UnpackEvents]| ERROR corrupt RAW file. Reading " << word << endl;
-    break ;
-
-  } // loop over the input file    
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
 int SpillUnpack::AddBoard (boardHeader bH)
 {
   WORD boardType = GetBoardTypeId (bH.boardID) ;
@@ -204,7 +98,123 @@ WORD SpillUnpack::GetBoardTypeId (WORD compactId)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void SpillUnpack::UnpackBoards(WORD nboards) {
+int SpillUnpack::Unpack(int events = -1){
+
+  WORD word;
+
+  while (!rawFile->eof()) {
+      spillHeader spillH;
+
+      rawFile->read ((char*)&word, WORDSIZE);
+      
+      if (word==spillHeaderValue) {
+        rawFile->read ((char*)&spillH.runNumber, WORDSIZE);
+        rawFile->read ((char*)&spillH.spillNumber, WORDSIZE);
+        rawFile->read ((char*)&spillH.spillSize, WORDSIZE);
+        rawFile->read ((char*)&spillH.nEvents, WORDSIZE);
+      
+        if (DEBUG_UNPACKER) {
+          cout << "[SpillUnpack][Unpack]      | ======= BEGIN SPILL ======= \n" ;
+          cout << "[SpillUnpack][Unpack]      | Spill " << spillH.spillNumber << "\n" ;
+          cout << "[SpillUnpack][Unpack]      | Events in spill " << spillH.nEvents << "\n" ;
+          cout << "[SpillUnpack][Unpack]      | unpacking " << events << " events" << endl ;
+        }
+        
+        if (-1 == events) events = spillH.nEvents ; 
+        UnpackEvents (events) ;
+        if (-1 != events) return 0 ; 
+      } 
+      else 
+      { 
+        cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
+             << "Expecting spill header, read " << word << endl ;
+        return 1 ;
+      }
+
+      rawFile->read ((char*)&word, WORDSIZE);
+
+      if (word == spillTrailerValue) 
+        {
+          if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackEvents]| ========= SPILL END ======== \n" ;
+        }
+      else 
+        { 
+          cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
+               << "Expecting spill trailer, read " << word << endl ;
+          return 1 ;
+        }
+
+  } // while loop
+  return 0 ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+int SpillUnpack::UnpackEvents (WORD nevents) {
+
+  WORD word;
+  WORD nevt = 1 ;
+
+  // loop over the input file
+  while (!rawFile->eof()) 
+    {
+      if (nevt > nevents) break ;
+      eventHeader eventH;
+      rawFile->read ((char*)&word, WORDSIZE);
+      
+      if (word == eventHeaderValue) 
+        {
+          event_->clear () ;
+          rawFile->read ((char*)&eventH.eventNumber, WORDSIZE);
+          rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
+          rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
+          event_->evtNumber = eventH.eventNumber ;
+    
+          if (DEBUG_UNPACKER) 
+            {
+              cout << "[SpillUnpack][UnpackEvents]| ======== EVENT START ======= " << endl;
+              cout << "[SpillUnpack][UnpackEvents]|  Event " << eventH.eventNumber << endl;
+              cout << "[SpillUnpack][UnpackEvents]|  Boards in event " << eventH.nBoards << endl;
+            }
+          
+          if (eventH.eventNumber!=nevt) 
+            {
+              cout << "[SpillUnpack][UnpackEvents]| ERROR event numbering inconsistent! " << endl ;
+            }
+          
+          UnpackBoards (eventH.nBoards) ;
+        } 
+      else
+        {
+          cout << "[SpillUnpack][UnpackEvents]| ERROR event header not found " << endl ;
+          return 1 ;
+        }  
+        
+      rawFile->read ((char*)&word, WORDSIZE);
+
+      if (word == eventTrailerValue) 
+        {
+          event_->Fill () ;
+          ++nevt ;
+          if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackEvents]|  ========= EVENT END ======== \n" ;
+        } 
+      else
+        {
+          cout << "[SpillUnpack][UnpackEvents]| ERROR event trailer not found " << endl ;
+          return 1 ;
+        }  
+    } // loop over the input file    
+
+  return 0 ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+int SpillUnpack::UnpackBoards(WORD nboards) {
 
   WORD word ;
   WORD nbrd = 0 ;
@@ -243,37 +253,20 @@ void SpillUnpack::UnpackBoards(WORD nboards) {
       {
         cout << "[SpillUnpack][UnpackBoards]| ERROR :" 
              << " header for board " << iBoard << " not found\n" ;  
-        break ;     
+        return 1 ;     
       }  
 
     rawFile->read ((char*)&word, WORDSIZE) ;
     if (word == boardTrailerValue) 
       {
         if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackBoards]| ========= BOARD END ======== " << endl;
-        continue;
       } 
     else
       {
         cout << "[SpillUnpack][UnpackBoards]| ERROR :" 
              << " trailer for board " << iBoard << " not found\n" ; 
-        break ; 
+        return 1 ; 
       }  
-
-
-
-
-//     if (word == eventTrailerValue) {
-//       if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackBoards]| ========= EVENT END ======== \n" ;
-//       if (DEBUG_UNPACKER || nboards != nbrd) 
-//          cout << "[SpillUnpack][UnpackBoards]| [ERROR] Read " 
-//               << nbrd << " boards. Expected " 
-//               << nboards << "\n" ;
-//       break;
-//     }
-
-          
-//     if (DEBUG_VERBOSE_UNPACKER) { 
-//         cout << "[SpillUnpack][UnpackBoards]| ERROR Something went wrong, read word " << word << endl;
-//       }
   } // loop on boards to be read
+  return 0 ;
 }
