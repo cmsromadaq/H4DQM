@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
   SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree) ;
 
-  unpacker->Unpack (-1) ;
+  unpacker->Unpack (1) ;
 
   outFile->ls () ;
   outFile->cd () ;

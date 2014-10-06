@@ -303,7 +303,7 @@ void SpillUnpack::UnpackBoards(int nboards) {
     } 
           
     if (DEBUG_VERBOSE_UNPACKER) { 
-        cout << "[SpillUnpack][UnpackBoards]| Something went wrong, read word " << word << endl;
+        cout << "[SpillUnpack][UnpackBoards]| ERROR Something went wrong, read word " << word << endl;
       }
   }
 }

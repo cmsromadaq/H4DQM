@@ -11,7 +11,7 @@ public :
 
   CAEN_V1742 (unsigned int dig1742Words = 0) :   
       dig1742channels_ (0),
-      dig1742Words_ (dig1742Words),
+      dig1742Words_ (dig1742Words / 4 - 4),
       isDigiSample_ (0),
       nChannelWords_ (0),
       nSamplesToReadout_ (0),
@@ -21,6 +21,7 @@ public :
     {} ;
 
   int Unpack (dataType &stream) { return -1 ; } ; //PG FIXME to be removed
+  int Unpack_test (dataType &stream, Event * event) ;
   int Unpack (dataType &stream, Event * event) ;
 
 private :

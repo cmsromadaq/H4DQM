@@ -30,15 +30,16 @@ public:
     {
     
       WORD currWord = 0 ;
-      WORD boardHeaderValue = *((uint32_t*)"BRDH");
       WORD boardTrailerValue = *((uint32_t*)"BRDT");
       int nWords = 0 ;
       while (currWord != boardTrailerValue)
-	{
+        {
           stream.read ((char*)&currWord, WORDSIZE);
           ++nWords ;
         }
       cout << "[Board][Unpack]            | dummy reading of " << nWords << " words\n" ; 
+      cout << "[Board][Unpack]            | is last word trailer " 
+           << (currWord == boardTrailerValue) << "\n" ; 
 
       return -1 ; 
     } ; 
