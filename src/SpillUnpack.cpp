@@ -204,6 +204,11 @@ void SpillUnpack::UnpackEvents (int nevents) {
 int SpillUnpack::AddBoard (boardHeader bH)
 {
   WORD boardType = GetBoardTypeId (bH.boardID) ;
+  
+  if (DEBUG_VERBOSE_UNPACKER) {
+    cout << "[SpillUnpack][AddBoard]    | Creating new board type " << boardType << endl;
+  }
+  
   switch(boardType){
   case _TIME_:
     boards_[bH.boardID] = new TIME;
@@ -233,6 +238,7 @@ int SpillUnpack::AddBoard (boardHeader bH)
     boards_[bH.boardID]= new CAEN_V560;
     break;
   case _UNKWN_:
+    boards_[bH.boardID]= new DummyBoard;
     //TO DO decide what to do.continue?
     break;
   }
@@ -283,7 +289,8 @@ void SpillUnpack::UnpackBoards(int nboards) {
           AddBoard (bH) ;
         }
       //PG unpack the board boards_[bH.boardID]
-      boards_[bH.boardID]->Unpack (*rawFile, event_) ;
+      if (boards_[bH.boardID]) boards_[bH.boardID]->Unpack (*rawFile, event_) ;
+        else cout << "[SpillUnpack][UnpackBoards]| [ERROR] Unknown board ID " << bH.boardID << endl;
 
       continue;
     } 
@@ -291,7 +298,7 @@ void SpillUnpack::UnpackBoards(int nboards) {
     if (word == eventTrailerValue) {
       if (DEBUG_UNPACKER) cout << "[SpillUnpack][UnpackBoards]| ========= EVENT END ======== \n" ;
       if (DEBUG_UNPACKER || nboards!=nbrd) 
-         cout << " [SpillUnpack][UnpackBoards]| [ERROR] Read " 
+         cout << "[SpillUnpack][UnpackBoards]| [ERROR] Read " 
               << nbrd << " boards. Expected " 
               << nboards << "\n" ;
       break;

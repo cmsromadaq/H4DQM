@@ -14,6 +14,7 @@
 #include "interface/CAEN_V1290.hpp"
 #include "interface/CAEN_V1495PU.hpp"
 #include "interface/CAEN_V560.hpp"
+#include "interface/DummyBoard.hpp"
 #include "interface/Event.hpp"
 
 #include <TFile.h>
