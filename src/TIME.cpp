@@ -5,20 +5,12 @@
 int TIME::Unpack (dataType &stream, Event * event) 
 {
   // The numbers are written in the board in little endian.
-
-  WORD microseconds ;
-  stream.read ((char*)&microseconds, WORDSIZE);
-  // keep only the first six digits
-  microseconds %= 1000000 ;
-  WORD seconds ;
-  stream.read ((char*)&seconds, WORDSIZE);
-  event->evtTime = seconds << 32 ;
-  event->evtTime += microseconds ;
+  stream.read ((char*)&event->evtTime, 2 * WORDSIZE) ;
+  event->evtTime *= 10 ;
   
   if (DEBUG_UNPACKER)
 	{
-	  cout << "[TIME][Unpack]             |  reading of " << seconds << " s, " 
-		   << microseconds << " us \n" ; 
+	  cout << "[TIME][Unpack]             |  reading of " << event->evtTime << " us \n" ; 
 	}
   return 0 ; 
 
