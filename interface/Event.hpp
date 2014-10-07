@@ -5,6 +5,7 @@
 #include <TTree.h>
 #include <TString.h>
 #include <iostream>
+#include <math.h>
 
 #define MAX_ADC_CHANNELS 200
 #define MAX_DIGI_SAMPLES 100000

@@ -6,11 +6,9 @@
 
 int CAEN_V792::Unpack (dataType &stream, Event * event) 
 {
-
   WORD currWord = 0 ;
-  WORD boardTrailerValue = *((uint32_t*)"BRDT");
-  int nWords = 0 ;
 
+//  WORD boardTrailerValue = *((uint32_t*)"BRDT");
 //  while (currWord != boardTrailerValue) {
   for (int i = 0 ; i < adc792Channels_ ; ++i) 
     {
@@ -50,6 +48,5 @@ int CAEN_V792::Unpack (dataType &stream, Event * event)
              cout << "[CAEN_V792][Unpack]        | WARNING MISMATCH IN EVT NUMBER ADCEVT " 
                   << adcEvt+1 << " EVT " << event->evtNumber << "\n" ;
       }
-
   }
 }
