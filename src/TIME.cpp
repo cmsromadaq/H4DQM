@@ -1,6 +1,5 @@
 #include "interface/TIME.hpp"
 
-<<<<<<< HEAD
 #define DEBUG_UNPACKER 1
 
 int TIME::Unpack (dataType &stream, Event * event) 
