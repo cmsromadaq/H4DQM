@@ -105,7 +105,7 @@ void Event::Fill ()
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-int Event::clear ()
+void Event::clear ()
 {
   evtNumber = -1 ;
   boardTriggerBit = 0 ;

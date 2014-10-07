@@ -1,20 +1,22 @@
 #include "interface/TIME.hpp"
 
-int TIME::Unpack (dataType &stream, Event * event) {
-      WORD currWord = 0 ;
-      WORD boardTrailerValue = *((uint32_t*)"BRDT");
-      int nWords = 0 ;
-      while (currWord != boardTrailerValue)
-        {
-          stream.read ((char*)&currWord, WORDSIZE);
-          ++nWords ;
-          cout << "[TIME][Unpack]             | Reaqding timestamp word " << nWords << " : " << currWord << endl;
-        }
-      cout << "[TIME][Unpack]             | dummy reading of " << nWords << " words\n" ; 
-      cout << "[TIME][Unpack]             | is last word trailer " 
-           << (currWord == boardTrailerValue) << "\n" ;
+#define DEBUG_UNPACKER 1
 
-      stream.seekg (-1 * WORDSIZE, ios::cur) ;
-      return 1 ; 
+int TIME::Unpack (dataType &stream, Event * event) {
+
+      WORD microseconds ;
+      stream.read ((char*)&microseconds, WORDSIZE);
+      // keep only the first six digits
+      microseconds %= 1000000 ;
+      WORD seconds ;
+      stream.read ((char*)&seconds, WORDSIZE);
+      event->evtTime = 1000000 * microseconds + seconds ;
+      
+      if (DEBUG_UNPACKER)
+        {
+          cout << "[TIME][Unpack]             |  reading of " << seconds << " s, " 
+               << microseconds << " us \n" ; 
+        }
+      return 0 ; 
 
 }
