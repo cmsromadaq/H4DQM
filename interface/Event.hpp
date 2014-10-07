@@ -85,7 +85,7 @@ struct Event
   std::vector<digiData> digiValues ; 
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
-  unsigned int evtTime ;
+  uint64_t evtTime ;
 
   void clear () ;
   void Fill () ;
