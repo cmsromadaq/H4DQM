@@ -26,27 +26,6 @@
 
 using namespace std ;
 
-int CAEN_V1742::Unpack_test (dataType &stream, Event * event) 
-  {
-    WORD currWord = 0 ;
-    WORD boardTrailerValue = *((uint32_t*)"BRDT");
-    int nWords = 0 ;
-//    while (currWord != boardTrailerValue)
-    for (unsigned int i = 0 ; i < dig1742Words_ ; ++i)
-      {
-        stream.read ((char*)&currWord, WORDSIZE);
-        ++nWords ;
-      }
-    cout << "[CAEN_V1742][Unpack][2]    | dummy reading of " 
-         << nWords << "/" << dig1742Words_ << " words\n" ; 
-    cout << "[CAEN_V1742][Unpack][2]    | is last word trailer " 
-         << (currWord == boardTrailerValue) << "\n" ; 
-    return -1 ; 
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
 
 int CAEN_V1742::Unpack (dataType &stream, Event * event) 
 {
@@ -90,9 +69,10 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
             {
               cout << "[CAEN_V1742][Unpack]       | DIGI 1742 BOE: event " << digiEvt+1 << "\n" ;
             }
-          //PG FIXME to be readded to the stream
-          //      if (digiEvt+1 != thisEvent.evtNumber)
-          //        std::cout << "HEY MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 << " EVT " << thisEvent.evtNumber << std::endl;
+          if (digiEvt+1 != event->evtNumber)
+              cout << "[CAEN_V1742][Unpack]       | "
+                   << "WARNING MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 
+                   << " EVT " << event->evtNumber << endl;
             
         }
       else if (i>4)
@@ -111,7 +91,7 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
                       break ;
                     }
                   unsigned int nChWords = digRawData_ & 0xFFFFFFF ; 
-                  unsigned int nChWords2 = digRawData_ & 0xFFF ; 
+//                  unsigned int nChWords2 = digRawData_ & 0xFFF ; 
                   //PG FIXME check whether the second is better, when the trigger digitisation is on
                   if (DEBUG_UNPACKER) 
                     {
