@@ -20,10 +20,6 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#define MAX_ADC_CHANNELS 200
-#define MAX_DIGI_SAMPLES 100000
-#define MAX_TDC_CHANNELS 200
-
 #define DEBUG_UNPACKER 1
 #define DEBUG_VERBOSE_UNPACKER 1
 

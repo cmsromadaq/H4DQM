@@ -1,7 +1,5 @@
 #include "interface/TIME.hpp"
 
-#define DEBUG_UNPACKER 1
-
 int TIME::Unpack (dataType &stream, Event * event) {
 
       WORD microseconds ;
