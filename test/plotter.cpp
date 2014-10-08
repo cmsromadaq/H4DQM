@@ -3,6 +3,8 @@
 #include <TColor.h>
 #include <TCanvas.h>
 #include <TH1.h>
+#include <TH2.h>
+#include <TRandom.h>
 
 void
 set_plot_blue ()
@@ -85,7 +87,7 @@ void setPlotsFormat ()
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void plotMe (TH1 * histo)
+void plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
   TString canvasName = hname + "_small.png" ;
@@ -96,6 +98,26 @@ void plotMe (TH1 * histo)
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw () ;
+  c1->Print (canvasName, "png") ;
+  delete c1 ;
+  return ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+void plotMe (TH2F * histo)
+{
+  TString hname = histo->GetName () ;
+  TString canvasName = hname + "_small.png" ;
+  TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
+  histo->Draw ("colz") ;
+  c1->Print (canvasName, "png") ;
+  canvasName = hname + "_large.png" ;
+  delete c1 ;
+  c1 = new TCanvas ("c1", "c1", 800, 800) ;
+  histo->Draw ("colz") ;
   c1->Print (canvasName, "png") ;
   delete c1 ;
   return ;
@@ -119,12 +141,21 @@ int main (int argc, char ** argv)
 {
   setPlotsFormat () ;
 
-  TH1F * testH = new TH1F ("testH", "test histogram", 10, 0., 10.) ;
-  setAxisTitles (testH, "x axis", "y axis") ;
-  testH->Fill (2) ;
-  testH->Fill (3) ;
-  plotMe (testH) ;
+  TH1F * testH1 = new TH1F ("testH1", "test histogram", 10, 0., 10.) ;
+  setAxisTitles (testH1, "x axis", "y axis") ;
+  testH1->Fill (2) ;
+  testH1->Fill (3) ;
+  plotMe (testH1) ;
   
+  TH2F * testH2  = new TH2F ("testH2", "py vs px", 40, -4, 4, 40, -4, 4) ;
+  setAxisTitles (testH2, "x axis", "y axis") ;
+  Float_t px, py, pz ;
+  for (Int_t i = 0; i < 25000; ++i) 
+    {
+      gRandom->Rannor (px,py) ;
+      testH2->Fill (px,py) ;
+    }  
+  plotMe (testH2) ;  
   
   return 0 ;
 
