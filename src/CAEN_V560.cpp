@@ -16,7 +16,8 @@ int CAEN_V560::Unpack(dataType &stream, Event* event) {
     stream.read ((char*)&currWord, WORDSIZE);
     if (DEBUG_UNPACKER) 
       cout << "[CAEN_V560][Unpack]        | Read " << currWord << endl;
-
+      
+    event->scalerWords.push_back((unsigned int)currWord);
   }
 
 }

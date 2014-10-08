@@ -10,6 +10,7 @@
 #define MAX_ADC_CHANNELS 200
 #define MAX_DIGI_SAMPLES 100000
 #define MAX_TDC_CHANNELS 200
+#define MAX_SCALER_WORDS 16
 
 using namespace std ;
 
@@ -43,6 +44,9 @@ struct treeStructData
   unsigned int tdcBoard[MAX_TDC_CHANNELS] ;
   unsigned int tdcChannel[MAX_TDC_CHANNELS] ;
   unsigned int tdcData[MAX_TDC_CHANNELS] ;
+
+  unsigned int nScalerWords ;
+  unsigned int scalerWord[MAX_SCALER_WORDS] ;
 } ;
 
 struct adcData
@@ -84,6 +88,7 @@ struct Event
   std::vector<adcData> adcValues ; 
   std::vector<tdcData> tdcValues ; 
   std::vector<digiData> digiValues ; 
+  std::vector<int> scalerWords ; 
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
   uint64_t evtTime ;

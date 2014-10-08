@@ -29,6 +29,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("digiSampleIndex",treeData.digiSampleIndex,"digiSampleIndex[nDigiSamples]/i");
   tree->Branch("digiSampleValue",treeData.digiSampleValue,"digiSample[nDigiSamples]/F");
 
+  tree->Branch("nScalerWords",&treeData.nScalerWords,"nScalerWords/i");
+  tree->Branch("scalerWord",treeData.scalerWord,"scalerWord[nScalerWords]/i");
+
   return ;
 } 
 
@@ -87,6 +90,18 @@ void Event::fillTreeData (treeStructData & treeData)
       treeData.digiSampleIndex[i] = digiValues[i].sampleIndex ;
       treeData.digiSampleValue[i] = digiValues[i].sampleValue ;
     }
+
+  treeData.nScalerWords = scalerWords.size () ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nScalerWords << " Scaler words\n" ;
+    }
+
+  for (unsigned int i = 0 ; i < fmin (MAX_SCALER_WORDS, scalerWords.size()) ;++i)
+    {
+      treeData.scalerWord[i] = scalerWords[i] ;
+    }
+
   return ;
 }
 
@@ -113,6 +128,7 @@ void Event::clear ()
   adcValues.clear () ; 
   tdcValues.clear () ; 
   digiValues.clear () ; 
+  scalerWords.clear () ; 
   evtTimeDist = -1 ;
   evtTimeStart = -1 ;
   evtTime = -1 ;
