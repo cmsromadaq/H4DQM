@@ -6,6 +6,11 @@
 #include <TH2.h>
 #include <TGraph.h>
 #include <TRandom.h>
+#include <TChain.h>
+#include <TString.h>
+
+#include <Event.hpp>
+
 
 void
 set_plot_blue ()
@@ -159,10 +164,150 @@ void setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+void readInputTree (TTree* tree,treeStructData& treeData)
+{
+  //Instantiate the tree branches
+  tree->SetBranchAddress("evtNumber",&treeData.evtNumber);
+  tree->SetBranchAddress("evtTimeDist",&treeData.evtTimeDist);
+  tree->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
+  tree->SetBranchAddress("evtTime",&treeData.evtTime);
+
+  tree->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
+
+  tree->SetBranchAddress("triggerWord",&treeData.triggerWord);
+
+  tree->SetBranchAddress("nAdcChannels",&treeData.nAdcChannels);
+  tree->SetBranchAddress("adcBoard",treeData.adcBoard);
+  tree->SetBranchAddress("adcChannel",treeData.adcChannel);
+  tree->SetBranchAddress("adcData",treeData.adcData);
+
+  tree->SetBranchAddress("nTdcChannels",&treeData.nTdcChannels);
+  tree->SetBranchAddress("tdcBoard",treeData.tdcBoard);
+  tree->SetBranchAddress("tdcChannel",treeData.tdcChannel);
+  tree->SetBranchAddress("tdcData",treeData.tdcData);
+
+  tree->SetBranchAddress("nDigiSamples",&treeData.nDigiSamples);
+  tree->SetBranchAddress("digiGroup",treeData.digiGroup);
+  tree->SetBranchAddress("digiChannel",treeData.digiChannel);
+  tree->SetBranchAddress("digiSampleIndex",treeData.digiSampleIndex);
+  tree->SetBranchAddress("digiSampleValue",treeData.digiSampleValue);
+
+  tree->SetBranchAddress("nScalerWords",&treeData.nScalerWords);
+  tree->SetBranchAddress("scalerWord",treeData.scalerWord);
+
+  return ;
+} 
+
+
+void Loop(TChain* inputTree,TFile *outputFile){
+
+  treeStructData treeStruct;
+  readInputTree(inputTree,treeStruct);
+
+  int nentries = inputTree->GetEntries();
+  std::map<TString,TObject*> outObjects;
+
+  //modules
+  std::vector<TString> modules;
+  modules.push_back("beam");
+
+  //types
+  std::vector<TString> types;
+  types.push_back("history");
+
+  //history plots
+  int historyStep=20; //set the step of events for history plots
+  int nBinsHistory=nentries/historyStep;
+
+  TGraph* graph_triggerEff = new TGraph (nBinsHistory);
+  graph_triggerEff->SetTitle("triggerEff");
+  graph_triggerEff->SetName(modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle()));
+  outObjects[modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle())]=(TObject*)graph_triggerEff;
+
+  //print booked histograms
+  std::cout << "==================== Booked histograms =======================" << std::endl;
+  for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
+    std::cout << out->second->GetName() << std::endl;
+  std::cout << "==================== Loop over events =======================" << std::endl;
+
+
+ for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
+   inputTree->GetEntry(iEntry);
+   if(iEntry%historyStep==0){
+     if( (int)iEntry/historyStep-1 < nBinsHistory){//all history plots should go here
+       graph_triggerEff->SetPoint((int)iEntry/historyStep-1, iEntry,(float)treeStruct.scalerWord[2]/treeStruct.scalerWord[1]);
+     }
+   }
+ }
+ 
+ 
+ //plot histories
+ plotMe (graph_triggerEff,graph_triggerEff->GetTitle());
+
+ std::cout << "==================== Saving histograms =======================" << std::endl;
+ std::cout << "outputFile " << outputFile->GetName() << " opened" << std::endl;
+ outputFile->cd();
+ for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
+   out->second->Write(out->first);
+ outputFile->Close();
+ std::cout << "outputFile " << outputFile << " closed" << std::endl;
+ std::cout << "==================== DQM analysis is done =======================" << std::endl;
+
+}
+
+
 
 int main (int argc, char ** argv) 
 {
+  char *filename = NULL;
+  char *outfname = NULL;
+  int c;
+
+  while ((c = getopt (argc, argv, "f:o:")) != -1)
+    switch (c)
+      {
+      case 'f':
+	filename = optarg;
+	break;
+     case 'o':
+	outfname = optarg;
+	break;
+
+
+      case '?':
+	if (optopt == 'f'|| optopt == 'o')
+	  fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+	else if (isprint (optopt))
+	  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
+	else
+	  fprintf (stderr,
+		   "Unknown option character `\\x%x'.\n",
+		   optopt);
+	return 1;
+      default:
+	exit (-1);
+      }
+
   setPlotsFormat () ;
+  
+
+  TFile* inputFile = TFile::Open(filename);
+  if( inputFile==0 ) {
+    std::cout << "ERROR! Din't find file " << filename << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(11);
+  }
+
+  TChain* inputTree = (TChain*) inputFile->Get("H4tree");
+
+
+
+
+
+  TFile* outputFile = TFile::Open(outfname,"RECREATE");
+  Loop(inputTree,outputFile);
+
+
 
   TH1F * testH1 = new TH1F ("testH1", "test histogram", 10, 0., 10.) ;
   setAxisTitles (testH1, "x axis", "y axis") ;
