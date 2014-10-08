@@ -4,6 +4,7 @@
 #include <TCanvas.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TGraph.h>
 #include <TRandom.h>
 
 void
@@ -127,6 +128,28 @@ void plotMe (TH2F * histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+void plotMe (TGraph * graph, const TString & name)
+{
+  TString canvasName = name + "_small.png" ;
+  TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
+  graph->SetMarkerStyle (8) ;
+  graph->SetMarkerSize (1.5) ;
+  graph->SetMarkerColor (kBlue) ;  
+  graph->Draw ("ALP") ;
+  c1->Print (canvasName, "png") ;
+  canvasName = name + "_large.png" ;
+  delete c1 ;
+  c1 = new TCanvas ("c1", "c1", 800, 800) ;
+  graph->Draw ("ALP") ;
+  c1->Print (canvasName, "png") ;
+  delete c1 ;
+  return ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 void setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle) 
 {
   histo->GetXaxis ()->SetTitle (xTitle) ;
@@ -149,13 +172,24 @@ int main (int argc, char ** argv)
   
   TH2F * testH2  = new TH2F ("testH2", "py vs px", 40, -4, 4, 40, -4, 4) ;
   setAxisTitles (testH2, "x axis", "y axis") ;
-  Float_t px, py, pz ;
+  Float_t px, py ;
   for (Int_t i = 0; i < 25000; ++i) 
     {
       gRandom->Rannor (px,py) ;
       testH2->Fill (px,py) ;
     }  
   plotMe (testH2) ;  
+
+  Double_t x[100], y[100] ;
+  Int_t n = 20 ;
+  for (Int_t i = 0 ; i < n ; ++i) 
+    {
+      x[i] = i * 0.1 ;
+      y[i] = 10 * sin (x[i] + 0.2) ;
+    }
+  TGraph * testG = new TGraph (n,x,y) ;
+  setAxisTitles (testG->GetHistogram (), "x axis", "y axis") ;
+  plotMe (testG, "testG") ;  
   
   return 0 ;
 
