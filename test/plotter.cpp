@@ -31,25 +31,11 @@ int main (int argc, char ** argv)
 	exit (-1);
       }
 
-  plotterTools plotter;
+  plotterTools plotter(filename,outfname);
   plotter.setPlotsFormat () ;
   
 
-  TFile* inputFile = TFile::Open(filename);
-  if( inputFile==0 ) {
-    std::cout << "ERROR! Din't find file " << filename << std::endl;
-    std::cout << "Exiting." << std::endl;
-    exit(11);
-  }
-
-  TChain* inputTree = (TChain*) inputFile->Get("H4tree");
-
-
-
-
-
-  TFile* outputFile = TFile::Open(outfname,"RECREATE");
-  plotter.Loop(inputTree,outputFile);
+  plotter.Loop();
 
 
 
