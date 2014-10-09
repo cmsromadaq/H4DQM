@@ -44,7 +44,7 @@ execute (const string & command)
 
 void cannotOpenFile (const string & file)
 {
-  cerr << "File " << file << " cannot be opened\n" ;
+  cerr << "[UNPACKER] ERROR File " << file << " cannot be opened\n" ;
   exit (-1) ;
 }
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 {
   if (argc < 3)
     {
-      cerr << "usage: unpack runNumber spillNumber\n " ;
+      cerr << "[UNPACKER] ERROR usage: unpack runNumber spillNumber\n " ;
       exit (-1) ;
     }
 
@@ -70,6 +70,14 @@ int main(int argc, char *argv[])
   
   pair <int, string> outCode = execute ("ls " + DIGI_FOLDER + "/" + argv[1]) ;
   if (outCode.first != 0) outCode = execute ("mkdir " + DIGI_FOLDER + "/" + argv[1]) ;
+  if (outCode.first != 0) 
+    {
+      cerr << "[UNPACKER] ERROR RUN " << argv[1] << ", SPILL " argv[2]
+           << ", problems creating the output folder:\n"
+           << outCode.second << "\n"
+           << "exiting\n" ;
+      exit (1) ;
+    }
 
   ifstream * rawFile = new ifstream (filename.str ().c_str (), std::ios::in | std::ios::binary) ;
   
@@ -78,7 +86,7 @@ int main(int argc, char *argv[])
   std::streampos size ;
   rawFile->seekg (0, std::ios::end) ;
   size = rawFile->tellg () ;
-  cout << "File " << filename.str () << " opened with size " << size << "\n" ;
+  cout << "[UNPACKER] File " << filename.str () << " opened with size " << size << "\n" ;
 
   rawFile->seekg(0,std::ios::beg);
 
@@ -95,8 +103,8 @@ int main(int argc, char *argv[])
   outFile->cd () ;
   outTree->Write () ;
   outFile->Close () ;
-  std::cout << outfname << " is closed." << std::endl;
+  cout << "[UNPACKER] " << outfname << " is closed." << endl;
 
   rawFile->close () ;
-  std::cout << filename << " is closed." << std::endl;
+  cout << "[UNPACKER] " <<  filename << " is closed." << endl;
 }
