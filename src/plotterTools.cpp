@@ -172,15 +172,12 @@ void  plotterTools::setAxisTitles (TH1 * histo, const TString & xTitle, const TS
 void  plotterTools::readInputTree (treeStructData& treeData)
 {
   //Instantiate the tree branches
-  std::cout<<"daje"<<std::endl;  
   inputTree_->Print();
   inputTree_->SetBranchAddress("evtNumber",&treeData.evtNumber);
-  std::cout<<"daje"<<std::endl;
   inputTree_->SetBranchAddress("evtTimeDist",&treeData.evtTimeDist);
   inputTree_->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
   inputTree_->SetBranchAddress("evtTime",&treeData.evtTime);
 
-  //  inputTree_->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
 
   inputTree_->SetBranchAddress("triggerWord",&treeData.triggerWord);
 
