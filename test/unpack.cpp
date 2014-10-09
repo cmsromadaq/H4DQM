@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   if (outCode.first != 0) outCode = execute ("mkdir " + DIGI_FOLDER + "/" + argv[1]) ;
   if (outCode.first != 0) 
     {
-      cerr << "[UNPACKER] ERROR RUN " << argv[1] << ", SPILL " argv[2]
+      cerr << "[UNPACKER] ERROR RUN " << argv[1] << ", SPILL " << argv[2]
            << ", problems creating the output folder:\n"
            << outCode.second << "\n"
            << "exiting\n" ;

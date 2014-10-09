@@ -160,7 +160,7 @@ void  plotterTools::readInputTree (TTree* tree,treeStructData& treeData)
   tree->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
   tree->SetBranchAddress("evtTime",&treeData.evtTime);
 
-  tree->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
+//  tree->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
 
   tree->SetBranchAddress("triggerWord",&treeData.triggerWord);
 
