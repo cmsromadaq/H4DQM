@@ -1,6 +1,23 @@
 #include <plotterTools.hpp>
 
 
+plotterTools::plotterTools(char* filename, char*outfname){
+
+  setPlotsFormat () ;
+  inputFile_ = TFile::Open(filename);
+
+  if( inputFile_==0 ) {
+    std::cout << "ERROR! Din't find file " << filename << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(11);
+  }
+
+  inputTree_ = (TChain*) inputFile_->Get("H4tree");
+  outputFile_ = TFile::Open(outfname,"RECREATE");
+
+};
+
+
 void plotterTools::set_plot_blue ()
 {
     Double_t Red[3]    = { 0.00, 0.00, 0.00};
@@ -152,48 +169,51 @@ void  plotterTools::setAxisTitles (TH1 * histo, const TString & xTitle, const TS
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-void  plotterTools::readInputTree (TTree* tree,treeStructData& treeData)
+void  plotterTools::readInputTree (treeStructData& treeData)
 {
   //Instantiate the tree branches
-  tree->SetBranchAddress("evtNumber",&treeData.evtNumber);
-  tree->SetBranchAddress("evtTimeDist",&treeData.evtTimeDist);
-  tree->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
-  tree->SetBranchAddress("evtTime",&treeData.evtTime);
+  std::cout<<"daje"<<std::endl;  
+  inputTree_->Print();
+  inputTree_->SetBranchAddress("evtNumber",&treeData.evtNumber);
+  std::cout<<"daje"<<std::endl;
+  inputTree_->SetBranchAddress("evtTimeDist",&treeData.evtTimeDist);
+  inputTree_->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
+  inputTree_->SetBranchAddress("evtTime",&treeData.evtTime);
 
-  tree->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
+  //  inputTree_->SetBranchAddress("boardTriggerBit",&treeData.boardTriggerBit);
 
-  tree->SetBranchAddress("triggerWord",&treeData.triggerWord);
+  inputTree_->SetBranchAddress("triggerWord",&treeData.triggerWord);
 
-  tree->SetBranchAddress("nAdcChannels",&treeData.nAdcChannels);
-  tree->SetBranchAddress("adcBoard",treeData.adcBoard);
-  tree->SetBranchAddress("adcChannel",treeData.adcChannel);
-  tree->SetBranchAddress("adcData",treeData.adcData);
+  inputTree_->SetBranchAddress("nAdcChannels",&treeData.nAdcChannels);
+  inputTree_->SetBranchAddress("adcBoard",treeData.adcBoard);
+  inputTree_->SetBranchAddress("adcChannel",treeData.adcChannel);
+  inputTree_->SetBranchAddress("adcData",treeData.adcData);
 
-  tree->SetBranchAddress("nTdcChannels",&treeData.nTdcChannels);
-  tree->SetBranchAddress("tdcBoard",treeData.tdcBoard);
-  tree->SetBranchAddress("tdcChannel",treeData.tdcChannel);
-  tree->SetBranchAddress("tdcData",treeData.tdcData);
+  inputTree_->SetBranchAddress("nTdcChannels",&treeData.nTdcChannels);
+  inputTree_->SetBranchAddress("tdcBoard",treeData.tdcBoard);
+  inputTree_->SetBranchAddress("tdcChannel",treeData.tdcChannel);
+  inputTree_->SetBranchAddress("tdcData",treeData.tdcData);
 
-  tree->SetBranchAddress("nDigiSamples",&treeData.nDigiSamples);
-  tree->SetBranchAddress("digiGroup",treeData.digiGroup);
-  tree->SetBranchAddress("digiChannel",treeData.digiChannel);
-  tree->SetBranchAddress("digiSampleIndex",treeData.digiSampleIndex);
-  tree->SetBranchAddress("digiSampleValue",treeData.digiSampleValue);
+  inputTree_->SetBranchAddress("nDigiSamples",&treeData.nDigiSamples);
+  inputTree_->SetBranchAddress("digiGroup",treeData.digiGroup);
+  inputTree_->SetBranchAddress("digiChannel",treeData.digiChannel);
+  inputTree_->SetBranchAddress("digiSampleIndex",treeData.digiSampleIndex);
+  inputTree_->SetBranchAddress("digiSampleValue",treeData.digiSampleValue);
 
-  tree->SetBranchAddress("nScalerWords",&treeData.nScalerWords);
-  tree->SetBranchAddress("scalerWord",treeData.scalerWord);
+  inputTree_->SetBranchAddress("nScalerWords",&treeData.nScalerWords);
+  inputTree_->SetBranchAddress("scalerWord",treeData.scalerWord);
 
   return ;
 } 
 
 
-void  plotterTools::Loop(TChain* inputTree,TFile *outputFile){
+void  plotterTools::Loop(){
 
   treeStructData treeStruct;
-  readInputTree(inputTree,treeStruct);
+  readInputTree(treeStruct);
 
-  int nentries = inputTree->GetEntries();
-  std::map<TString,TObject*> outObjects;
+  int nentries = inputTree_->GetEntries();
+
 
   //modules
   std::vector<TString> modules;
@@ -210,17 +230,17 @@ void  plotterTools::Loop(TChain* inputTree,TFile *outputFile){
   TGraph* graph_triggerEff = new TGraph (nBinsHistory);
   graph_triggerEff->SetTitle("triggerEff");
   graph_triggerEff->SetName(modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle()));
-  outObjects[modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle())]=(TObject*)graph_triggerEff;
+  outObjects_[modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle())]=(TObject*)graph_triggerEff;
 
   //print booked histograms
   std::cout << "==================== Booked histograms =======================" << std::endl;
-  for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
+  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
     std::cout << out->second->GetName() << std::endl;
   std::cout << "==================== Loop over events =======================" << std::endl;
 
 
  for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
-   inputTree->GetEntry(iEntry);
+   inputTree_->GetEntry(iEntry);
    if(iEntry%historyStep==0){
      if( (int)iEntry/historyStep-1 < nBinsHistory){//all history plots should go here
        graph_triggerEff->SetPoint((int)iEntry/historyStep-1, iEntry,(float)treeStruct.scalerWord[2]/treeStruct.scalerWord[1]);
@@ -232,14 +252,17 @@ void  plotterTools::Loop(TChain* inputTree,TFile *outputFile){
  //plot histories
  plotMe (graph_triggerEff,graph_triggerEff->GetTitle());
 
- std::cout << "==================== Saving histograms =======================" << std::endl;
- std::cout << "outputFile " << outputFile->GetName() << " opened" << std::endl;
- outputFile->cd();
- for (std::map<TString,TObject*>::const_iterator out=outObjects.begin();out!=outObjects.end();++out)
-   out->second->Write(out->first);
- outputFile->Close();
- std::cout << "outputFile " << outputFile << " closed" << std::endl;
- std::cout << "==================== DQM analysis is done =======================" << std::endl;
+ saveHistos();
 
 }
 
+void plotterTools::saveHistos(){
+  std::cout << "==================== Saving histograms =======================" << std::endl;
+  std::cout << "outputFile " << outputFile_->GetName() << " opened" << std::endl;
+  outputFile_->cd();
+  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
+    out->second->Write(out->first);
+  outputFile_->Close();
+  std::cout << "outputFile " << outputFile_ << " closed" << std::endl;
+  std::cout << "==================== DQM analysis is done =======================" << std::endl;
+}
