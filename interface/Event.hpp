@@ -24,9 +24,9 @@ struct treeStructData
   unsigned int evtTimeStart ;
   unsigned int evtTime ;
 
-  unsigned int boardTriggerBit ;
-
   unsigned int triggerWord ;
+
+//  unsigned int triggerBits ;
 
   unsigned int nAdcChannels ;
   //PG FIXME tranform these into vectors
@@ -83,8 +83,8 @@ struct Event
   ~Event () { }
 
   unsigned int evtNumber ;
-  unsigned int boardTriggerBit ;
-  std::vector<bool> triggerWord ;
+  unsigned int triggerWord ;
+  std::vector<bool> triggerBits ;
   std::vector<adcData> adcValues ; 
   std::vector<tdcData> tdcValues ; 
   std::vector<digiData> digiValues ; 

@@ -9,9 +9,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("evtTimeStart",&treeData.evtTimeStart,"evtTimeStart/i");
   tree->Branch("evtTime",&treeData.evtTime,"evtTime/i");
 
-  tree->Branch("boardTriggerBit",&treeData.boardTriggerBit,"boardTriggerBit/i");
-
   tree->Branch("triggerWord",&treeData.triggerWord,"triggerWord/i");
+
+//  tree->Branch("triggerBits",&treeData.triggerBits,"triggerBits/i");
 
   tree->Branch("nAdcChannels",&treeData.nAdcChannels,"nAdcChannels/i");
   tree->Branch("adcBoard",treeData.adcBoard,"adcBoard[nAdcChannels]/i");
@@ -47,11 +47,12 @@ void Event::fillTreeData (treeStructData & treeData)
   treeData.evtTimeStart = evtTimeStart ;
   treeData.evtTimeDist = evtTimeDist ;
 
-  treeData.boardTriggerBit = boardTriggerBit ;
+  treeData.triggerWord = triggerWord ;
+  cout << "[Event][fillTreeData]      | Trigger word: " << treeData.triggerWord << "\n" ;
 
-  treeData.triggerWord = 0 ;
-  for (unsigned int i = 0 ; i<fmin (32, triggerWord.size ()) ;++i)
-    treeData.triggerWord += triggerWord[i]>>i ;
+//  treeData.triggerBits = 0 ;
+//  for (unsigned int i = 0 ; i<fmin (32, triggerBits.size ()) ;++i)
+//    treeData.triggerBits += triggerBits[i]>>i ;
 
   treeData.nAdcChannels = adcValues.size () ;
   if (DEBUG_UNPACKER)
@@ -123,8 +124,8 @@ void Event::Fill ()
 void Event::clear ()
 {
   evtNumber = -1 ;
-  boardTriggerBit = 0 ;
-  triggerWord.clear () ;
+  triggerWord = 0 ;
+//  triggerBits.clear () ;
   adcValues.clear () ; 
   tdcValues.clear () ; 
   digiValues.clear () ; 
