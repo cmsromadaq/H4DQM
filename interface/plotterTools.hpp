@@ -18,14 +18,28 @@ class plotterTools{
 
 public:
 
+  plotterTools(char* filename, char*outfname, char*outdname);
+
+
+  TChain* inputTree_;
+  TFile* inputFile_;
+  TFile* outputFile_;
+  TString outputDir_;
+
+  std::map<TString,TObject*> outObjects_;
+
   void set_plot_blue ();
   void setPlotsFormat ();
   void plotMe (TH1F * histo);
   void plotMe (TH2F * histo);
   void plotMe (TGraph * graph, const TString & name);
   void setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle);
-  void readInputTree (TTree* tree,treeStructData& treeData);
-  void Loop(TChain* inputTree,TFile *outputFile);
+  void setAxisTitles (TH2 * histo, const TString & xTitle, const TString & yTitle);
+  void setAxisTitles (TGraph * graph, const TString & xTitle, const TString & yTitle);
+  void readInputTree (treeStructData& treeData);
+  void Loop();
+  void saveHistos();
+  void printHistos();
 
 };
 
