@@ -1,7 +1,7 @@
 #include <plotterTools.hpp>
 
 
-plotterTools::plotterTools(char* filename, char*outfname){
+plotterTools::plotterTools(char* filename, char*outfname, char* outdname){
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
@@ -14,6 +14,7 @@ plotterTools::plotterTools(char* filename, char*outfname){
 
   inputTree_ = (TChain*) inputFile_->Get("H4tree");
   outputFile_ = TFile::Open(outfname,"RECREATE");
+  outputDir_=outdname;
 
 };
 
@@ -54,7 +55,7 @@ void  plotterTools::setPlotsFormat ()
 	//gStyle->SetPadGridX (1) ;
 	//gStyle->SetPadGridY (1) ;
 
-    // positioning
+	// positioning
 	gStyle->SetTitleXOffset (1.25) ;
 	gStyle->SetTitleYOffset (1.4) ;
 
@@ -69,27 +70,27 @@ void  plotterTools::setPlotsFormat ()
 	gStyle->SetPadBottomMargin (0.15) ;
 	gStyle->SetPadTopMargin (0.1) ;
 
-    // ticks and divisions on the axes
+	// ticks and divisions on the axes
 	gStyle->SetPadTickX (1) ;
 	gStyle->SetPadTickY (1) ;
 	gStyle->SetNdivisions(7, "xyz");
 
-    // frame drawing options
+	// frame drawing options
 	gStyle->SetLineWidth (2) ;
 	gStyle->SetFillStyle (0) ;
 	gStyle->SetStatStyle (0) ;
-
-    // histogram default drawing options
-    gStyle->SetHistFillColor (kOrange) ;
-    gStyle->SetHistLineColor (kBlack) ;
-    gStyle->SetHistLineStyle (1) ;
-    gStyle->SetHistLineWidth (2) ;
-
-    // stats box position
-    gStyle->SetStatX (0.95) ;
-    gStyle->SetStatY (0.9) ;
-    gStyle->SetStatW (0.2) ;
-    gStyle->SetStatH (0.15) ;
+	
+	// histogram default drawing options
+	gStyle->SetHistFillColor (kOrange) ;
+	gStyle->SetHistLineColor (kBlack) ;
+	gStyle->SetHistLineStyle (1) ;
+	gStyle->SetHistLineWidth (2) ;
+	
+	// stats box position
+	gStyle->SetStatX (0.95) ;
+	gStyle->SetStatY (0.9) ;
+	gStyle->SetStatW (0.2) ;
+	gStyle->SetStatH (0.15) ;
 
 	set_plot_blue () ;
 }
@@ -101,11 +102,11 @@ void  plotterTools::setPlotsFormat ()
 void  plotterTools::plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
-  TString canvasName = hname + "_small.png" ;
+  TString canvasName = outputDir_+ "/"+hname + "_small.png" ;
   TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
   histo->Draw () ;
   c1->Print (canvasName, "png") ;
-  canvasName = hname + "_large.png" ;
+  canvasName =outputDir_+ "/"+ hname + "_large.png" ;
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw () ;
@@ -121,11 +122,11 @@ void  plotterTools::plotMe (TH1F * histo)
 void  plotterTools::plotMe (TH2F * histo)
 {
   TString hname = histo->GetName () ;
-  TString canvasName = hname + "_small.png" ;
+  TString canvasName =  outputDir_+ "/"+hname + "_small.png" ;
   TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
   histo->Draw ("colz") ;
   c1->Print (canvasName, "png") ;
-  canvasName = hname + "_large.png" ;
+  canvasName = outputDir_+ "/"+hname + "_large.png" ;
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw ("colz") ;
@@ -140,14 +141,14 @@ void  plotterTools::plotMe (TH2F * histo)
 
 void  plotterTools::plotMe (TGraph * graph, const TString & name)
 {
-  TString canvasName = name + "_small.png" ;
+  TString canvasName =  outputDir_+ "/" +name + "_small.png" ;
   TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
   graph->SetMarkerStyle (8) ;
   graph->SetMarkerSize (1.5) ;
   graph->SetMarkerColor (kBlue) ;  
   graph->Draw ("ALP") ;
   c1->Print (canvasName, "png") ;
-  canvasName = name + "_large.png" ;
+  canvasName = outputDir_+ "/"+name + "_large.png" ;
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   graph->Draw ("ALP") ;
@@ -168,6 +169,25 @@ void  plotterTools::setAxisTitles (TH1 * histo, const TString & xTitle, const TS
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+void  plotterTools::setAxisTitles (TH2 * histo, const TString & xTitle, const TString & yTitle) 
+{
+  histo->GetXaxis ()->SetTitle (xTitle) ;
+  histo->GetYaxis ()->SetTitle (yTitle) ;
+  return ;
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+void  plotterTools::setAxisTitles (TGraph * histo, const TString & xTitle, const TString & yTitle) 
+{
+  histo->GetXaxis ()->SetTitle (xTitle) ;
+  histo->GetYaxis ()->SetTitle (yTitle) ;
+  return ;
+}
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
 
 void  plotterTools::readInputTree (treeStructData& treeData)
 {
@@ -230,12 +250,9 @@ void  plotterTools::Loop(){
   outObjects_[modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle())]=(TObject*)graph_triggerEff;
 
   //print booked histograms
-  std::cout << "==================== Booked histograms =======================" << std::endl;
-  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
-    std::cout << out->second->GetName() << std::endl;
-  std::cout << "==================== Loop over events =======================" << std::endl;
+  printHistos();
 
-
+  //loop and fill histos
  for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
    inputTree_->GetEntry(iEntry);
    if(iEntry%historyStep==0){
@@ -247,8 +264,11 @@ void  plotterTools::Loop(){
  
  
  //plot histories
+ setAxisTitles(graph_triggerEff,"Event","Efficiency");
  plotMe (graph_triggerEff,graph_triggerEff->GetTitle());
 
+
+ //save histos
  saveHistos();
 
 }
@@ -260,6 +280,13 @@ void plotterTools::saveHistos(){
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
     out->second->Write(out->first);
   outputFile_->Close();
-  std::cout << "outputFile " << outputFile_ << " closed" << std::endl;
+  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
   std::cout << "==================== DQM analysis is done =======================" << std::endl;
+}
+
+void plotterTools::printHistos(){
+  std::cout << "==================== Booked histograms =======================" << std::endl;
+  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
+    std::cout << out->second->GetName() << std::endl;
+  std::cout << "==================== Loop over events =======================" << std::endl;
 }
