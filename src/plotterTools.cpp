@@ -243,11 +243,10 @@ void  plotterTools::Loop(){
   //history plots
   int historyStep=20; //set the step of events for history plots
   int nBinsHistory=nentries/historyStep;
+  std::map<TString, TGraph*> graphs;
 
-  TGraph* graph_triggerEff = new TGraph (nBinsHistory);
-  graph_triggerEff->SetTitle("triggerEff");
-  graph_triggerEff->SetName(modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle()));
-  outObjects_[modules[0]+TString("_")+types[0]+TString("_")+TString(graph_triggerEff->GetTitle())]=(TObject*)graph_triggerEff;
+  bookGraphs(graphs,nBinsHistory);
+  graphs["triggerEff"]->Print();
 
   //print booked histograms
   printHistos();
@@ -257,19 +256,40 @@ void  plotterTools::Loop(){
    inputTree_->GetEntry(iEntry);
    if(iEntry%historyStep==0){
      if( (int)iEntry/historyStep-1 < nBinsHistory){//all history plots should go here
-       graph_triggerEff->SetPoint((int)iEntry/historyStep-1, iEntry,(float)treeStruct.scalerWord[2]/treeStruct.scalerWord[1]);
+       graphs["triggerEff"]->SetPoint((int)iEntry/historyStep-1, iEntry,(float)treeStruct.scalerWord[2]/treeStruct.scalerWord[1]);
      }
    }
  }
  
  
  //plot histories
- setAxisTitles(graph_triggerEff,"Event","Efficiency");
- plotMe (graph_triggerEff,graph_triggerEff->GetTitle());
+ setAxisTitles(graphs["triggerEff"],"Event","Efficiency");
+ plotMe (graphs["triggerEff"],graphs["triggerEff"]->GetTitle());
 
 
  //save histos
  saveHistos();
+
+}
+
+
+void plotterTools::bookGraphs(std::map<TString,TGraph*> &graphs, int nBinsHistory){
+  //in this function you define the graphs
+  graphs["triggerEff"]=bookGraph("triggerEff",nBinsHistory);
+
+}
+
+
+
+TGraph* plotterTools::bookGraph(TString name,int nPoints,  TString module,TString type){
+  
+  TGraph* graph=new TGraph (nPoints);
+  graph->SetTitle(name);
+  graph->SetName(module+TString("_")+type+TString("_")+TString(graph->GetTitle()));
+
+  outObjects_[module+TString("_")+type+TString("_")+TString(graph->GetTitle())]=(TObject*)graph;
+
+  return graph;
 
 }
 
