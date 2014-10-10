@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <getopt.h>
 #include <map>
 
 
@@ -56,31 +57,64 @@ int main(int argc, char *argv[])
 {
 
 
+
   if (argc < 3)
     {
       cerr << "[UNPACKER] ERROR usage: unpack runNumber spillNumber\n " ;
       exit (-1) ;
     }
 
+
   string RAW_FOLDER = "/data2/govoni/data/raw/" ;
   string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
-  
-  if (argc >1 ) RAW_FOLDER=argv[1];
-  if (argc >2 ) DIGI_FOLDER=argv[2];
+  string run;
+  string spill;
+
+  static struct option long_options[] = {
+    {"rawfolder", required_argument,       0,  'i' },
+    {"digifolder", required_argument,       0,  'o' },
+    {"run",    required_argument, 0,  'r' },
+    {"spill",    required_argument, 0,  's' },
+    {0,           0,                 0,  0   }
+  };
+ 
+ int long_index =0;
+ int opt;
+
+ while ((opt = getopt_long(argc, argv,"i:o:r:s:", 
+			   long_options, &long_index )) != -1) {
+   switch (opt) {
+   case 'i' : RAW_FOLDER=string(optarg);
+     break;
+   case 'o' : DIGI_FOLDER=string(optarg);
+     break;
+   case 'r' : run=string(optarg);
+     break;
+   case 's' : spill=string(optarg);
+     break;
+   case '?':
+     /* getopt_long already printed an error message. */
+     //print_usage(); 
+     //exit(EXIT_FAILURE);
+   default: 
+     //print_usage(); 
+     exit(EXIT_FAILURE);
+   }
+ }
   
   cout <<" RAW FOLDER IS: "<<RAW_FOLDER<<endl;
   cout <<" DIGI FOLDER IS: "<<DIGI_FOLDER<<endl;
 
   stringstream filename ;
-  filename << RAW_FOLDER << "/" << argv[1] << "/" << argv[2] << ".raw" ;
+  filename << RAW_FOLDER << "/" << run << "/" << spill << ".raw" ;
   stringstream outfname ;
-  outfname << DIGI_FOLDER << "/" << argv[1] << "/" << argv[2] << ".root" ;
+  outfname << DIGI_FOLDER << "/" << run << "/" << spill << ".root" ;
   
-  pair <int, string> outCode = execute ("ls " + DIGI_FOLDER + "/" + argv[1]) ;
-  if (outCode.first != 0) outCode = execute ("mkdir " + DIGI_FOLDER + "/" + argv[1]) ;
+  pair <int, string> outCode = execute ("ls " + DIGI_FOLDER + "/" + run) ;
+  if (outCode.first != 0) outCode = execute ("mkdir " + DIGI_FOLDER + "/" + run) ;
   if (outCode.first != 0) 
     {
-      cerr << "[UNPACKER] ERROR RUN " << argv[1] << ", SPILL " <<argv[2]
+      cerr << "[UNPACKER] ERROR RUN " << run << ", SPILL " <<spill
            << ", problems creating the output folder:\n"
            << outCode.second << "\n"
            << "exiting\n" ;
