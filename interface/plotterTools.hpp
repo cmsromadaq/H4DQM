@@ -40,6 +40,10 @@ public:
   void Loop();
   void saveHistos();
   void printHistos();
+  void bookGraphs (std::map<TString,TGraph*> &graphs, int nBinsHistory);
+  //TGraph* bookGraph(TSTring name, int nPoints,  TString module, TString type);
+  TGraph* bookGraph (TString name, int nPoints,  TString module="beam", TString type="history");
+
 
 };
 
