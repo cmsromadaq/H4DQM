@@ -236,7 +236,7 @@ void  plotterTools::Loop(){
    inputTree_->GetEntry(iEntry);
    if(iEntry%historyStep_==0){
      if( (int)iEntry/historyStep_-1 < nBinsHistory){//all history plots should go here
-       ((TGraph*) outObjects_[plotNames_["triggerEff"]])->SetPoint((int)iEntry/historyStep_-1, iEntry,(float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+       FillPlot("triggerEff",(int)iEntry/historyStep_-1,iEntry,(float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
      }
    }
  }
@@ -244,6 +244,16 @@ void  plotterTools::Loop(){
 
  
 }
+
+
+
+
+void plotterTools::FillPlot(TString name, int point, float X, float Y){
+  
+  ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, Y);
+  
+}
+
 
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
@@ -258,7 +268,8 @@ void plotterTools::addPlot(TString name,int nPoints,TString type, TString group,
   if(type=="history"){
     TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
     outObjects_[longName]=((TObject*)  bookGraph(name,nPoints,type, group_,module_));
-    plotNames_[name]=longName;
+    plotLongNames_[name]=longName;
+    plotShortNames_[longName]=name;
  }
 
 }
@@ -313,7 +324,7 @@ void plotterTools::saveHistos(){
 void plotterTools::plotHistos(){
   std::cout << "==================== Plotting histograms =======================" << std::endl;
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out){
-    if(out->first.Contains("history"))  setAxisTitles((TGraph*)out->second,"Event",out->first);
+    if(out->first.Contains("history"))  setAxisTitles((TGraph*)out->second,"Event",plotShortNames_[out->first]);
     plotMe((TGraph*)out->second, out->first);
 			   }
   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;

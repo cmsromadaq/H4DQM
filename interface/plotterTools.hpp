@@ -33,7 +33,8 @@ public:
   treeStructData treeStruct_;
 
   std::map<TString,TObject*> outObjects_;
-  std::map<TString,TString> plotNames_;
+  std::map<TString,TString> plotShortNames_;
+  std::map<TString,TString> plotLongNames_;
 
   void set_plot_blue ();
   void setPlotsFormat ();
@@ -55,6 +56,7 @@ public:
   void setStepHistoryPlots(int n);
   int getTreeEntries();
   int getStepHistoryPlots();
+  void FillPlot(TString name, int point, float X, float Y);
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);
 };
 
