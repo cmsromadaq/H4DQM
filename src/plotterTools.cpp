@@ -189,11 +189,28 @@ void  plotterTools::setAxisTitles (TGraph * histo, const TString  xTitle, const 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
+void plotterTools::initVariable(TString name){
+  variablesIterator_[name]=variables_.size();
+  variables_.resize(variables_.size()+1);
+  variablesMap_[name]=&variables_[variables_.size()];
+}
 
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+void plotterTools::computeVariable(TString name){
+  if(name=="triggerEff"){
+    variables_[0]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+    //    *(variablesMap_.find(name)->second)=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+  }
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 void  plotterTools::readInputTree ()
 {
   //Instantiate the tree branches
   inputTree_->Print();
+
   inputTree_->SetBranchAddress("evtNumber",&treeStruct_.evtNumber);
   inputTree_->SetBranchAddress("evtTimeDist",&treeStruct_.evtTimeDist);
   inputTree_->SetBranchAddress("evtTimeStart",&treeStruct_.evtTimeStart);
@@ -229,17 +246,23 @@ void  plotterTools::Loop(){
 
   int nentries = getTreeEntries();
 
+
   int nBinsHistory=nentries/getStepHistoryPlots();
 
   //loop and fill histos
- for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
-   inputTree_->GetEntry(iEntry);
-   if(iEntry%historyStep_==0){
-     if( (int)iEntry/historyStep_-1 < nBinsHistory){//all history plots should go here
-       FillPlot("triggerEff",(int)iEntry/historyStep_-1,iEntry,(float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
-     }
-   }
- }
+  for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
+    inputTree_->GetEntry(iEntry);
+    
+    if(iEntry%historyStep_==0 && iEntry!=0){
+      
+      if( (int)iEntry/historyStep_-1 < nBinsHistory){//all history plots should go here
+	
+	for(std::map<TString,float*>::const_iterator iter=variablesMap_.begin();iter != variablesMap_.end(); ++iter){
+	  FillPlot(iter->first,(int)iEntry/historyStep_-1,iEntry);
+	}
+      }
+    }
+  }
 
 
  
@@ -248,9 +271,9 @@ void  plotterTools::Loop(){
 
 
 
-void plotterTools::FillPlot(TString name, int point, float X, float Y){
-  
-  ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, Y);
+void plotterTools::FillPlot(TString name, int point, float X){
+  computeVariable(name);
+  ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, variables_[variablesIterator_[name]]);
   
 }
 
@@ -264,6 +287,8 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 
 
 void plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module){
+
+  initVariable(name);
 
   if(type=="history"){
     TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;

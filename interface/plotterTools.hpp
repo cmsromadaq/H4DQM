@@ -35,6 +35,9 @@ public:
   std::map<TString,TObject*> outObjects_;
   std::map<TString,TString> plotShortNames_;
   std::map<TString,TString> plotLongNames_;
+  std::vector<float> variables_;
+  std::map<TString,float*> variablesMap_;
+  std::map<TString,int> variablesIterator_;
 
   void set_plot_blue ();
   void setPlotsFormat ();
@@ -56,8 +59,10 @@ public:
   void setStepHistoryPlots(int n);
   int getTreeEntries();
   int getStepHistoryPlots();
-  void FillPlot(TString name, int point, float X, float Y);
+  void FillPlot(TString name, int point, float X);
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);
+  void initVariable(TString name);
+  void computeVariable(TString name);
 };
 
 #endif
