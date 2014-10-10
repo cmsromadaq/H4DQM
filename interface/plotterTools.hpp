@@ -40,9 +40,9 @@ public:
   void plotMe (TH1F * histo);
   void plotMe (TH2F * histo);
   void plotMe (TGraph * graph, const TString & name);
-  void setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle);
-  void setAxisTitles (TH2 * histo, const TString & xTitle, const TString & yTitle);
-  void setAxisTitles (TGraph * graph, const TString & xTitle, const TString & yTitle);
+  void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
+  void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);
+  void setAxisTitles (TGraph * graph, const TString  xTitle, const TString  yTitle);
   void readInputTree ();
   void Loop();
   void saveHistos();

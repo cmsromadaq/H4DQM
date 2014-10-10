@@ -147,13 +147,12 @@ void  plotterTools::plotMe (TGraph * graph, const TString & name)
   graph->SetMarkerSize (1.5) ;
   graph->SetMarkerColor (kBlue) ;  
   graph->Draw ("ALP") ;
-  std::cout<<"!!saving"<<std::endl;
   c1->Print (canvasName, "png") ;
   canvasName = outputDir_+ "/"+name + "_large.png" ;
+
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   graph->Draw ("ALP") ;
-  std::cout<<"!!saving"<<std::endl;
   c1->Print (canvasName, "png") ;
   delete c1 ;
   return ;
@@ -163,7 +162,7 @@ void  plotterTools::plotMe (TGraph * graph, const TString & name)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle) 
+void  plotterTools::setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle) 
 {
   histo->GetXaxis ()->SetTitle (xTitle) ;
   histo->GetYaxis ()->SetTitle (yTitle) ;
@@ -172,7 +171,7 @@ void  plotterTools::setAxisTitles (TH1 * histo, const TString & xTitle, const TS
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-void  plotterTools::setAxisTitles (TH2 * histo, const TString & xTitle, const TString & yTitle) 
+void  plotterTools::setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle) 
 {
   histo->GetXaxis ()->SetTitle (xTitle) ;
   histo->GetYaxis ()->SetTitle (yTitle) ;
@@ -181,7 +180,7 @@ void  plotterTools::setAxisTitles (TH2 * histo, const TString & xTitle, const TS
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-void  plotterTools::setAxisTitles (TGraph * histo, const TString & xTitle, const TString & yTitle) 
+void  plotterTools::setAxisTitles (TGraph * histo, const TString  xTitle, const TString  yTitle) 
 {
   histo->GetXaxis ()->SetTitle (xTitle) ;
   histo->GetYaxis ()->SetTitle (yTitle) ;
@@ -241,7 +240,8 @@ void  plotterTools::Loop(){
      }
    }
  }
- 
+
+
  
 }
 
@@ -249,7 +249,7 @@ void  plotterTools::Loop(){
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
   addPlot("triggerEff",nBinsHistory, "history", group_,module_);
-  std::cout<<"booked histo"<<outObjects_.size()<<std::endl;  
+
 }
 
 
@@ -265,13 +265,13 @@ void plotterTools::addPlot(TString name,int nPoints,TString type, TString group,
 
 TGraph* plotterTools::bookGraph(TString name,int nPoints,TString type, TString group, TString module){
 
-  std::cout<<"daje"<<endl;
-  std::cout<<outObjects_.size()<<"......."<<endl;
   TGraph* graph=new TGraph (nPoints);
-  setAxisTitles(graph,"Event",name);
+  
+
   graph->SetTitle(name);
+  graph->GetXaxis()->SetTitle("Event");
+
   graph->SetName(group+TString("_")+module+TString("_")+type+TString("_")+TString(graph->GetTitle()));
-  std::cout<<outObjects_.size()<<"......."<<endl;
 
   return graph;
 
@@ -312,8 +312,10 @@ void plotterTools::saveHistos(){
 
 void plotterTools::plotHistos(){
   std::cout << "==================== Plotting histograms =======================" << std::endl;
-  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
+  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out){
+    if(out->first.Contains("history"))  setAxisTitles((TGraph*)out->second,"Event",out->first);
     plotMe((TGraph*)out->second, out->first);
+			   }
   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
 
