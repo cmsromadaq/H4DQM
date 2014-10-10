@@ -6,11 +6,14 @@
 #include <TString.h>
 #include <iostream>
 #include <math.h>
+#include "interface/StandardIncludes.hpp"
+
 
 #define MAX_ADC_CHANNELS 200
 #define MAX_DIGI_SAMPLES 100000
 #define MAX_TDC_CHANNELS 200
 #define MAX_SCALER_WORDS 16
+#define MAX_PATTERNS 16
 
 using namespace std ;
 
@@ -46,7 +49,10 @@ struct treeStructData
   unsigned int tdcData[MAX_TDC_CHANNELS] ;
 
   unsigned int nScalerWords ;
-  unsigned int scalerWord[MAX_SCALER_WORDS] ;
+  WORD scalerWord[MAX_SCALER_WORDS] ;
+
+  unsigned int nPatterns ;
+  WORD pattern[MAX_PATTERNS] ;
 } ;
 
 struct adcData
@@ -88,7 +94,8 @@ struct Event
   std::vector<adcData> adcValues ; 
   std::vector<tdcData> tdcValues ; 
   std::vector<digiData> digiValues ; 
-  std::vector<int> scalerWords ; 
+  std::vector<WORD> scalerWords ; 
+  std::vector<WORD> patterns ; 
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
   uint64_t evtTime ;

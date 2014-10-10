@@ -71,7 +71,7 @@ int SpillUnpack::AddBoard (boardHeader bH)
     boards_[bH.boardID]= new CAEN_V1290 (bH.boardSize) ;
     break;
   case _CAENV1495PU_:
-    boards_[bH.boardID]= new CAEN_V1495PU;
+    boards_[bH.boardID]= new CAEN_V1495PU (bH.boardSize) ;
     break;
   case _CAENV560_:
     boards_[bH.boardID]= new CAEN_V560(bH.boardSize);

@@ -32,6 +32,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("nScalerWords",&treeData.nScalerWords,"nScalerWords/i");
   tree->Branch("scalerWord",treeData.scalerWord,"scalerWord[nScalerWords]/i");
 
+  tree->Branch("nPatterns",&treeData.nPatterns,"nPatterns/i");
+  tree->Branch("pattern",treeData.pattern,"pattern[nPatterns]/i");
+
   return ;
 } 
 
@@ -103,6 +106,17 @@ void Event::fillTreeData (treeStructData & treeData)
       treeData.scalerWord[i] = scalerWords[i] ;
     }
 
+  treeData.nPatterns = patterns.size () ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nPatterns << " Patterns\n" ;
+    }
+
+  for (unsigned int i = 0 ; i < fmin (MAX_PATTERNS, patterns.size()) ;++i)
+    {
+      treeData.pattern[i] = patterns[i] ;
+    }
+
   return ;
 }
 
@@ -130,6 +144,7 @@ void Event::clear ()
   tdcValues.clear () ; 
   digiValues.clear () ; 
   scalerWords.clear () ; 
+  patterns.clear () ; 
   evtTimeDist = -1 ;
   evtTimeStart = -1 ;
   evtTime = -1 ;
