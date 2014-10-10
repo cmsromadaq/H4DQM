@@ -147,11 +147,13 @@ void  plotterTools::plotMe (TGraph * graph, const TString & name)
   graph->SetMarkerSize (1.5) ;
   graph->SetMarkerColor (kBlue) ;  
   graph->Draw ("ALP") ;
+  std::cout<<"!!saving"<<std::endl;
   c1->Print (canvasName, "png") ;
   canvasName = outputDir_+ "/"+name + "_large.png" ;
   delete c1 ;
   c1 = new TCanvas ("c1", "c1", 800, 800) ;
   graph->Draw ("ALP") ;
+  std::cout<<"!!saving"<<std::endl;
   c1->Print (canvasName, "png") ;
   delete c1 ;
   return ;
@@ -189,36 +191,36 @@ void  plotterTools::setAxisTitles (TGraph * histo, const TString & xTitle, const
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::readInputTree (treeStructData& treeData)
+void  plotterTools::readInputTree ()
 {
   //Instantiate the tree branches
   inputTree_->Print();
-  inputTree_->SetBranchAddress("evtNumber",&treeData.evtNumber);
-  inputTree_->SetBranchAddress("evtTimeDist",&treeData.evtTimeDist);
-  inputTree_->SetBranchAddress("evtTimeStart",&treeData.evtTimeStart);
-  inputTree_->SetBranchAddress("evtTime",&treeData.evtTime);
+  inputTree_->SetBranchAddress("evtNumber",&treeStruct_.evtNumber);
+  inputTree_->SetBranchAddress("evtTimeDist",&treeStruct_.evtTimeDist);
+  inputTree_->SetBranchAddress("evtTimeStart",&treeStruct_.evtTimeStart);
+  inputTree_->SetBranchAddress("evtTime",&treeStruct_.evtTime);
 
 
-  inputTree_->SetBranchAddress("triggerWord",&treeData.triggerWord);
+  inputTree_->SetBranchAddress("triggerWord",&treeStruct_.triggerWord);
 
-  inputTree_->SetBranchAddress("nAdcChannels",&treeData.nAdcChannels);
-  inputTree_->SetBranchAddress("adcBoard",treeData.adcBoard);
-  inputTree_->SetBranchAddress("adcChannel",treeData.adcChannel);
-  inputTree_->SetBranchAddress("adcData",treeData.adcData);
+  inputTree_->SetBranchAddress("nAdcChannels",&treeStruct_.nAdcChannels);
+  inputTree_->SetBranchAddress("adcBoard",treeStruct_.adcBoard);
+  inputTree_->SetBranchAddress("adcChannel",treeStruct_.adcChannel);
+  inputTree_->SetBranchAddress("adcData",treeStruct_.adcData);
 
-  inputTree_->SetBranchAddress("nTdcChannels",&treeData.nTdcChannels);
-  inputTree_->SetBranchAddress("tdcBoard",treeData.tdcBoard);
-  inputTree_->SetBranchAddress("tdcChannel",treeData.tdcChannel);
-  inputTree_->SetBranchAddress("tdcData",treeData.tdcData);
+  inputTree_->SetBranchAddress("nTdcChannels",&treeStruct_.nTdcChannels);
+  inputTree_->SetBranchAddress("tdcBoard",treeStruct_.tdcBoard);
+  inputTree_->SetBranchAddress("tdcChannel",treeStruct_.tdcChannel);
+  inputTree_->SetBranchAddress("tdcData",treeStruct_.tdcData);
 
-  inputTree_->SetBranchAddress("nDigiSamples",&treeData.nDigiSamples);
-  inputTree_->SetBranchAddress("digiGroup",treeData.digiGroup);
-  inputTree_->SetBranchAddress("digiChannel",treeData.digiChannel);
-  inputTree_->SetBranchAddress("digiSampleIndex",treeData.digiSampleIndex);
-  inputTree_->SetBranchAddress("digiSampleValue",treeData.digiSampleValue);
+  inputTree_->SetBranchAddress("nDigiSamples",&treeStruct_.nDigiSamples);
+  inputTree_->SetBranchAddress("digiGroup",treeStruct_.digiGroup);
+  inputTree_->SetBranchAddress("digiChannel",treeStruct_.digiChannel);
+  inputTree_->SetBranchAddress("digiSampleIndex",treeStruct_.digiSampleIndex);
+  inputTree_->SetBranchAddress("digiSampleValue",treeStruct_.digiSampleValue);
 
-  inputTree_->SetBranchAddress("nScalerWords",&treeData.nScalerWords);
-  inputTree_->SetBranchAddress("scalerWord",treeData.scalerWord);
+  inputTree_->SetBranchAddress("nScalerWords",&treeStruct_.nScalerWords);
+  inputTree_->SetBranchAddress("scalerWord",treeStruct_.scalerWord);
 
   return ;
 } 
@@ -226,72 +228,75 @@ void  plotterTools::readInputTree (treeStructData& treeData)
 
 void  plotterTools::Loop(){
 
-  treeStructData treeStruct;
-  readInputTree(treeStruct);
+  int nentries = getTreeEntries();
 
-  int nentries = inputTree_->GetEntries();
-
-
-  //modules
-  std::vector<TString> modules;
-  modules.push_back("beam");
-
-  //types
-  std::vector<TString> types;
-  types.push_back("history");
-
-  //history plots
-  int historyStep=20; //set the step of events for history plots
-  int nBinsHistory=nentries/historyStep;
-  std::map<TString, TGraph*> graphs;
-
-  bookGraphs(graphs,nBinsHistory);
-  graphs["triggerEff"]->Print();
-
-  //print booked histograms
-  printHistos();
+  int nBinsHistory=nentries/getStepHistoryPlots();
 
   //loop and fill histos
  for( unsigned iEntry=0; iEntry<nentries; ++iEntry ) {
    inputTree_->GetEntry(iEntry);
-   if(iEntry%historyStep==0){
-     if( (int)iEntry/historyStep-1 < nBinsHistory){//all history plots should go here
-       graphs["triggerEff"]->SetPoint((int)iEntry/historyStep-1, iEntry,(float)treeStruct.scalerWord[2]/treeStruct.scalerWord[1]);
+   if(iEntry%historyStep_==0){
+     if( (int)iEntry/historyStep_-1 < nBinsHistory){//all history plots should go here
+       ((TGraph*) outObjects_[plotNames_["triggerEff"]])->SetPoint((int)iEntry/historyStep_-1, iEntry,(float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
      }
    }
  }
  
  
- //plot histories
- setAxisTitles(graphs["triggerEff"],"Event","Efficiency");
- plotMe (graphs["triggerEff"],graphs["triggerEff"]->GetTitle());
-
-
- //save histos
- saveHistos();
-
 }
 
 
-void plotterTools::bookGraphs(std::map<TString,TGraph*> &graphs, int nBinsHistory){
-  //in this function you define the graphs
-  graphs["triggerEff"]=bookGraph("triggerEff",nBinsHistory);
-
+void plotterTools::bookPlotsScaler(int nBinsHistory){
+  //in this function you define all the objects for the scaler
+  addPlot("triggerEff",nBinsHistory, "history", group_,module_);
+  std::cout<<"booked histo"<<outObjects_.size()<<std::endl;  
 }
 
 
+void plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module){
 
-TGraph* plotterTools::bookGraph(TString name,int nPoints,  TString module,TString type){
-  
+  if(type=="history"){
+    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
+    outObjects_[longName]=((TObject*)  bookGraph(name,nPoints,type, group_,module_));
+    plotNames_[name]=longName;
+ }
+
+}
+
+TGraph* plotterTools::bookGraph(TString name,int nPoints,TString type, TString group, TString module){
+
+  std::cout<<"daje"<<endl;
+  std::cout<<outObjects_.size()<<"......."<<endl;
   TGraph* graph=new TGraph (nPoints);
+  setAxisTitles(graph,"Event",name);
   graph->SetTitle(name);
-  graph->SetName(module+TString("_")+type+TString("_")+TString(graph->GetTitle()));
-
-  outObjects_[module+TString("_")+type+TString("_")+TString(graph->GetTitle())]=(TObject*)graph;
+  graph->SetName(group+TString("_")+module+TString("_")+type+TString("_")+TString(graph->GetTitle()));
+  std::cout<<outObjects_.size()<<"......."<<endl;
 
   return graph;
 
 }
+
+void plotterTools::setModule(TString module){
+  module_=module;
+}
+
+void plotterTools::setGroup(TString group){
+  group_=group;
+}
+
+void plotterTools::setStepHistoryPlots(int n){
+  historyStep_=n;
+}
+
+int plotterTools::getTreeEntries(){
+  return  inputTree_->GetEntries();
+}
+
+int plotterTools::getStepHistoryPlots(){
+  return  historyStep_;
+}
+
 
 void plotterTools::saveHistos(){
   std::cout << "==================== Saving histograms =======================" << std::endl;
@@ -304,9 +309,19 @@ void plotterTools::saveHistos(){
   std::cout << "==================== DQM analysis is done =======================" << std::endl;
 }
 
+
+void plotterTools::plotHistos(){
+  std::cout << "==================== Plotting histograms =======================" << std::endl;
+  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
+    plotMe((TGraph*)out->second, out->first);
+  std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
+}
+
+
 void plotterTools::printHistos(){
   std::cout << "==================== Booked histograms =======================" << std::endl;
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
     std::cout << out->second->GetName() << std::endl;
   std::cout << "==================== Loop over events =======================" << std::endl;
 }
+

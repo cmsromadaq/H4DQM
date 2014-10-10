@@ -21,12 +21,19 @@ public:
   plotterTools(char* filename, char*outfname, char*outdname);
 
 
+
   TChain* inputTree_;
   TFile* inputFile_;
   TFile* outputFile_;
   TString outputDir_;
 
+  TString module_, group_;
+  int historyStep_;//set the step of events for history plots
+
+  treeStructData treeStruct_;
+
   std::map<TString,TObject*> outObjects_;
+  std::map<TString,TString> plotNames_;
 
   void set_plot_blue ();
   void setPlotsFormat ();
@@ -36,15 +43,19 @@ public:
   void setAxisTitles (TH1 * histo, const TString & xTitle, const TString & yTitle);
   void setAxisTitles (TH2 * histo, const TString & xTitle, const TString & yTitle);
   void setAxisTitles (TGraph * graph, const TString & xTitle, const TString & yTitle);
-  void readInputTree (treeStructData& treeData);
+  void readInputTree ();
   void Loop();
   void saveHistos();
+  void plotHistos();
   void printHistos();
-  void bookGraphs (std::map<TString,TGraph*> &graphs, int nBinsHistory);
-  //TGraph* bookGraph(TSTring name, int nPoints,  TString module, TString type);
-  TGraph* bookGraph (TString name, int nPoints,  TString module="beam", TString type="history");
-
-
+  void bookPlotsScaler (int nBinsHistory);
+  TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
+  void setGroup(TString group);
+  void setModule(TString module);
+  void setStepHistoryPlots(int n);
+  int getTreeEntries();
+  int getStepHistoryPlots();
+  void addPlot(TString name,int nPoints,TString type, TString group, TString module);
 };
 
 #endif

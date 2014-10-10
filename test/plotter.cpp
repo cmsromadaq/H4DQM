@@ -36,10 +36,24 @@ int main (int argc, char ** argv)
       }
 
   plotterTools plotter(filename,outfname,outdname);
+
   plotter.setPlotsFormat () ;
-  
+  plotter.readInputTree();  
+  int nentries = plotter.getTreeEntries();
+  plotter.setStepHistoryPlots(20);
+  std::cout<<plotter.outObjects_.size()<<"......."<<endl;
+  plotter.setGroup("scaler");
+  plotter.setModule("beam");
+  std::cout<<plotter.outObjects_.size()<<"......."<<endl;
+  plotter.bookPlotsScaler(nentries/plotter.getStepHistoryPlots());
+  std::cout<<plotter.outObjects_.size()<<"......."<<endl;
+  plotter.printHistos();
 
   plotter.Loop();
+
+  plotter.plotHistos();
+  plotter.saveHistos();
+ 
 
   return 0 ;
 
