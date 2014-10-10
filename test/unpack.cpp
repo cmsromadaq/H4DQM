@@ -54,14 +54,22 @@ void cannotOpenFile (const string & file)
 
 int main(int argc, char *argv[])
 {
+
+
   if (argc < 3)
     {
       cerr << "[UNPACKER] ERROR usage: unpack runNumber spillNumber\n " ;
       exit (-1) ;
     }
 
-  const string RAW_FOLDER = "/data2/govoni/data/raw/" ;
-  const string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
+  string RAW_FOLDER = "/data2/govoni/data/raw/" ;
+  string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
+  
+  if (argc >1 ) RAW_FOLDER=argv[1];
+  if (argc >2 ) DIGI_FOLDER=argv[2];
+  
+  cout <<" RAW FOLDER IS: "<<RAW_FOLDER<<endl;
+  cout <<" DIGI FOLDER IS: "<<DIGI_FOLDER<<endl;
 
   stringstream filename ;
   filename << RAW_FOLDER << "/" << argv[1] << "/" << argv[2] << ".raw" ;
