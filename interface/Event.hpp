@@ -14,6 +14,9 @@
 #define MAX_TDC_CHANNELS 200
 #define MAX_SCALER_WORDS 16
 #define MAX_PATTERNS 16
+#define MAX_PATTERNS_SHODO 16
+#define SMALL_HODO_X_NFIBERS 8
+#define SMALL_HODO_Y_NFIBERS 8
 
 using namespace std ;
 
@@ -53,6 +56,11 @@ struct treeStructData
 
   unsigned int nPatterns ;
   WORD pattern[MAX_PATTERNS] ;
+
+  unsigned int nPatterns_shodo ;
+  WORD pattern_shodo[MAX_PATTERNS_SHODO];
+
+
 } ;
 
 struct adcData
@@ -96,6 +104,7 @@ struct Event
   std::vector<digiData> digiValues ; 
   std::vector<WORD> scalerWords ; 
   std::vector<WORD> patterns ; 
+  std::vector<WORD> patterns_shodo ; 
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
   uint64_t evtTime ;

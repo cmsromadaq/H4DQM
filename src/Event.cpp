@@ -35,6 +35,10 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("nPatterns",&treeData.nPatterns,"nPatterns/i");
   tree->Branch("pattern",treeData.pattern,"pattern[nPatterns]/i");
 
+  tree->Branch("nPatterns_shodo",&treeData.nPatterns_shodo,"nPatterns_shodo/i");
+  tree->Branch("pattern_shodo",treeData.pattern_shodo,"pattern_shodo[nPatterns_shodo]/i");
+
+
   return ;
 } 
 
@@ -117,6 +121,17 @@ void Event::fillTreeData (treeStructData & treeData)
       treeData.pattern[i] = patterns[i] ;
     }
 
+  treeData.nPatterns_shodo = patterns_shodo.size () ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nPatterns_shodo << " Patterns\n" ;
+    }
+
+  for (unsigned int i = 0 ; i < fmin (MAX_PATTERNS_SHODO, patterns_shodo.size()) ;++i)
+    {
+      treeData.pattern_shodo[i] = patterns_shodo[i] ;
+    }
+
   return ;
 }
 
@@ -145,6 +160,7 @@ void Event::clear ()
   digiValues.clear () ; 
   scalerWords.clear () ; 
   patterns.clear () ; 
+  patterns_shodo.clear () ; 
   evtTimeDist = -1 ;
   evtTimeStart = -1 ;
   evtTime = -1 ;
