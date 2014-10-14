@@ -56,6 +56,7 @@ public:
   void plotHistos();
   void printHistos();
   void bookPlotsScaler (int nBinsHistory);
+  void bookCombinedPlots ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);
   void setModule(TString module);
@@ -67,8 +68,10 @@ public:
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);//TGraph
   void addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1);//TH1F
   void addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle, TString type, TString group, TString module);//TH2F
+  void addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module);
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
+  TH2F* bookHistoCombined(TString name,TString name1, TString name2);
   void initVariable(TString name, int varDim=1);
   void computeVariable(TString name, int varDim=1);
   pair<int, string> execute (const string & command);

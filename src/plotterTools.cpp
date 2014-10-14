@@ -380,13 +380,33 @@ void plotterTools::FillPlot(TString name, bool is2D, int varDim){
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
-   addPlot("triggerEff",nBinsHistory, "history", group_,module_);
-   addPlot("nEvts", nBinsHistory, "history", group_,module_);
-   addPlot("nTrigSPS", 100,0,10000, "1D",group_,module_);
-   addPlot("nTrigSPSVsnTrig3D", 100,0,10000, "1D",group_,module_,3);
-   addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);
+  addPlot("nEvts", nBinsHistory, "history", group_,module_);//simple TGraph
+  addPlot("triggerEff",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot("nTrigSPS", 100,0,3000, "1D",group_,module_);//simple TH1F
+  addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
+  addPlot("nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
+}
 
-   //   addPlot("nTrigSPSVsnTrig3D_2", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_,3);
+void plotterTools::bookCombinedPlots(){
+  addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+
+}
+
+
+void plotterTools::addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module){
+  initVariable(name);
+  TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
+  outObjects_[longName]=((TObject*) bookHistoCombined(name,name1,name2));
+  plotLongNames_[name]=longName;
+  plotShortNames_[longName]=name;
+
+  ((TH2F*)outObjects_[longName])->SetTitle(name);
+  ((TH2F*)outObjects_[longName])->SetName(plotLongNames_[name]);
+
+
+  ((TH2F*)outObjects_[longName])->SetXTitle(((TH1F* )outObjects_[plotLongNames_[name1]])->GetTitle());
+  ((TH2F*)outObjects_[longName])->SetYTitle(((TH1F* )outObjects_[plotLongNames_[name2]])->GetTitle());
+
 }
 
 //for TGraph
@@ -450,6 +470,31 @@ TH2F* plotterTools::bookHisto2D(TString name,int nBinsX,float xMin, float xMax,i
 
 }
 
+//combined plots
+TH2F* plotterTools::bookHistoCombined(TString name,TString name1, TString name2){
+
+  int  nBinsX=((TH1F* )outObjects_[plotLongNames_[name1]])->GetNbinsX();
+  float xMin=((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinLowEdge(1);
+  float xMax=((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinLowEdge(nBinsX)+((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinWidth(nBinsX);
+	     		       				
+  int nBinsY=((TH1F* )outObjects_[plotLongNames_[name2]])->GetNbinsX();
+  float yMin=((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinLowEdge(1);
+  float yMax=((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinLowEdge(nBinsY)+((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinWidth(nBinsY);
+
+  TH2F* histo = new TH2F (name, plotLongNames_[name] ,nBinsX, xMin,xMax, nBinsY, yMin, yMax);
+  for(int i =1;i<=nBinsX;i++){
+    for(int j =1;j<=nBinsY;j++){
+      float X=((TH1F* )outObjects_[plotLongNames_[name1]])->GetBinContent(i);
+      float Y=((TH1F* )outObjects_[plotLongNames_[name2]])->GetBinContent(j);
+      histo->SetBinContent(i,j,X*Y);
+    }
+  }
+
+
+
+  return histo;
+
+}
 
 //TGraph
 TGraph* plotterTools::bookGraph(TString name,int nPoints,TString type, TString group, TString module){

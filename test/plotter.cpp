@@ -48,6 +48,8 @@ int main (int argc, char ** argv)
 
   plotter.Loop();
 
+  plotter.bookCombinedPlots();
+
   plotter.plotHistos();
   plotter.saveHistos();
  
