@@ -63,6 +63,7 @@ public:
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);
   void initVariable(TString name);
   void computeVariable(TString name);
+  pair<int, string> execute (const string & command);
 };
 
 #endif

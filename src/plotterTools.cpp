@@ -199,8 +199,10 @@ void plotterTools::initVariable(TString name){
 
 void plotterTools::computeVariable(TString name){
   if(name=="triggerEff"){
-    variables_[0]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
     //    *(variablesMap_.find(name)->second)=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+  }else if(name=="nEvts"){
+    variables_[variablesIterator_[name]]=((float)treeStruct_.evtNumber);
   }
 }
 
@@ -281,8 +283,8 @@ void plotterTools::FillPlot(TString name, int point, float X){
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
-  addPlot("triggerEff",nBinsHistory, "history", group_,module_);
-
+   addPlot("triggerEff",nBinsHistory, "history", group_,module_);
+   addPlot("nEvts", nBinsHistory, "history", group_,module_);
 }
 
 
@@ -346,8 +348,46 @@ void plotterTools::saveHistos(){
 }
 
 
+pair<int, string> plotterTools::execute (const string & command) 
+{
+    FILE *in;
+    char buff[512] ;
+    if (!(in = popen (command.c_str (), "r")))
+      {
+        return pair<int, string> (-99, "") ;
+      }
+
+    std::string result, tempo ;
+    while (fgets (buff, sizeof (buff), in)!=NULL)
+      {
+        tempo = buff ;
+//        result += tempo.substr (0, tempo.size () - 1) ;
+        result += tempo ;
+      }
+    int returnCode = pclose (in) ;
+ 
+    return pair<int, string> (returnCode, result) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
 void plotterTools::plotHistos(){
   std::cout << "==================== Plotting histograms =======================" << std::endl;
+  pair <int, string> outCode = execute ("ls " + string(outputDir_)) ;
+  if (outCode.first != 0) outCode = execute ("mkdir " + string(outputDir_)) ;
+  if (outCode.first != 0) 
+    {
+      cerr << "[PLOTTER] ERROR FILE " << outputFile_ 
+           << ", problems creating the output folder:\n"
+           << outCode.second << "\n"
+           << "exiting\n" ;
+      exit (1) ;
+    }
+
+
+
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out){
     if(out->first.Contains("history"))  setAxisTitles((TGraph*)out->second,"Event",plotShortNames_[out->first]);
     plotMe((TGraph*)out->second, out->first);
