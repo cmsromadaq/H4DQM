@@ -240,6 +240,10 @@ void  plotterTools::readInputTree ()
   inputTree_->SetBranchAddress("nScalerWords",&treeStruct_.nScalerWords);
   inputTree_->SetBranchAddress("scalerWord",treeStruct_.scalerWord);
 
+  inputTree_->SetBranchAddress("nPatterns",&treeStruct_.nPatterns);
+  inputTree_->SetBranchAddress("pattern",treeStruct_.pattern);
+
+
   return ;
 } 
 
