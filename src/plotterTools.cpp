@@ -203,7 +203,10 @@ void plotterTools::computeVariable(TString name){
     //    *(variablesMap_.find(name)->second)=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
   }else if(name=="nEvts"){
     variables_[variablesIterator_[name]]=((float)treeStruct_.evtNumber);
+  }else if(name=="nTrigSPS"){
+    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[1]);
   }
+
 }
 
 
@@ -264,7 +267,12 @@ void  plotterTools::Loop(){
       if( (int)iEntry/historyStep_-1 < nBinsHistory){//all history plots should go here
 	
 	for(std::map<TString,float*>::const_iterator iter=variablesMap_.begin();iter != variablesMap_.end(); ++iter){
-	  FillPlot(iter->first,(int)iEntry/historyStep_-1,iEntry);
+	  if(plotLongNames_[iter->first].Contains("history")){
+	    FillPlot(iter->first,(int)iEntry/historyStep_-1,iEntry);
+	  }else if(plotLongNames_[iter->first].Contains("1D")){
+	      FillPlot(iter->first);
+	  }
+
 	}
       }
     }
@@ -275,35 +283,63 @@ void  plotterTools::Loop(){
 }
 
 
-
-
+//for TGraph
 void plotterTools::FillPlot(TString name, int point, float X){
   computeVariable(name);
   ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, variables_[variablesIterator_[name]]);
   
 }
 
+//for TH1F
+void plotterTools::FillPlot(TString name){
+  computeVariable(name);
+  ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variables_[variablesIterator_[name]]);
+  
+}
 
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
    addPlot("triggerEff",nBinsHistory, "history", group_,module_);
    addPlot("nEvts", nBinsHistory, "history", group_,module_);
+   addPlot("nTrigSPS", 100,0,10000, "1D",group_,module_);
 }
 
-
+//for graph
 void plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module){
 
   initVariable(name);
 
-  if(type=="history"){
     TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
     outObjects_[longName]=((TObject*)  bookGraph(name,nPoints,type, group_,module_));
     plotLongNames_[name]=longName;
     plotShortNames_[longName]=name;
- }
 
 }
+
+//for histos
+void plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module){
+
+  initVariable(name);
+
+   TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
+   outObjects_[longName]=((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
+   plotLongNames_[name]=longName;
+   plotShortNames_[longName]=name;
+
+
+}
+
+TH1F* plotterTools::bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module){
+  TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
+  TH1F* histo = new TH1F (name, type+"_"+group+"_"+module+";;" , nBinsX, xMin, xMax);
+  histo->SetTitle(name);
+  histo->SetName(longName);
+  return histo;
+
+}
+
+
 
 TGraph* plotterTools::bookGraph(TString name,int nPoints,TString type, TString group, TString module){
 
@@ -393,12 +429,16 @@ void plotterTools::plotHistos(){
 
 
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out){
-    if(out->first.Contains("history"))  setAxisTitles((TGraph*)out->second,"Event",plotShortNames_[out->first]);
-    plotMe((TGraph*)out->second, out->first);
-			   }
+    if(out->first.Contains("history"))  {
+      setAxisTitles((TGraph*)out->second,"Event",plotShortNames_[out->first]);
+      plotMe((TGraph*)out->second, out->first);
+    }else if(out->first.Contains("1D"))  {
+      setAxisTitles((TH1F*)out->second,plotShortNames_[out->first],"Events");
+      plotMe((TH1F*)out->second);
+    }
   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
-
+}
 
 void plotterTools::printHistos(){
   std::cout << "==================== Booked histograms =======================" << std::endl;

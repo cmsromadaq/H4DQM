@@ -59,8 +59,11 @@ public:
   void setStepHistoryPlots(int n);
   int getTreeEntries();
   int getStepHistoryPlots();
-  void FillPlot(TString name, int point, float X);
+  void FillPlot(TString name, int point, float X);//TGraph
+  void FillPlot(TString name);//TH1F
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);
+  void addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module);
+  TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   void initVariable(TString name);
   void computeVariable(TString name);
   pair<int, string> execute (const string & command);
