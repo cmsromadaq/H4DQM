@@ -19,6 +19,31 @@ plotterTools::plotterTools(char* filename, char*outfname, char* outdname){
 };
 
 
+void plotterTools::set_palette_fancy (){
+  const Int_t NRGBs = 5;
+  const Int_t NCont = 255;
+  Float_t r[5];
+  Float_t g[5];
+  Float_t b[5];
+  TColor* c[5];
+  int Colors[5]={kBlack,kBlue+2,kBlue-3,kBlue-4,kWhite};
+  for(int i=0;i<5;++i){
+    c[i]=gROOT->GetColor(Colors[i]);
+    c[i]->GetRGB(r[i],g[i],b[i]);
+  }
+  // Double_t stops[NRGBs] = { 0.00, 0.40, 0.50, 0.80, 1.00}; original
+  Double_t stops[NRGBs] = { 0.00, 0.15, 0.50, 0.80, 1.00};
+  Double_t red[NRGBs] = {r[4],r[3],r[2],r[1],r[0] };
+  Double_t green[NRGBs] = {g[4],g[3],g[2],g[1],g[0] };
+  Double_t blue[NRGBs] = {b[4],b[3],b[2],b[1],b[0] };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+
+
+
+}
+
+
 void plotterTools::set_plot_blue ()
 {
     Double_t Red[3]    = { 0.00, 0.00, 0.00};
@@ -38,7 +63,7 @@ void  plotterTools::setPlotsFormat ()
 {
     // general root settings
 	gROOT->SetStyle ("Plain") ;
-    gStyle->SetOptStat ("emruo") ;
+	gStyle->SetOptStat ("emruo") ;
 	gStyle->SetOptFit (1111) ;
 	gStyle->SetCanvasDefH (300) ; //Height of canvas
 	gStyle->SetCanvasDefW (300) ; //Width of canvas
@@ -64,6 +89,10 @@ void  plotterTools::setPlotsFormat ()
 	gStyle->SetTitleAlign (23) ; // center title text in title box
 	gStyle->SetTitleSize (0.04, "xyz") ;
 	gStyle->SetLabelSize (0.05, "xyz") ;
+
+	// Margins:
+
+
 
 	gStyle->SetPadRightMargin (0.05)  ;
 	gStyle->SetPadLeftMargin (0.15) ;
@@ -92,7 +121,8 @@ void  plotterTools::setPlotsFormat ()
 	gStyle->SetStatW (0.2) ;
 	gStyle->SetStatH (0.15) ;
 
-	set_plot_blue () ;
+	//	set_plot_blue () ;
+	set_palette_fancy () ;
 }
 
 
@@ -121,6 +151,20 @@ void  plotterTools::plotMe (TH1F * histo)
 
 void  plotterTools::plotMe (TH2F * histo)
 {
+
+  gStyle->SetPadTopMargin(0.05);
+  gStyle->SetPadBottomMargin(0.13);//0.13);
+  gStyle->SetPadLeftMargin(0.17);//0.16);
+  gStyle->SetPadRightMargin(0.13);//0.02);
+  
+  gStyle->SetStatX (0.85) ;
+  gStyle->SetStatY (0.45) ;
+  gStyle->SetStatW (0.2) ;
+  gStyle->SetStatH (0.15) ;
+
+
+
+
   TString hname = histo->GetName () ;
   TString canvasName =  outputDir_+ "/"+hname + "_small.png" ;
   TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
@@ -133,6 +177,9 @@ void  plotterTools::plotMe (TH2F * histo)
   c1->Print (canvasName, "png") ;
   delete c1 ;
   return ;
+
+  setPlotsFormat();
+
 }
 
 
@@ -335,9 +382,11 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
    addPlot("triggerEff",nBinsHistory, "history", group_,module_);
    addPlot("nEvts", nBinsHistory, "history", group_,module_);
-   //   addPlot("nTrigSPS", 100,0,10000, "1D",group_,module_);
+   addPlot("nTrigSPS", 100,0,10000, "1D",group_,module_);
    addPlot("nTrigSPSVsnTrig3D", 100,0,10000, "1D",group_,module_,3);
    addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);
+
+   //   addPlot("nTrigSPSVsnTrig3D_2", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_,3);
 }
 
 //for TGraph
@@ -353,7 +402,7 @@ void plotterTools::addPlot(TString name,int nPoints,TString type, TString group,
 }
 
 //for TH1F
-void plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module,int varDim){
+void plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim){
   initVariable(name,varDim);
 
    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;

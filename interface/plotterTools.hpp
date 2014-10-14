@@ -42,6 +42,7 @@ public:
   std::map<TString,TString > variablesContainerTitles_;
 
   void set_plot_blue ();
+  void set_palette_fancy ();
   void setPlotsFormat ();
   void plotMe (TH1F * histo);
   void plotMe (TH2F * histo);
@@ -65,7 +66,7 @@ public:
   void FillPlot(TString name, bool is2D=false,int varDim=1);//TH1F
   void addPlot(TString name,int nPoints,TString type, TString group, TString module);//TGraph
   void addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1);//TH1F
-  void addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle, TString type, TString group, TString module);
+  void addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle, TString type, TString group, TString module);//TH2F
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
   void initVariable(TString name, int varDim=1);
