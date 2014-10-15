@@ -277,35 +277,43 @@ void  plotterTools::readInputTree ()
   //Instantiate the tree branches
   inputTree_->Print();
 
-  inputTree_->SetBranchAddress("evtNumber",&treeStruct_.evtNumber);
-  inputTree_->SetBranchAddress("evtTimeDist",&treeStruct_.evtTimeDist);
-  inputTree_->SetBranchAddress("evtTimeStart",&treeStruct_.evtTimeStart);
-  inputTree_->SetBranchAddress("evtTime",&treeStruct_.evtTime);
+  inputTree_->SetBranchAddress("evtNumber"	,&treeStruct_.evtNumber);
+  inputTree_->SetBranchAddress("evtTimeDist"	,&treeStruct_.evtTimeDist);
+  inputTree_->SetBranchAddress("evtTimeStart"	,&treeStruct_.evtTimeStart);
 
+  inputTree_->SetBranchAddress("evtTime1"	,&treeStruct_.evtTime1);
+  inputTree_->SetBranchAddress("evtTime2"	,&treeStruct_.evtTime2);
+  inputTree_->SetBranchAddress("evtTime3"	,&treeStruct_.evtTime3);
 
-  inputTree_->SetBranchAddress("triggerWord",&treeStruct_.triggerWord);
+  inputTree_->SetBranchAddress("nAdcChannels"	,&treeStruct_.nAdcChannels);
+  inputTree_->SetBranchAddress("adcBoard"	,treeStruct_.adcBoard);
+  inputTree_->SetBranchAddress("adcChannel"	,treeStruct_.adcChannel);
+  inputTree_->SetBranchAddress("adcData"	,treeStruct_.adcData);
 
-  inputTree_->SetBranchAddress("nAdcChannels",&treeStruct_.nAdcChannels);
-  inputTree_->SetBranchAddress("adcBoard",treeStruct_.adcBoard);
-  inputTree_->SetBranchAddress("adcChannel",treeStruct_.adcChannel);
-  inputTree_->SetBranchAddress("adcData",treeStruct_.adcData);
+  inputTree_->SetBranchAddress("nTdcChannels"	,&treeStruct_.nTdcChannels);
+  inputTree_->SetBranchAddress("tdcBoard"	,treeStruct_.tdcBoard);
+  inputTree_->SetBranchAddress("tdcChannel"	,treeStruct_.tdcChannel);
+  inputTree_->SetBranchAddress("tdcData"	,treeStruct_.tdcData);
 
-  inputTree_->SetBranchAddress("nTdcChannels",&treeStruct_.nTdcChannels);
-  inputTree_->SetBranchAddress("tdcBoard",treeStruct_.tdcBoard);
-  inputTree_->SetBranchAddress("tdcChannel",treeStruct_.tdcChannel);
-  inputTree_->SetBranchAddress("tdcData",treeStruct_.tdcData);
-
-  inputTree_->SetBranchAddress("nDigiSamples",&treeStruct_.nDigiSamples);
-  inputTree_->SetBranchAddress("digiGroup",treeStruct_.digiGroup);
-  inputTree_->SetBranchAddress("digiChannel",treeStruct_.digiChannel);
+  inputTree_->SetBranchAddress("nDigiSamples"	,&treeStruct_.nDigiSamples);
+  inputTree_->SetBranchAddress("digiGroup"	,treeStruct_.digiGroup);
+  inputTree_->SetBranchAddress("digiChannel"	,treeStruct_.digiChannel);
   inputTree_->SetBranchAddress("digiSampleIndex",treeStruct_.digiSampleIndex);
   inputTree_->SetBranchAddress("digiSampleValue",treeStruct_.digiSampleValue);
+  inputTree_->SetBranchAddress("digiBoard"	,treeStruct_.digiBoard);
 
-  inputTree_->SetBranchAddress("nScalerWords",&treeStruct_.nScalerWords);
-  inputTree_->SetBranchAddress("scalerWord",treeStruct_.scalerWord);
+  inputTree_->SetBranchAddress("nScalerWords"	,&treeStruct_.nScalerWords);
+  inputTree_->SetBranchAddress("scalerWord"	,treeStruct_.scalerWord);
+  inputTree_->SetBranchAddress("scalerBoard"	,treeStruct_.scalerBoard);
 
-  inputTree_->SetBranchAddress("nPatterns",&treeStruct_.nPatterns);
-  inputTree_->SetBranchAddress("pattern",treeStruct_.pattern);
+  inputTree_->SetBranchAddress("nPatterns"	,&treeStruct_.nPatterns);
+  inputTree_->SetBranchAddress("pattern"	,treeStruct_.pattern);
+  inputTree_->SetBranchAddress("patternBoard"	,treeStruct_.patternBoard);
+  inputTree_->SetBranchAddress("patternChannel"	,treeStruct_.patternChannel);
+
+  inputTree_->SetBranchAddress("nTriggerWords"	,&treeStruct_.nTriggerWords);
+  inputTree_->SetBranchAddress("triggerWords"	,treeStruct_.triggerWords);
+  inputTree_->SetBranchAddress("triggerWordsBoard",treeStruct_.triggerWordsBoard);
 
 
   return ;
