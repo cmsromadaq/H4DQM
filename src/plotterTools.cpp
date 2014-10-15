@@ -357,11 +357,49 @@ void plotterTools::computeVariable(TString name, int varDim){
  }else if(name=="triggerRate"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
   }
+ else if(name=="TDCinputTime1"){
+   for (uint j=0; j<tdc_readings[0].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j);
+ }
+ else if(name=="TDCinputTime2"){
+   for (uint j=0; j<tdc_readings[1].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j);
+ }
+ else if(name=="TDCinputTime3"){
+   for (uint j=0; j<tdc_readings[2].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[2].at(j);
+ }
+ else if(name=="TDCinputTime4"){
+   for (uint j=0; j<tdc_readings[3].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
+ }
+ else if(name=="TDCtimeDiffX"){
+   for (uint j=0; j<tdc_readings[0].size() && j<tdc_readings[2].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j)-tdc_readings[2].at(j); // CHECK WHO IS X, Y
+ }
+ else if(name=="TDCtimeDiffY"){
+   for (uint j=0; j<tdc_readings[1].size() && j<tdc_readings[3].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j)-tdc_readings[3].at(j); // CHECK WHO IS X, Y
+ }
+ else if(name=="TDCrecoX"){ // WE NEED THE WIRE CHAMBER CALIBRATION TO FILL THESE
+   //   variablesContainer_[variablesIterator_[name]][???]=0
+ }
+ else if(name=="TDCrecoY"){
+   //   variablesContainer_[variablesIterator_[name]][???]=0
+ }
+ else if(name=="TDChistoryRecoX"){
+   //   variablesContainer_[variablesIterator_[name]][???]
+ }
+ else if(name=="TDChistoryRecoY"){
+   //   variablesContainer_[variablesIterator_[name]][???]
+ }
+ else if(name=="TDChistoryRMSX"){
+   //   variablesContainer_[variablesIterator_[name]][???]
+ }
+ else if(name=="TDChistoryRMSY"){
+   //   variablesContainer_[variablesIterator_[name]][???]
+ }
+
 
 }
 
-void plotterTools::initObjects(){
+void plotterTools::fillObjects(){
   initHodo();
+  initTdc();
 }
 
 void plotterTools::initHodo(){
@@ -379,7 +417,7 @@ void plotterTools::initHodo(){
    }
 
 
-   for(int i=0;i<treeStruct_.nPatterns;++i){
+   for(uint i=0;i<treeStruct_.nPatterns;++i){
 
    if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
      int word = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
@@ -413,6 +451,21 @@ void plotterTools::initHodo(){
 
 
    //   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
+}
+
+
+void plotterTools::initTdc(){
+
+  for (uint j=0; j<MaxTdcChannels; j++){
+    tdc_readings[j].clear();
+  }
+
+  for (uint i=0; i<treeStruct_.nTdcChannels; i++){
+    if (treeStruct_.tdcBoard[i]==0x07030001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
+      tdc_readings[treeStruct_.tdcChannel[i]].push_back((float)treeStruct_.tdcData[i]);
+    }
+  }
+
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -467,7 +520,7 @@ void  plotterTools::readInputTree ()
 void  plotterTools::Loop()
 {
 
-  int nentries = getTreeEntries();
+  uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
   //  nentries=1;
@@ -477,8 +530,8 @@ void  plotterTools::Loop()
     {
       inputTree_->GetEntry(iEntry);
 
-      if(iEntry==0)initHodo();
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
+      fillObjects();
   
       for (std::map<TString,float*>::const_iterator iter = variablesMap_.begin ();
            iter != variablesMap_.end () ; ++iter)
@@ -542,7 +595,6 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
   addPlot("nTrigSPS", 100,0,3000, "1D",group_,module_);//simple TH1F
   addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
   addPlot("nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
-
 }
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
@@ -577,9 +629,25 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("triggerRate",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
 }
 
+void plotterTools::bookPlotsTDC(int nBinsHistory){
+  addPlot("TDCinputTime1",100,0,1,"1D",group_,module_);
+  addPlot("TDCinputTime2",100,0,1,"1D",group_,module_);
+  addPlot("TDCinputTime3",100,0,1,"1D",group_,module_);
+  addPlot("TDCinputTime4",100,0,1,"1D",group_,module_);
+  addPlot("TDCtimeDiffX",100,0,1,"1D",group_,module_);
+  addPlot("TDCtimeDiffY",100,0,1,"1D",group_,module_);
+  addPlot("TDCrecoX",100,0,1,"1D",group_,module_);
+  addPlot("TDCrecoY",100,0,1,"1D",group_,module_);
+  addPlot("TDChistoryRecoX",nBinsHistory,"history",group_,module_);
+  addPlot("TDChistoryRecoY",nBinsHistory,"history",group_,module_);
+  addPlot("TDChistoryRMSX",nBinsHistory,"history",group_,module_);
+  addPlot("TDChistoryRMSY",nBinsHistory,"history",group_,module_);
+}
 
 void plotterTools::bookCombinedPlots(){
   addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+//  addPlotCombined("HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
+//  addPlotCombined("HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
 
 }
 

@@ -55,8 +55,13 @@ public:
   bool fibersOn_[nPlanesHodo][nFibersHodo];
   bool fibersOnSmall_[nPlanesSmallHodo][nFibersSmallHodo];
 
-  void initObjects();
+  //tdc readings
+  static const UInt_t MaxTdcChannels = 4;
+  std::vector<UInt_t> tdc_readings[MaxTdcChannels];
+
+  void fillObjects();
   void initHodo();
+  void initTdc();
   void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
@@ -76,6 +81,7 @@ public:
   void bookPlotsHodo (int nBinsHistory);
   void bookPlotsSmallHodo (int nBinsHistory);
   void bookPlotsDAQStatus (int nBinsHistory);
+  void bookPlotsTDC(int nBinsHistory);
   void bookCombinedPlots ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);
