@@ -49,11 +49,15 @@ int main (int argc, char ** argv)
 
   plotter.Loop();
 
-  //  plotter.bookCombinedPlots();
+
   plotter.fitHisto("beamPositionX1","gaus");
   plotter.fitHisto("beamPositionX2","gaus");
   plotter.fitHisto("beamPositionY1","gaus");
   plotter.fitHisto("beamPositionY2","gaus");
+  plotter.fitHisto("beamPositionX","gaus");
+  plotter.fitHisto("beamPositionY","gaus");
+
+  plotter.bookCombinedPlotsHodo();
 
   plotter.plotHistos();
   plotter.saveHistos();

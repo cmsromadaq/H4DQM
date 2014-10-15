@@ -16,6 +16,12 @@
 
 #define nPlanesHodo 4
 #define nFibersHodo 64
+//check if it is true this schema
+#define hodoX1 0
+#define hodoY1 1
+#define hodoX2 2
+#define hodoY2 3
+
 
 #define nPlanesSmallHodo 2
 #define nFibersSmallHodo 8
@@ -84,6 +90,7 @@ public:
   void bookPlotsDAQStatus (int nBinsHistory);
   void bookPlotsTDC(int nBinsHistory);
   void bookCombinedPlots ();
+  void bookCombinedPlotsHodo ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);
   void setModule(TString module);

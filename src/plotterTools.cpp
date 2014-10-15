@@ -63,8 +63,9 @@ void  plotterTools::setPlotsFormat ()
 {
     // general root settings
     gROOT->SetStyle ("Plain") ;
-    gStyle->SetOptStat ("emruo") ;
-    gStyle->SetOptFit (1111) ;
+    //    gStyle->SetOptStat ("emruo") ;
+    gStyle->SetOptStat ("emr") ;
+    gStyle->SetOptFit (0001) ;
     gStyle->SetCanvasDefH (300) ; //Height of canvas
     gStyle->SetCanvasDefW (300) ; //Width of canvas
     
@@ -268,9 +269,12 @@ void plotterTools::computeVariable(TString name, int varDim){
     variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
  }else if(name=="nFibersOnX1"){
 
+
+
+
    int fibersOn=0;
    for(int i=0;i<64;i++){
-     if(fibersOn_[0][i]==1) fibersOn++;
+     if(fibersOn_[hodoX1][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
@@ -278,7 +282,7 @@ void plotterTools::computeVariable(TString name, int varDim){
 
    int fibersOn=0;
    for(int i=0;i<64;i++){
-     if(fibersOn_[1][i]==1) fibersOn++;
+     if(fibersOn_[hodoY1][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
@@ -286,7 +290,7 @@ void plotterTools::computeVariable(TString name, int varDim){
 
    int fibersOn=0;
    for(int i=0;i<64;i++){
-     if(fibersOn_[2][i]==1) fibersOn++;
+     if(fibersOn_[hodoX2][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
@@ -294,7 +298,7 @@ void plotterTools::computeVariable(TString name, int varDim){
 
    int fibersOn=0;
    for(int i=0;i<64;i++){
-     if(fibersOn_[3][i]==1) fibersOn++;
+     if(fibersOn_[hodoY2][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
@@ -302,28 +306,28 @@ void plotterTools::computeVariable(TString name, int varDim){
 
    for(int i=0;i<64;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[0][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOn_[hodoX1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
  }else if(name=="beamProfileY1"){
 
    for(int i=0;i<64;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOn_[hodoY1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
  }else if(name=="beamProfileX2"){
 
    for(int i=0;i<64;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOn_[hodoX2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
  }else if(name=="beamProfileY2"){
 
    for(int i=0;i<64;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[3][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOn_[hodoY2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
  }else if(name=="beamPositionX1"){
@@ -331,7 +335,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    float pos=0;
    int nFibersOn=0;
    for (int i=0;i<64;++i){   
-       if(fibersOn_[0][i]==1){
+       if(fibersOn_[hodoX1][i]==1){
 	 nFibersOn++;
 	 pos+=i; 
        }
@@ -349,7 +353,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    float pos=0;
    int nFibersOn=0;
    for (int i=0;i<64;++i){   
-       if(fibersOn_[1][i]==1){
+       if(fibersOn_[hodoY1][i]==1){
 	 nFibersOn++;
 	 pos+=i; 
        }
@@ -367,7 +371,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    float pos=0;
    int nFibersOn=0;
    for (int i=0;i<64;++i){   
-       if(fibersOn_[2][i]==1){
+       if(fibersOn_[hodoX2][i]==1){
 	 nFibersOn++;
 	 pos+=i; 
        }
@@ -385,7 +389,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    float pos=0;
    int nFibersOn=0;
    for (int i=0;i<64;++i){   
-       if(fibersOn_[3][i]==1){
+       if(fibersOn_[hodoY2][i]==1){
 	 nFibersOn++;
 	 pos+=i; 
        }
@@ -402,7 +406,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    
    for(int i =0 ;i<8;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOnSmall_[0][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOnSmall_[hodoX1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
  }else if(name == "beamProfileSmallY"){
 
@@ -414,7 +418,7 @@ void plotterTools::computeVariable(TString name, int varDim){
 
    int fibersOn=0;
    for(int i=0;i<8;i++){
-     if(fibersOn_[0][i]==1) fibersOn++;
+     if(fibersOn_[hodoX1][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
@@ -425,6 +429,48 @@ void plotterTools::computeVariable(TString name, int varDim){
      if(fibersOn_[1][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="beamPositionX"){
+
+   float pos=0;
+   int nFibersOn=0;
+   for(int j=0;j<4;j++){
+     if(j!=hodoX1 && j!=hodoX2)continue;
+     for (int i=0;i<64;++i){   
+       if(fibersOn_[j][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   }
+
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+ }else if(name=="beamPositionY"){
+
+   float pos=0;
+   int nFibersOn=0;
+   for(int j=0;j<4;j++){
+     if(j!=hodoY1 && j!=hodoY2)continue;
+     for (int i=0;i<64;++i){   
+       if(fibersOn_[j][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   }
+
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
 
  }else if(name=="triggerRate"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
@@ -478,6 +524,8 @@ void plotterTools::computeVariable(TString name, int varDim){
 void plotterTools::fillObjects(){
   initHodo();
   initTdc();
+
+
 }
 
 void plotterTools::initHodo(){
@@ -677,6 +725,7 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
+
   addPlot("beamProfileX1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
   addPlot("beamProfileY1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
   addPlot("beamProfileX2", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
@@ -691,6 +740,17 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot("beamPositionX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
   addPlot("beamPositionY1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
   addPlot("beamPositionY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+
+  addPlot("beamPositionX", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+
+}
+
+void plotterTools::bookCombinedPlotsHodo(){
+
+  addPlotCombined("hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+  addPlotCombined("hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+
 }
 
 void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
