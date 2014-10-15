@@ -1,7 +1,7 @@
 #include <plotterTools.hpp>
 
 
-plotterTools::plotterTools(char* filename, char*outfname, char* outdname){
+plotterTools::plotterTools(const char* filename, const char*outfname, const char* outdname){
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
