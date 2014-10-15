@@ -1,5 +1,5 @@
 #include <plotterTools.hpp>
-
+#include <assert.h>
 
 plotterTools::plotterTools(const char* filename, const char*outfname, const char* outdname){
 
@@ -17,6 +17,50 @@ plotterTools::plotterTools(const char* filename, const char*outfname, const char
   outputDir_=outdname;
 
 };
+
+void plotterTools::initIntegrated(TString nameFile){
+
+  isIntegratedNew=true;
+  integratedFile_=TFile::Open(nameFile,"new");
+  if(integratedFile_==NULL){
+  isIntegratedNew=false;
+    integratedFile_=TFile::Open(nameFile,"Update");
+  }
+  assert(integratedFile_!=NULL);
+
+  if(isIntegratedNew){
+    integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
+    integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
+  }else{
+    integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
+    integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
+  }
+  TH1F* hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
+  TH1F* hY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionY"]];
+
+  int iBin=0;
+  for(iBin=1;iBin<integratedPlots_["hodo_meanX_spill"]->GetNbinsX() && integratedPlots_["hodo_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}
+  integratedPlots_["hodo_meanX_spill"]->SetBinContent(iBin,hX_info->GetMean());
+  integratedPlots_["hodo_meanX_spill"]->SetBinError(iBin,hX_info->GetRMS());
+
+  integratedPlots_["hodo_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
+  integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
+
+  std::cout<<"meanX:"<<hX_info->GetMean()<<"meanY:"<<hY_info->GetMean();
+
+  setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
+  setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
+
+  plotMe(integratedPlots_["hodo_meanX_spill"]);
+  plotMe(integratedPlots_["hodo_meanY_spill"]);
+
+  integratedFile_->cd();
+  
+  for(std::map<TString,TH1F*>::const_iterator out=integratedPlots_.begin();out!=integratedPlots_.end();++out)
+    out->second->Write(out->first,TObject::kOverwrite);
+
+  integratedFile_->Close();
+}
 
 
 void plotterTools::set_palette_fancy (){
@@ -525,10 +569,19 @@ void plotterTools::fillObjects(){
   initHodo();
   initTdc();
 
+   fibersOn_[0][10]=1;
+   fibersOn_[0][11]=1;
+   fibersOn_[0][12]=1;
+
+   fibersOn_[1][20]=1;
+   fibersOn_[1][21]=1;
+   fibersOn_[1][22]=1;
+
 
 }
 
 void plotterTools::initHodo(){
+
 
    for(int i=0;i<nPlanesHodo;++i){
      for(int j=0;j<nFibersHodo;++j){

@@ -38,10 +38,13 @@ public:
   TChain* inputTree_;
   TFile* inputFile_;
   TFile* outputFile_;
+  TFile* integratedFile_;
   TString outputDir_;
 
   TString module_, group_;
   int historyStep_;//set the step of events for history plots
+  bool isIntegratedNew;
+  std::map<TString,TH1F*> integratedPlots_;
 
   treeStructData treeStruct_;
 
@@ -114,6 +117,8 @@ public:
   //fibers
   int findPosition(std::vector<int>* fiberVec, int n);
 
+  //integratedfile
+  void initIntegrated(TString nameFile);
 };
 
 #endif
