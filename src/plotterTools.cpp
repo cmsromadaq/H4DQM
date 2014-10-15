@@ -266,10 +266,56 @@ void plotterTools::computeVariable(TString name, int varDim){
     variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
     variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
     variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
-  }
+ }else if(name=="nFibersOn"){
+
+   const int nPlanes=4;
+   const int nFibers=64;
+
+   bool fibersOn[nPlanes][nFibers];
+
+   const int nPlanesSmall=2;
+   const int nFibersSmall=8;
+
+   bool fibersOnSmall[nPlanesSmall][nFibersSmall];
+
+
+
+   for(int i=0;i<treeStruct_.nPatterns;++i){
+
+   if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
+     int word = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
+     for(int j=1;j<=64;j++){
+       fibersOn[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
+       std::vector<int> *x =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderA : &fiberOrderB;
+       int y=findPosition(x,j);
+       if(y<0) continue;
+       fibersOn[word*2+treeStruct_.patternChannel[i]%2][j-1]=(treeStruct_.pattern[i]>>(uint)y)&0b1;
+     }
+   }else if(treeStruct_.patternBoard[i]==0x08010001){
+
+       WORD wordX=(treeStruct_.pattern[9]& 0x0000FF00)>>8;
+       WORD wordY= (treeStruct_.pattern[9] & 0x000000FF);
+
+
+       for(int i=0;i<8;++i){
+	 fibersOnSmall[0][i]=(bool)((wordX>>i)&0b1);
+	 fibersOnSmall[1][i]=(bool)((wordY>>i)&0b1);
+	 std::cout<<fibersOnSmall[0][i]<<" "<<fibersOnSmall[1][i]<<"----";
+       }
+     }
+     //     }
+   
+   }
+
+
+
+
+
+   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall[0][i]<<" "<<fibersOnSmall[1][i]<<"----";
+
+ }
 
 }
-
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 void  plotterTools::readInputTree ()
@@ -324,8 +370,7 @@ void  plotterTools::Loop()
 {
 
   int nentries = getTreeEntries();
-
-
+  nentries=1;
   int nBinsHistory=nentries/getStepHistoryPlots();
 
   //loop and fill histos
@@ -391,6 +436,9 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
   addPlot("nTrigSPS", 100,0,3000, "1D",group_,module_);//simple TH1F
   addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
   addPlot("nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
+
+  addPlot("nFibersOn", 64,0, 64,"1D",group_,module_);//simple TH1F
+
 }
 
 void plotterTools::bookCombinedPlots(){
@@ -614,3 +662,83 @@ void plotterTools::printHistos(){
   std::cout << "==================== Loop over events =======================" << std::endl;
 }
 
+void::plotterTools::fillFiberOrder(){
+  fiberOrderA.push_back(31);
+  fiberOrderA.push_back(29);
+  fiberOrderA.push_back(23);
+  fiberOrderA.push_back(21);
+  fiberOrderA.push_back(5);
+  fiberOrderA.push_back(7);
+  fiberOrderA.push_back(15);
+  fiberOrderA.push_back(13);
+  fiberOrderA.push_back(1);
+  fiberOrderA.push_back(3);
+  fiberOrderA.push_back(11);
+  fiberOrderA.push_back(9);
+  fiberOrderA.push_back(6);
+  fiberOrderA.push_back(8);
+  fiberOrderA.push_back(16);
+  fiberOrderA.push_back(14);
+  fiberOrderA.push_back(17);
+  fiberOrderA.push_back(27);
+  fiberOrderA.push_back(19);
+  fiberOrderA.push_back(25);
+  fiberOrderA.push_back(24);
+  fiberOrderA.push_back(22);
+  fiberOrderA.push_back(32);
+  fiberOrderA.push_back(30);
+  fiberOrderA.push_back(4);
+  fiberOrderA.push_back(2);
+  fiberOrderA.push_back(12);
+  fiberOrderA.push_back(10);
+  fiberOrderA.push_back(20);
+  fiberOrderA.push_back(18);
+  fiberOrderA.push_back(28);
+  fiberOrderA.push_back(26);
+
+  fiberOrderB.push_back(54);
+  fiberOrderB.push_back(64);
+  fiberOrderB.push_back(56);
+  fiberOrderB.push_back(62);
+  fiberOrderB.push_back(49);
+  fiberOrderB.push_back(51);
+  fiberOrderB.push_back(59);
+  fiberOrderB.push_back(57);
+  fiberOrderB.push_back(53);
+  fiberOrderB.push_back(55);
+  fiberOrderB.push_back(63);
+  fiberOrderB.push_back(61);
+  fiberOrderB.push_back(45);
+  fiberOrderB.push_back(47);
+  fiberOrderB.push_back(37);
+  fiberOrderB.push_back(39);
+  fiberOrderB.push_back(34);
+  fiberOrderB.push_back(42);
+  fiberOrderB.push_back(36);
+  fiberOrderB.push_back(44);
+  fiberOrderB.push_back(50);
+  fiberOrderB.push_back(52);
+  fiberOrderB.push_back(58);
+  fiberOrderB.push_back(60);
+  fiberOrderB.push_back(38);
+  fiberOrderB.push_back(48);
+  fiberOrderB.push_back(40);
+  fiberOrderB.push_back(46);
+  fiberOrderB.push_back(41);
+  fiberOrderB.push_back(43);
+  fiberOrderB.push_back(33);
+  fiberOrderB.push_back(35);
+
+}
+
+int plotterTools::findPosition(std::vector<int>* fiberVec, int n){
+
+  std::vector<int>::iterator iter=  std::find(fiberVec->begin(), fiberVec->end(),n);
+
+  if(iter==fiberVec->end()){
+    return -1;
+  }else{
+    return iter-fiberVec->begin();
+  }
+
+}

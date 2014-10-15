@@ -32,6 +32,8 @@ public:
 
   treeStructData treeStruct_;
 
+  std::vector<int> fiberOrderA;
+  std::vector<int> fiberOrderB;
   std::map<TString,TObject*> outObjects_;
   std::map<TString,TString> plotShortNames_;
   std::map<TString,TString> plotLongNames_;
@@ -41,6 +43,7 @@ public:
   std::map<TString,std::vector<float> > variablesContainer_;
   std::map<TString,TString > variablesContainerTitles_;
 
+  void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
   void setPlotsFormat ();
@@ -75,6 +78,10 @@ public:
   void initVariable(TString name, int varDim=1);
   void computeVariable(TString name, int varDim=1);
   pair<int, string> execute (const string & command);
+
+  //fibers
+  int findPosition(std::vector<int>* fiberVec, int n);
+
 };
 
 #endif
