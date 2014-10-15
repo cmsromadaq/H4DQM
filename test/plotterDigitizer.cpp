@@ -132,12 +132,12 @@ int main (int argc, char ** argv)
   UInt_t          nDigiSamples ;
   TBranch        *b_nDigiSamples ;
   plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples, &b_nDigiSamples) ;
-  Float_t         digiSampleValue[9216];   //[nDigiSamples]
-  TBranch        *b_digiSampleValue;   //!
-  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue, &b_digiSampleValue);
-  UInt_t          digiSampleIndex[9216];   //[nDigiSamples]
-  TBranch        *b_digiSampleIndex;   //!
-  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex, &b_digiSampleIndex);
+  Float_t         digiSampleValue[9216] ;
+  TBranch        *b_digiSampleValue ;
+  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue, &b_digiSampleValue) ;
+  UInt_t          digiSampleIndex[9216] ;
+  TBranch        *b_digiSampleIndex ;
+  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex, &b_digiSampleIndex) ;
 
   plotter.inputTree_->GetEvent (0) ;
   set<int> channels = listElements (digiChannel,  nDigiSamples) ;
@@ -148,14 +148,14 @@ int main (int argc, char ** argv)
   // get them from the file itself, by doing the first plot.
 
   pair<float, float> xRange = getRange (digiSampleIndex, nDigiSamples) ;
-  int xNbins = 100 ;
+  int xNbins = nDigiSamples ;
   float xmin = xRange.first ;
   float xmax = xRange.second ;
 
   pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
   int yNbins = 100 ;
-  float ymin = yRange.first ;
-  float ymax = yRange.second ;
+  float ymin = yRange.first - 0.1 * fabs (yRange.first) ;
+  float ymax = yRange.second + 0.1 * fabs (yRange.second) ;
 
   // prepare and fill the plots
   // ---- ---- ---- ---- ---- ---- ---- ----
