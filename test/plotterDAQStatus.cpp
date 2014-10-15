@@ -5,9 +5,10 @@ int main (int argc, char ** argv)
   char *filename = NULL;
   char *outfname = NULL;
   char *outdname = NULL;
+  char *integratedfname = NULL;
   int c;
 
-  while ((c = getopt (argc, argv, "f:d:o:")) != -1)
+  while ((c = getopt (argc, argv, "f:d:o:I:")) != -1)
     switch (c)
       {
       case 'f':
@@ -19,10 +20,12 @@ int main (int argc, char ** argv)
       case 'd':
 	outdname = optarg;
 	break;
-
+      case 'I':
+	integratedfname=optarg;
+	break;
 
       case '?':
-	if (optopt == 'f'|| optopt == 'o'|| optopt == 'd')
+	if (optopt == 'f'|| optopt == 'o'|| optopt == 'd'||optopt == 'I')
 	  fprintf (stderr, "Option -%c requires an argument.\n", optopt);
 	else if (isprint (optopt))
 	  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -49,6 +52,8 @@ int main (int argc, char ** argv)
   plotter.Loop();
 
   //  plotter.bookCombinedPlots();
+
+    if(integratedfname)  plotter.initIntegrated(integratedfname); 
 
   plotter.plotHistos();
   plotter.saveHistos();

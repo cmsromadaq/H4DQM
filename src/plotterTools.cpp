@@ -28,15 +28,55 @@ void plotterTools::initIntegrated(TString nameFile){
   }
   assert(integratedFile_!=NULL);
 
-  if(isIntegratedNew){
-    integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
-    integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
-  }else{
-    integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
-    integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
+  map<TString, TObject*>::iterator it;
+
+  TH1F* evt_info=NULL;
+
+  TH1F* hX_info=NULL;
+  TH1F* hY_info=NULL;
+
+  it=outObjects_.find(plotLongNames_["beamPositionX"]);
+  if(it!=outObjects_.end()){
+   hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
+   hY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionY"]];
   }
-  TH1F* hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
-  TH1F* hY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionY"]];
+
+  it=outObjects_.find(plotLongNames_["nTotalEvts"]);
+  if(it!=outObjects_.end()){
+    evt_info=(TH1F*)outObjects_[plotLongNames_["nTotalEvts"]];
+  }
+
+  //  if(isIntegratedNew){
+    if(hX_info!=NULL){
+      integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
+      integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
+    }
+    if(evt_info!=NULL){
+      std::cout<<"histo created"<<endl;
+      integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+    }
+
+    //  }else{
+    if(hX_info!=NULL){
+
+      integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
+      integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
+      if(integratedPlots_["hodo_meanX_spill"]==NULL){
+	integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
+	integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
+      }
+
+    }
+    //    }
+    if(evt_info!=NULL){
+      integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
+      if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
+	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+      }
+    }
+
+
+  if(hX_info!=NULL){
 
   int iBin=0;
   for(iBin=1;iBin<integratedPlots_["hodo_meanX_spill"]->GetNbinsX() && integratedPlots_["hodo_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}
@@ -53,7 +93,18 @@ void plotterTools::initIntegrated(TString nameFile){
 
   plotMe(integratedPlots_["hodo_meanX_spill"]);
   plotMe(integratedPlots_["hodo_meanY_spill"]);
+  }
 
+  if(evt_info != NULL){
+
+  int iBin=0;
+  for(iBin=1;iBin<integratedPlots_["nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
+  integratedPlots_["nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
+  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
+  setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
+  plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
+
+  }
   integratedFile_->cd();
   
   for(std::map<TString,TH1F*>::const_iterator out=integratedPlots_.begin();out!=integratedPlots_.end();++out)
@@ -518,8 +569,10 @@ void plotterTools::computeVariable(TString name, int varDim){
 
  }else if(name=="triggerRate"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+ }else if(name=="nTotalEvts"){
+    variables_[variablesIterator_[name]]=((float)1.);
   }
- else if(name=="TDCinputTime1"){
+ else if(name=="TDCinputTime1"){//TDC
    for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
    for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j);
  }
@@ -569,13 +622,13 @@ void plotterTools::fillObjects(){
   initHodo();
   initTdc();
 
-   fibersOn_[0][10]=1;
-   fibersOn_[0][11]=1;
-   fibersOn_[0][12]=1;
+   // fibersOn_[0][10]=1;
+   // fibersOn_[0][11]=1;
+   // fibersOn_[0][12]=1;
 
-   fibersOn_[1][20]=1;
-   fibersOn_[1][21]=1;
-   fibersOn_[1][22]=1;
+   // fibersOn_[1][20]=1;
+   // fibersOn_[1][21]=1;
+   // fibersOn_[1][22]=1;
 
 
 }
@@ -821,6 +874,7 @@ void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("triggerRate",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
 }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
