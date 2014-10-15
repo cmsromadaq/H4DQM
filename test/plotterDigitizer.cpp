@@ -1,3 +1,9 @@
+/* usage example
+
+./bin/plotterDigitizer -f /data2/govoni/data/digi/99/119.root -d /data2/govoni/data/plots -o plots_119.root
+ 
+*/
+
 //#include <libxml/parser.h>
 //#include <libxml/tree.h>
 
@@ -26,21 +32,41 @@ void addToPersistency (TH2F * pPlot, TChain * event,
   command += pPlot->GetName () ;
   TString selection = "digiGroup==" ;
   selection += digiGroup ;
-  selection += "digiChannel=" ;
+  selection += "&&digiChannel==" ;
   selection += digiChannel ;
   event->Draw (command, selection) ;
   return ;
 }
 
 
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
+template <class T>
+pair<float, float>
+getRange (T * array, int Nmax)
+{
+  float min = array[0] ;
+  float max = array[0] ;
+  for (int i = 0 ; i < Nmax ; ++i)
+    {
+      if (array[i] > max) max = array[i] ;
+      if (array[i] < min) min = array[i] ;
+    }
+  return pair<float, float> (min, max) ;
+}
+
+
+// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
+
+
+template <class T>
 set<int>
-listElements (UInt_t * array, int max)
+listElements (T * array, int Nmax)
 {
   set<int> elements ;
-  for (int i = 0 ; i < max ; ++i)
+  for (int i = 0 ; i < Nmax ; ++i)
     {
       if (elements.find (array[i]) != elements.end ()) continue ;
       elements.insert (array[i]) ;
@@ -106,6 +132,12 @@ int main (int argc, char ** argv)
   UInt_t          nDigiSamples ;
   TBranch        *b_nDigiSamples ;
   plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples, &b_nDigiSamples) ;
+  Float_t         digiSampleValue[9216];   //[nDigiSamples]
+  TBranch        *b_digiSampleValue;   //!
+  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue, &b_digiSampleValue);
+  UInt_t          digiSampleIndex[9216];   //[nDigiSamples]
+  TBranch        *b_digiSampleIndex;   //!
+  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex, &b_digiSampleIndex);
 
   plotter.inputTree_->GetEvent (0) ;
   set<int> channels = listElements (digiChannel,  nDigiSamples) ;
@@ -115,13 +147,15 @@ int main (int argc, char ** argv)
   // ---- ---- ---- ---- ---- ---- ---- ----
   // get them from the file itself, by doing the first plot.
 
+  pair<float, float> xRange = getRange (digiSampleIndex, nDigiSamples) ;
   int xNbins = 100 ;
-  float xmin = 0 ;
-  float xmax = 100. ;
-      
+  float xmin = xRange.first ;
+  float xmax = xRange.second ;
+
+  pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
   int yNbins = 100 ;
-  float ymin = 0 ;
-  float ymax = 100. ;
+  float ymin = yRange.first ;
+  float ymax = yRange.second ;
 
   // prepare and fill the plots
   // ---- ---- ---- ---- ---- ---- ---- ----
@@ -137,7 +171,6 @@ int main (int argc, char ** argv)
           name += *iGroup ;
           name += "_ch" ;
           name += *iChannel ;
-//          TH2F * dummy = new TH2F (name, name, xNbins, xmin, xmax, yNbins, ymin, ymax) ;
           TH2F * dummy = plotter.addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
                            "time", "voltage",
                            "2D", plotter.group_, plotter.module_) ;
