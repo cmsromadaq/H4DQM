@@ -113,7 +113,8 @@ int main (int argc, char ** argv)
 
   // read the expected ranges for histos from xml file, or from the digi info?
   // ---- ---- ---- ---- ---- ---- ---- ----
-  
+  // get them from the file itself, by doing the first plot.
+
   int xNbins = 100 ;
   float xmin = 0 ;
   float xmax = 100. ;
