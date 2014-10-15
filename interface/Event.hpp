@@ -29,9 +29,9 @@ struct treeStructData
   unsigned int evtNumber ;
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
-  uint64_t 	evtTime1 ;
-  uint64_t 	evtTime2 ;
-  uint64_t 	evtTime3 ;
+  ULong64_t 	evtTime1 ;
+  ULong64_t 	evtTime2 ;
+  ULong64_t 	evtTime3 ;
 
 
 //  unsigned int triggerBits ;
