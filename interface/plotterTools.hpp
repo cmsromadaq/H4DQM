@@ -74,6 +74,8 @@ public:
   void printHistos();
   void bookPlotsScaler (int nBinsHistory);
   void bookPlotsHodo (int nBinsHistory);
+  void bookPlotsSmallHodo (int nBinsHistory);
+  void bookPlotsDAQStatus (int nBinsHistory);
   void bookCombinedPlots ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);

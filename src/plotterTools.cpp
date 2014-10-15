@@ -326,7 +326,37 @@ void plotterTools::computeVariable(TString name, int varDim){
      if(fibersOn_[3][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
- }
+ }else if(name == "beamProfileSmallX"){//small hodo
+
+   for(int i =0 ;i<8;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOnSmall_[0][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+ }else if(name == "beamProfileSmallY"){//small hodo
+
+   for(int i =0 ;i<8;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOnSmall_[1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+ }else if(name=="nFibersOnSmallX"){
+
+   int fibersOn=0;
+   for(int i=0;i<8;i++){
+     if(fibersOn_[0][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="nFibersOnSmallX"){
+
+   int fibersOn=0;
+   for(int i=0;i<8;i++){
+     if(fibersOn_[1][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="triggerRate"){//DAQ Status
+    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+  }
 
 }
 
@@ -440,7 +470,7 @@ void  plotterTools::Loop()
   int nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
-  nentries=1;
+  //  nentries=1;
 
   //loop and fill histos
   for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
@@ -529,6 +559,24 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
 
 
 }
+
+void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
+
+  addPlot("beamProfileSmallX", 8,-0.5, 8.5,"1D",group_,module_,8);//simple TH1F
+  addPlot("beamProfileSmallY", 8,-0.5, 8.5,"1D",group_,module_,8);//simple TH1F
+
+  addPlot("nFibersOnSmallX", 8,-0.5, 8.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnSmallY", 8,-0.5, 8.5,"1D",group_,module_);//simple TH1F
+
+
+
+}
+
+
+void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
+  addPlot("triggerRate",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+}
+
 
 void plotterTools::bookCombinedPlots(){
   addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
