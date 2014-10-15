@@ -326,13 +326,85 @@ void plotterTools::computeVariable(TString name, int varDim){
      if(fibersOn_[3][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
 
- }else if(name == "beamProfileSmallX"){//small hodo
+ }else if(name=="beamPositionX1"){
 
+   float pos=0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[0][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+
+ }else if(name=="beamPositionY1"){
+
+   float pos=0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[1][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+
+ }else if(name=="beamPositionX2"){
+
+   float pos=0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[2][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+
+ }else if(name=="beamPositionY2"){
+
+   float pos=0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[3][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+
+ }else if(name == "beamProfileSmallX"){//small hodo
+   
    for(int i =0 ;i<8;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
      if(fibersOnSmall_[0][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
- }else if(name == "beamProfileSmallY"){//small hodo
+ }else if(name == "beamProfileSmallY"){
 
    for(int i =0 ;i<8;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
@@ -557,7 +629,10 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot("nFibersOnX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
   addPlot("nFibersOnY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
 
-
+  addPlot("beamPositionX1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
 }
 
 void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
@@ -583,6 +658,11 @@ void plotterTools::bookCombinedPlots(){
 
 }
 
+void plotterTools::fitHisto(TString name,TString func){
+
+  ((TH1F*) outObjects_[plotLongNames_[name]])->Fit(func);
+
+}
 
 void plotterTools::addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module){
   initVariable(name);
@@ -723,6 +803,8 @@ int plotterTools::getTreeEntries(){
 int plotterTools::getStepHistoryPlots(){
   return  historyStep_;
 }
+
+
 
 
 void plotterTools::saveHistos(){
