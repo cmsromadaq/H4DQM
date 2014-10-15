@@ -517,15 +517,15 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
-  addPlot("beamProfileX1", 64,0, 64,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY1", 64,0, 64,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileX2", 64,0, 64,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY2", 64,0, 64,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileX1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileX2", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY2", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
 
-  addPlot("nFibersOnX1", 64,0, 64,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY1", 64,0, 64,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnX2", 64,0, 64,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY2", 64,0, 64,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnX1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
 
 
 }
