@@ -24,6 +24,9 @@
 #include "interface/CAEN_V1742.hpp"
 #include <bitset>
 
+#define DEBUG_UNPACKER 0
+#define DEBUG_VERBOSE_UNPACKER 0
+
 using namespace std ;
 
 
@@ -34,6 +37,10 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
   //PG loop over board words (the header was already read in SpillUnpacker
   for (unsigned int i = 0 ; i < dig1742Words_ ; ++i)
     {
+	//cout<< "[CAEN_V1742]::[Unpack]:: fr="<<i<<"/"<<dig1742Words_ 
+	//	<< "  BoardHeader "<<std::hex<<bH.boardID<<std::dec
+	//	<< "  Ch "<< channelId_
+	//	<<endl;
       // read the word from the stream
       // ---- ---- ---- ---- ---- ---- ---- ----
     
