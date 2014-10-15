@@ -42,8 +42,8 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("patternChannel"	,treeData.patternChannel,"patternChannel[nPatterns]/i");
 
   tree->Branch("nTriggerWords"	,&treeData.nTriggerWords,"nTriggerWords/i");
-  tree->Branch("triggerWords"	,treeData.triggerWords,"triggerWords[nTriggerWordss]/i");
-  tree->Branch("triggerWordsBoard",treeData.triggerWordsBoard,"triggerWordsBoard[nTriggerWordss]/i");
+  tree->Branch("triggerWords"	,treeData.triggerWords,"triggerWords[nTriggerWords]/i");
+  tree->Branch("triggerWordsBoard",treeData.triggerWordsBoard,"triggerWordsBoard[nTriggerWords]/i");
 
   return ;
 } 
