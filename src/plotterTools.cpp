@@ -266,18 +266,87 @@ void plotterTools::computeVariable(TString name, int varDim){
     variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
     variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
     variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
- }else if(name=="nFibersOn"){
+ }else if(name=="nFibersOnX1"){
 
-   const int nPlanes=4;
-   const int nFibers=64;
+   int fibersOn=0;
+   for(int i=0;i<64;i++){
+     if(fibersOn_[0][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
 
-   bool fibersOn[nPlanes][nFibers];
+ }else if(name=="nFibersOnY1"){
 
-   const int nPlanesSmall=2;
-   const int nFibersSmall=8;
+   int fibersOn=0;
+   for(int i=0;i<64;i++){
+     if(fibersOn_[1][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
 
-   bool fibersOnSmall[nPlanesSmall][nFibersSmall];
+ }else if(name=="nFibersOnX2"){
 
+   int fibersOn=0;
+   for(int i=0;i<64;i++){
+     if(fibersOn_[2][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="nFibersOnY2"){
+
+   int fibersOn=0;
+   for(int i=0;i<64;i++){
+     if(fibersOn_[3][i]==1) fibersOn++;
+   }
+   variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="beamProfileX1"){
+
+   for(int i=0;i<64;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOn_[0][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+
+ }else if(name=="beamProfileY1"){
+
+   for(int i=0;i<64;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOn_[1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+
+ }else if(name=="beamProfileX2"){
+
+   for(int i=0;i<64;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOn_[2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+
+ }else if(name=="beamProfileY2"){
+
+   for(int i=0;i<64;i++){
+     variablesContainer_[variablesIterator_[name]][i]=-1;
+     if(fibersOn_[3][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+   }
+
+ }
+
+}
+
+void plotterTools::initObjects(){
+  initHodo();
+}
+
+void plotterTools::initHodo(){
+
+   for(int i=0;i<nPlanesHodo;++i){
+     for(int j=0;j<nFibersHodo;++j){
+       fibersOn_[i][j]=0;
+     }
+   }
+
+   for(int i =0 ; i <nPlanesSmallHodo;++i){
+     for(int j=0; j<nFibersSmallHodo;j++){
+       fibersOnSmall_[i][j]=0;
+     }
+   }
 
 
    for(int i=0;i<treeStruct_.nPatterns;++i){
@@ -285,22 +354,23 @@ void plotterTools::computeVariable(TString name, int varDim){
    if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
      int word = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
      for(int j=1;j<=64;j++){
-       fibersOn[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
+       fibersOn_[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
        std::vector<int> *x =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderA : &fiberOrderB;
        int y=findPosition(x,j);
        if(y<0) continue;
-       fibersOn[word*2+treeStruct_.patternChannel[i]%2][j-1]=(treeStruct_.pattern[i]>>(uint)y)&0b1;
+       fibersOn_[2*word+treeStruct_.patternChannel[i]%2][j-1]=(treeStruct_.pattern[i]>>(uint)y)&0b1;
      }
    }else if(treeStruct_.patternBoard[i]==0x08010001){
-
-       WORD wordX=(treeStruct_.pattern[9]& 0x0000FF00)>>8;
-       WORD wordY= (treeStruct_.pattern[9] & 0x000000FF);
+     
+     if(treeStruct_.patternChannel[i]!=1)continue;
+       WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
+       WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
 
 
        for(int i=0;i<8;++i){
-	 fibersOnSmall[0][i]=(bool)((wordX>>i)&0b1);
-	 fibersOnSmall[1][i]=(bool)((wordY>>i)&0b1);
-	 std::cout<<fibersOnSmall[0][i]<<" "<<fibersOnSmall[1][i]<<"----";
+	 fibersOnSmall_[0][i]=(bool)((wordX>>i)&0b1);
+	 fibersOnSmall_[1][i]=(bool)((wordY>>i)&0b1);
+	 //	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
        }
      }
      //     }
@@ -309,12 +379,10 @@ void plotterTools::computeVariable(TString name, int varDim){
 
 
 
+   //   for(int i=0;i<64;i++)std::cout<<fibersOn_[0][i]<<" ";
 
 
-   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall[0][i]<<" "<<fibersOnSmall[1][i]<<"----";
-
- }
-
+   //   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
 }
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -370,20 +438,24 @@ void  plotterTools::Loop()
 {
 
   int nentries = getTreeEntries();
-  nentries=1;
   int nBinsHistory=nentries/getStepHistoryPlots();
+
+  nentries=1;
 
   //loop and fill histos
   for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
     {
       inputTree_->GetEntry(iEntry);
+
+      if(iEntry==0)initHodo();
+      if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
   
       for (std::map<TString,float*>::const_iterator iter = variablesMap_.begin ();
            iter != variablesMap_.end () ; ++iter)
         {
           if(plotLongNames_[iter->first].Contains("1D"))
             {
-              if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
+
               FillPlot (iter->first, false, variablesContainer_[variablesIterator_[iter->first]].size ()) ;
             } else if (plotLongNames_[iter->first].Contains ("2D"))
             {
@@ -419,7 +491,11 @@ void plotterTools::FillPlot(TString name, bool is2D, int varDim){
     if(!(varDim>1)){
       ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variables_[variablesIterator_[name]]);
     }else{
-      for(int i=0;i<varDim;i++)      ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][i]);
+
+
+      for(int i=0;i<varDim;i++){
+	  ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][i]);
+      }
     }
   }else {
     computeVariable(name,2);
@@ -437,7 +513,20 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
   addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
   addPlot("nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
 
-  addPlot("nFibersOn", 64,0, 64,"1D",group_,module_);//simple TH1F
+}
+
+void plotterTools::bookPlotsHodo(int nBinsHistory){
+
+  addPlot("beamProfileX1", 64,0, 64,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY1", 64,0, 64,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileX2", 64,0, 64,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY2", 64,0, 64,"1D",group_,module_,64);//simple TH1F
+
+  addPlot("nFibersOnX1", 64,0, 64,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY1", 64,0, 64,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnX2", 64,0, 64,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY2", 64,0, 64,"1D",group_,module_);//simple TH1F
+
 
 }
 

@@ -14,6 +14,13 @@
 
 #include <Event.hpp>
 
+#define nPlanesHodo 4
+#define nFibersHodo 64
+
+#define nPlanesSmallHodo 2
+#define nFibersSmallHodo 8
+
+
 class plotterTools{
 
 public:
@@ -43,6 +50,13 @@ public:
   std::map<TString,std::vector<float> > variablesContainer_;
   std::map<TString,TString > variablesContainerTitles_;
 
+
+  //fibers
+  bool fibersOn_[nPlanesHodo][nFibersHodo];
+  bool fibersOnSmall_[nPlanesSmallHodo][nFibersSmallHodo];
+
+  void initObjects();
+  void initHodo();
   void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
@@ -59,6 +73,7 @@ public:
   void plotHistos();
   void printHistos();
   void bookPlotsScaler (int nBinsHistory);
+  void bookPlotsHodo (int nBinsHistory);
   void bookCombinedPlots ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);
