@@ -102,6 +102,7 @@ public:
   void initVariable(TString name, int varDim=1);
   void computeVariable(TString name, int varDim=1);
   pair<int, string> execute (const string & command);
+  void fitHisto(TString name, TString func);
 
   //fibers
   int findPosition(std::vector<int>* fiberVec, int n);
