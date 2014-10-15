@@ -11,7 +11,7 @@ public:
     {} ;
 
   int Unpack (dataType &stream) { return -1 ; } ; //PG FIXME to be removed
-  int Unpack (dataType &stream, Event * event) ;
+  int Unpack (dataType &stream, Event * event, boardHeader&) ;
 
 private :
 

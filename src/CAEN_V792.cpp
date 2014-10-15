@@ -4,7 +4,7 @@
 #define DEBUG_UNPACKER 0
 #define DEBUG_VERBOSE_UNPACKER 0
 
-int CAEN_V792::Unpack (dataType &stream, Event * event) 
+int CAEN_V792::Unpack (dataType &stream, Event * event, boardHeader &bH) 
 {
   WORD currWord = 0 ;
 
@@ -22,7 +22,7 @@ int CAEN_V792::Unpack (dataType &stream, Event * event)
         adcData thisData;
           
         //ADC792 -> adcBoard 1
-        thisData.board=1; 
+        thisData.board= bH.boardID; 
         thisData.channel = currWord>>16 & 0x1F;
         thisData.adcReadout = currWord & 0xFFF;
         if ((currWord>>12) & 0x1) //overflow

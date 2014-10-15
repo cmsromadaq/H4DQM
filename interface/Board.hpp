@@ -6,6 +6,8 @@
 #include "interface/StandardIncludes.hpp"
 #include "interface/Event.hpp"
 
+class boardHeader; //fwd decla
+
 typedef ifstream dataType;
 
 #define _MAXBOARDTYPE_ 9
@@ -19,7 +21,6 @@ enum BoardTypes_t { _TIME_=1, //Fake board to get timestamps
 		    _CAENV1290_=7, //16ch TDC
 		    _CAENV1495PU_=8, //General Purpose I/O. FW 2.1 PatternUnit
 		    _CAENV560_=9, //Scaler
-		    _CAENV1495_=10, //Small ODO
 		    _UNKWN_=0 };
 
 
@@ -28,7 +29,7 @@ class Board {
 public:
 
   virtual int Unpack(dataType &stream)=0;
-  virtual int Unpack (dataType &stream, Event * event) 
+  virtual int Unpack (dataType &stream, Event * event,boardHeader & bH) 
     {
     
       WORD currWord = 0 ;
@@ -51,4 +52,5 @@ public:
 
 };
 
+#include "interface/SpillUnpack.hpp"
 #endif

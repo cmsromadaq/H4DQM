@@ -27,7 +27,7 @@
 using namespace std ;
 
 
-int CAEN_V1742::Unpack (dataType &stream, Event * event) 
+int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH) 
 {
   isDigiSample_ = 0 ;
 
@@ -122,6 +122,7 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event)
                 {
                   //This is a sample! 
                   digiData aDigiSample ;
+    		  aDigiSample.board=bH.boardID;
                   aDigiSample.channel = channelId_ ;
                   aDigiSample.group = groupId_ ;
                   aDigiSample.sampleIndex = nSamplesRead_ ;

@@ -2,7 +2,7 @@
 
 #define DEBUG_UNPACKER 0
 
-int CAEN_V513::Unpack(dataType &stream, Event* event) {
+int CAEN_V513::Unpack(dataType &stream, Event* event,boardHeader &bH) {
 
   WORD currWord = 0 ;
 
@@ -10,7 +10,11 @@ int CAEN_V513::Unpack(dataType &stream, Event* event) {
   if (DEBUG_UNPACKER)
       cout << "[CAEN_V513][Unpack]        | Read " << currWord << endl;
       
-  event->triggerWord=(unsigned int)currWord;
+  triggerWordData myTrigger;
+  myTrigger.triggerWord= currWord;
+  myTrigger.board= bH.boardID;
+
+  event->triggerWords.push_back(myTrigger);
   
   return 1;
 }

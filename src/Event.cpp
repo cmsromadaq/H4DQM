@@ -1,43 +1,49 @@
 #include "interface/Event.hpp"
+#include <assert.h>
 #define DEBUG_UNPACKER 1
 
 void Event::createOutBranches (TTree* tree,treeStructData& treeData)
 {
   //Instantiate the tree branches
-  tree->Branch("evtNumber",&treeData.evtNumber,"evtNumber/i");
-  tree->Branch("evtTimeDist",&treeData.evtTimeDist,"evtTimeDist/i");
-  tree->Branch("evtTimeStart",&treeData.evtTimeStart,"evtTimeStart/i");
-  tree->Branch("evtTime",&treeData.evtTime,"evtTime/i");
+  tree->Branch("evtNumber"	,&treeData.evtNumber,	"evtNumber/i");
+  tree->Branch("evtTimeDist"	,&treeData.evtTimeDist,	"evtTimeDist/i");
+  tree->Branch("evtTimeStart"	,&treeData.evtTimeStart,"evtTimeStart/i");
 
-  tree->Branch("triggerWord",&treeData.triggerWord,"triggerWord/i");
+  tree->Branch("evtTime1"	,&treeData.evtTime1,	"evtTime1/i");
+  tree->Branch("evtTime2"	,&treeData.evtTime2,	"evtTime2/i");
+  tree->Branch("evtTime3"	,&treeData.evtTime3,	"evtTime3/i");
 
 //  tree->Branch("triggerBits",&treeData.triggerBits,"triggerBits/i");
 
-  tree->Branch("nAdcChannels",&treeData.nAdcChannels,"nAdcChannels/i");
-  tree->Branch("adcBoard",treeData.adcBoard,"adcBoard[nAdcChannels]/i");
-  tree->Branch("adcChannel",treeData.adcChannel,"adcChannel[nAdcChannels]/i");
-  tree->Branch("adcData",treeData.adcData,"adcData[nAdcChannels]/i");
+  tree->Branch("nAdcChannels"	,&treeData.nAdcChannels,"nAdcChannels/i");
+  tree->Branch("adcBoard"	,treeData.adcBoard,"adcBoard[nAdcChannels]/i");
+  tree->Branch("adcChannel"	,treeData.adcChannel,"adcChannel[nAdcChannels]/i");
+  tree->Branch("adcData"	,treeData.adcData,"adcData[nAdcChannels]/i");
 
-  tree->Branch("nTdcChannels",&treeData.nTdcChannels,"nTdcChannels/i");
-  tree->Branch("tdcBoard",treeData.tdcBoard,"tdcBoard[nTdcChannels]/i");
-  tree->Branch("tdcChannel",treeData.tdcChannel,"tdcChannel[nTdcChannels]/i");
-  tree->Branch("tdcData",treeData.tdcData,"tdcData[nTdcChannels]/i");
+  tree->Branch("nTdcChannels"	,&treeData.nTdcChannels,"nTdcChannels/i");
+  tree->Branch("tdcBoard"	,treeData.tdcBoard,"tdcBoard[nTdcChannels]/i");
+  tree->Branch("tdcChannel"	,treeData.tdcChannel,"tdcChannel[nTdcChannels]/i");
+  tree->Branch("tdcData"	,treeData.tdcData,"tdcData[nTdcChannels]/i");
 
-  tree->Branch("nDigiSamples",&treeData.nDigiSamples,"nDigiSamples/i");
-  tree->Branch("digiGroup",treeData.digiGroup,"digiGroup[nDigiSamples]/i");
-  tree->Branch("digiChannel",treeData.digiChannel,"digiChannel[nDigiSamples]/i");
+  tree->Branch("nDigiSamples"	,&treeData.nDigiSamples,"nDigiSamples/i");
+  tree->Branch("digiGroup"	,treeData.digiGroup,"digiGroup[nDigiSamples]/i");
+  tree->Branch("digiChannel"	,treeData.digiChannel,"digiChannel[nDigiSamples]/i");
   tree->Branch("digiSampleIndex",treeData.digiSampleIndex,"digiSampleIndex[nDigiSamples]/i");
   tree->Branch("digiSampleValue",treeData.digiSampleValue,"digiSample[nDigiSamples]/F");
+  tree->Branch("digiBoard"	,treeData.digiBoard,"digiBoard[nDigiSamples]/i");
 
-  tree->Branch("nScalerWords",&treeData.nScalerWords,"nScalerWords/i");
-  tree->Branch("scalerWord",treeData.scalerWord,"scalerWord[nScalerWords]/i");
+  tree->Branch("nScalerWords"	,&treeData.nScalerWords,"nScalerWords/i");
+  tree->Branch("scalerWord"	,treeData.scalerWord,	"scalerWord[nScalerWords]/i");
+  tree->Branch("scalerBoard"	,treeData.scalerBoard,	"scalerBoard[nScalerWords]/i"); // size is Words
 
-  tree->Branch("nPatterns",&treeData.nPatterns,"nPatterns/i");
-  tree->Branch("pattern",treeData.pattern,"pattern[nPatterns]/i");
+  tree->Branch("nPatterns"	,&treeData.nPatterns,"nPatterns/i");
+  tree->Branch("pattern"	,treeData.pattern,"pattern[nPatterns]/i");
+  tree->Branch("patternBoard"	,treeData.patternBoard,"patternBoard[nPatterns]/i");
+  tree->Branch("patternChannel"	,treeData.patternChannel,"patternChannel[nPatterns]/i");
 
-  tree->Branch("nPatterns_shodo",&treeData.nPatterns_shodo,"nPatterns_shodo/i");
-  tree->Branch("pattern_shodo",treeData.pattern_shodo,"pattern_shodo[nPatterns_shodo]/i");
-
+  tree->Branch("nTriggerWords"	,&treeData.nTriggerWords,"nTriggerWords/i");
+  tree->Branch("triggerWords"	,treeData.triggerWords,"triggerWords[nTriggerWordss]/i");
+  tree->Branch("triggerWordsBoard",treeData.triggerWordsBoard,"triggerWordsBoard[nTriggerWordss]/i");
 
   return ;
 } 
@@ -50,12 +56,14 @@ void Event::fillTreeData (treeStructData & treeData)
 {
   treeData.evtNumber = evtNumber ;
   //  if (DEBUG_UNPACKER) printf (" =  =  =  =  =  =  FILLING EVENT %d  =  =  =  =  = \n", treeData.evtNumber) ;
-  treeData.evtTime = evtTime ;
+  treeData.evtTime1 = evtTime1 ;
+  treeData.evtTime2 = evtTime2 ;
+  treeData.evtTime3 = evtTime3 ;
   treeData.evtTimeStart = evtTimeStart ;
   treeData.evtTimeDist = evtTimeDist ;
 
-  treeData.triggerWord = triggerWord ;
-  cout << "[Event][fillTreeData]      | Trigger word: " << treeData.triggerWord << "\n" ;
+  //treeData.triggerWord = triggerWord ;
+  //cout << "[Event][fillTreeData]      | Trigger word: " << treeData.triggerWord << "\n" ;
 
 //  treeData.triggerBits = 0 ;
 //  for (unsigned int i = 0 ; i<fmin (32, triggerBits.size ()) ;++i)
@@ -95,6 +103,7 @@ void Event::fillTreeData (treeStructData & treeData)
     {
       treeData.digiGroup[i] = digiValues[i].group ;
       treeData.digiChannel[i] = digiValues[i].channel ;
+      treeData.digiBoard[i] = digiValues[i].board ;
       treeData.digiSampleIndex[i] = digiValues[i].sampleIndex ;
       treeData.digiSampleValue[i] = digiValues[i].sampleValue ;
     }
@@ -107,7 +116,8 @@ void Event::fillTreeData (treeStructData & treeData)
 
   for (unsigned int i = 0 ; i < fmin (MAX_SCALER_WORDS, scalerWords.size()) ;++i)
     {
-      treeData.scalerWord[i] = scalerWords[i] ;
+      treeData.scalerWord[i] = scalerWords[i].scalerValue ;
+      treeData.scalerBoard[i] = scalerWords[i].board ;
     }
 
   treeData.nPatterns = patterns.size () ;
@@ -118,18 +128,22 @@ void Event::fillTreeData (treeStructData & treeData)
 
   for (unsigned int i = 0 ; i < fmin (MAX_PATTERNS, patterns.size()) ;++i)
     {
-      treeData.pattern[i] = patterns[i] ;
+      treeData.pattern[i] 	 = patterns[i].patternValue ;
+      treeData.patternBoard[i] 	 = patterns[i].board ;
+      treeData.patternChannel[i] = patterns[i].channel ;
     }
 
-  treeData.nPatterns_shodo = patterns_shodo.size () ;
+  treeData.nTriggerWords = triggerWords.size () ;
   if (DEBUG_UNPACKER)
     {
-      cout << "[Event][fillTreeData]      | FILLING " << treeData.nPatterns_shodo << " Patterns\n" ;
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nTriggerWords << " Trigger words\n" ;
+      assert(scalerWords.size()<= MAX_TRIG_WORDS);
     }
 
-  for (unsigned int i = 0 ; i < fmin (MAX_PATTERNS_SHODO, patterns_shodo.size()) ;++i)
+  for (unsigned int i = 0 ; i < fmin (MAX_TRIG_WORDS, triggerWords.size()) ;++i)
     {
-      treeData.pattern_shodo[i] = patterns_shodo[i] ;
+      treeData.triggerWords[i] 		= triggerWords[i].triggerWord ;
+      treeData.triggerWordsBoard[i] 	= triggerWords[i].board ;
     }
 
   return ;
@@ -152,16 +166,17 @@ void Event::Fill ()
 
 void Event::clear ()
 {
-  evtNumber = -1 ;
-  triggerWord = 0 ;
+  evtNumber = 0 ; // this number is unsigned
+  triggerWords.clear() ;
 //  triggerBits.clear () ;
   adcValues.clear () ; 
   tdcValues.clear () ; 
   digiValues.clear () ; 
   scalerWords.clear () ; 
   patterns.clear () ; 
-  patterns_shodo.clear () ; 
-  evtTimeDist = -1 ;
-  evtTimeStart = -1 ;
-  evtTime = -1 ;
+  evtTimeDist = 0 ; // this number is unsigned
+  evtTimeStart = 0 ; // this number is unsigned
+  evtTime1 = 0 ; // these numbers are unsigned
+  evtTime2 = 0 ;
+  evtTime3 = 0 ;
 }

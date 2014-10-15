@@ -17,6 +17,7 @@
 #define MAX_PATTERNS_SHODO 16
 #define SMALL_HODO_X_NFIBERS 8
 #define SMALL_HODO_Y_NFIBERS 8
+#define MAX_TRIG_WORDS 32
 
 using namespace std ;
 
@@ -28,9 +29,10 @@ struct treeStructData
   unsigned int evtNumber ;
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
-  unsigned int evtTime ;
+  uint64_t 	evtTime1 ;
+  uint64_t 	evtTime2 ;
+  uint64_t 	evtTime3 ;
 
-  unsigned int triggerWord ;
 
 //  unsigned int triggerBits ;
 
@@ -44,6 +46,7 @@ struct treeStructData
   unsigned int digiGroup[MAX_DIGI_SAMPLES] ;
   unsigned int digiChannel[MAX_DIGI_SAMPLES] ;
   unsigned int digiSampleIndex[MAX_DIGI_SAMPLES] ;
+  unsigned int digiBoard[MAX_DIGI_SAMPLES] ;
   float digiSampleValue[MAX_DIGI_SAMPLES] ;
 
   unsigned int nTdcChannels ;
@@ -53,12 +56,17 @@ struct treeStructData
 
   unsigned int nScalerWords ;
   WORD scalerWord[MAX_SCALER_WORDS] ;
+  unsigned int scalerBoard[MAX_SCALER_WORDS] ;
 
   unsigned int nPatterns ;
   WORD pattern[MAX_PATTERNS] ;
+  WORD patternBoard[MAX_PATTERNS] ;
+  WORD patternChannel[MAX_PATTERNS] ;
 
-  unsigned int nPatterns_shodo ;
-  WORD pattern_shodo[MAX_PATTERNS_SHODO];
+  unsigned int nTriggerWords;
+  unsigned int triggerWords[MAX_TRIG_WORDS] ;
+  unsigned int triggerWordsBoard[MAX_TRIG_WORDS] ;
+
 
 
 } ;
@@ -79,11 +87,31 @@ struct tdcData
 
 struct digiData
 {
+  unsigned int board;
   unsigned int group ;
   unsigned int channel ;
   unsigned int sampleIndex ;
   float sampleValue ;
 } ;
+
+struct patternData
+{
+  unsigned int board ;
+  unsigned int channel ;
+  unsigned int patternValue;
+};
+
+struct triggerWordData
+{
+  unsigned int board;
+  unsigned int triggerWord;
+};
+
+struct scalerData
+{
+  unsigned int board ;
+  unsigned int scalerValue;
+};
 
 struct Event
 {
@@ -96,18 +124,21 @@ struct Event
 
   ~Event () { }
 
-  unsigned int evtNumber ;
-  unsigned int triggerWord ;
-  std::vector<bool> triggerBits ;
-  std::vector<adcData> adcValues ; 
-  std::vector<tdcData> tdcValues ; 
+  unsigned int 		evtNumber ;
+  std::vector<triggerWordData> 		triggerWords ;
+  std::vector<bool> 	triggerBits ;
+  std::vector<adcData> 	adcValues ; 
+  std::vector<tdcData> 	tdcValues ; 
   std::vector<digiData> digiValues ; 
-  std::vector<WORD> scalerWords ; 
-  std::vector<WORD> patterns ; 
-  std::vector<WORD> patterns_shodo ; 
-  unsigned int evtTimeDist ;
-  unsigned int evtTimeStart ;
-  uint64_t evtTime ;
+  std::vector<scalerData> 	scalerWords ; 
+  std::vector<patternData> 	patterns ; 
+
+  std::vector<WORD> 	patterns_shodo ; 
+  unsigned int 		evtTimeDist ;
+  unsigned int 		evtTimeStart ;
+  uint64_t 		evtTime1 ;
+  uint64_t 		evtTime2 ;
+  uint64_t 		evtTime3 ;
 
   void clear () ;
   void Fill () ;

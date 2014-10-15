@@ -42,10 +42,16 @@ SpillUnpack::~SpillUnpack ()
 
 int SpillUnpack::AddBoard (boardHeader bH)
 {
+  // we create a basic structure to read the board content. The unpacker will define what is effectively meaningful
   WORD boardType = GetBoardTypeId (bH.boardID) ;
+  //WORD boardId   = GetBoardId (bH.boardID) ;
+  //WORD crateId   = GetBoardCrateId (bH.boardID) ;
   
   if (DEBUG_VERBOSE_UNPACKER) {
-    cout << "[SpillUnpack][AddBoard]    | Creating new board type " << boardType << endl;
+    cout << "[SpillUnpack][AddBoard]    | Creating new board type " << boardType 
+	//	<< " board Id: "<<boardId
+	//	<< " crate Id: "<<crateId
+		<< endl;
   }
   
   switch(boardType){
@@ -76,9 +82,6 @@ int SpillUnpack::AddBoard (boardHeader bH)
   case _CAENV560_:
     boards_[bH.boardID]= new CAEN_V560(bH.boardSize);
     break;
-  case _CAENV1495_:
-    boards_[bH.boardID]= new CAEN_V1495;
-    break;
   case _UNKWN_:
     boards_[bH.boardID]= new DummyBoard;
     //TO DO decide what to do.continue?
@@ -90,10 +93,20 @@ int SpillUnpack::AddBoard (boardHeader bH)
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-
+// TODO use EventBuilder:: functions static, to auto update if something is changed
 WORD SpillUnpack::GetBoardTypeId (WORD compactId)
 {
   WORD myResult= (compactId & static_cast<WORD>(0xFF000000))>>24;
+  return myResult;
+}
+WORD SpillUnpack::GetBoardId (WORD compactId)
+{
+  WORD myResult= (compactId & static_cast<WORD>(0x0000FFFF));
+  return myResult;
+}
+WORD SpillUnpack::GetBoardCrateId (WORD compactId)
+{
+  WORD myResult= (compactId & static_cast<WORD>(0x00FF0000))>>16;
   return myResult;
 }
 
@@ -109,7 +122,14 @@ int SpillUnpack::Unpack(int events = -1){
       spillHeader spillH;
 
       rawFile->read ((char*)&word, WORDSIZE);
-      
+
+      if (word != spillHeaderValue ) 
+      	{ 
+      	  cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
+      	       << "Expecting spill header, read " << word << endl ;
+      	  return 1 ;
+      	}
+     
       if (word==spillHeaderValue) {
         rawFile->read ((char*)&spillH.runNumber, WORDSIZE);
         rawFile->read ((char*)&spillH.spillNumber, WORDSIZE);
@@ -118,20 +138,14 @@ int SpillUnpack::Unpack(int events = -1){
       
         if (DEBUG_UNPACKER) {
           cout << "[SpillUnpack][Unpack]      | ======= BEGIN SPILL ======= \n" ;
-          cout << "[SpillUnpack][Unpack]      | Spill " << spillH.spillNumber << "\n" ;
-          cout << "[SpillUnpack][Unpack]      | Events in spill " << spillH.nEvents << "\n" ;
-          cout << "[SpillUnpack][Unpack]      | unpacking " << events << " events" << endl ;
+          cout << "[SpillUnpack][Unpack]      | Spill " 		<< spillH.spillNumber << "\n" ;
+          cout << "[SpillUnpack][Unpack]      | Events in spill " 	<< spillH.nEvents << "\n" ;
+          cout << "[SpillUnpack][Unpack]      | unpacking " 		<< events << " events" << endl ;
         }
         
         if (-1 == events) events = spillH.nEvents ; 
         UnpackEvents (events) ;
       } 
-      else 
-      { 
-        cout << "[SpillUnpack][Unpack]      | ERROR corrupted RAW file. "
-             << "Expecting spill header, read " << word << endl ;
-        return 1 ;
-      }
 
       rawFile->read ((char*)&word, WORDSIZE);
 
@@ -232,15 +246,20 @@ int SpillUnpack::UnpackBoards(WORD nboards) {
         boardHeader bH;
         rawFile->read ((char*)&bH.boardID, WORDSIZE);
         rawFile->read ((char*)&bH.boardSize, WORDSIZE);
-        int boardType = GetBoardTypeId (bH.boardID) ;
+
+	bH.Update();
 
         if (DEBUG_UNPACKER) 
           {
             cout << "[SpillUnpack][UnpackBoards]| ======== BOARD START ======= \n" ;
             cout << "[SpillUnpack][UnpackBoards]| Board " << iBoard << "/" << nboards
-                 << "  ID " << bH.boardID
-                 << "  type " << boardType
-                 << "  size " << bH.boardSize << "\n" ;
+		 << std::dec 
+                 << "  Packed_ID " << bH.boardID
+                 << "  type " 	<< bH.boardType
+                 << "  id " 	<< bH.boardSingleId
+                 << "  crate " 	<< bH.crateId
+                 << "  size " 	<< bH.boardSize 
+		 << endl ;
           }
 
         if (boards_.find (bH.boardID) == boards_.end ()) // not found the board creates a new one
@@ -248,7 +267,7 @@ int SpillUnpack::UnpackBoards(WORD nboards) {
             AddBoard (bH) ;
           }
         //PG unpack the board boards_[bH.boardID]
-        boards_[bH.boardID]->Unpack (*rawFile, event_) ;
+        boards_[bH.boardID]->Unpack (*rawFile, event_,bH) ;
 
         nbrd++;
       } 
@@ -273,3 +292,9 @@ int SpillUnpack::UnpackBoards(WORD nboards) {
   } // loop on boards to be read
   return 0 ;
 }
+
+void boardHeader::Update(){
+		boardType	=SpillUnpack::GetBoardTypeId( boardID) ; 
+		boardSingleId	=SpillUnpack::GetBoardId(boardID); 
+		crateId		=SpillUnpack::GetBoardCrateId(boardID);  
+};

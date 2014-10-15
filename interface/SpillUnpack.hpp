@@ -14,7 +14,6 @@
 #include "interface/CAEN_V1290.hpp"
 #include "interface/CAEN_V1495PU.hpp"
 #include "interface/CAEN_V560.hpp"
-#include "interface/CAEN_V1495.hpp"
 #include "interface/DummyBoard.hpp"
 #include "interface/Event.hpp"
 
@@ -41,8 +40,14 @@ struct eventHeader
 
 struct boardHeader
 {
+public:
   WORD boardID;
   WORD boardSize;
+
+  WORD boardType;
+  WORD boardSingleId;
+  WORD crateId;
+  void Update();
 };
 
 
@@ -58,7 +63,9 @@ public:
   int  AddBoard (boardHeader bH) ; 
   int  Unpack(int events);
   int UnpackEvents( WORD nevents );
-  WORD GetBoardTypeId (WORD);
+  static WORD GetBoardTypeId (WORD);
+  static WORD GetBoardId (WORD);
+  static WORD GetBoardCrateId (WORD);
   int UnpackBoards( WORD nboards );
   void CreateTree();
   void inline FillTree(){outTree_->Fill();};

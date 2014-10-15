@@ -5,7 +5,7 @@
 
 using namespace std;
 
-int CAEN_V1290::Unpack (dataType &stream, Event * event)
+int CAEN_V1290::Unpack (dataType &stream, Event * event,boardHeader &bH)
 {
   for (unsigned int i = 0; i < tdc1290Words_; ++i)
 	{
@@ -29,7 +29,7 @@ int CAEN_V1290::Unpack (dataType &stream, Event * event)
 	  else if (tdcRawData>>28 == 0) //TDC DATUM
 	    {
 	      tdcData thisData;
-	      thisData.board=0; //TDC Board is 0 
+	      thisData.board=bH.boardID;
 	      thisData.channel = (tdcRawData>>21) & 0x1f;
 	      thisData.tdcReadout = tdcRawData & 0x1fffff;
 	      if (DEBUG_UNPACKER) 
