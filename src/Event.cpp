@@ -9,9 +9,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("evtTimeDist"	,&treeData.evtTimeDist,	"evtTimeDist/i");
   tree->Branch("evtTimeStart"	,&treeData.evtTimeStart,"evtTimeStart/i");
 
-  tree->Branch("evtTime1"	,&treeData.evtTime1,	"evtTime1/i");
-  tree->Branch("evtTime2"	,&treeData.evtTime2,	"evtTime2/i");
-  tree->Branch("evtTime3"	,&treeData.evtTime3,	"evtTime3/i");
+  tree->Branch("evtTime1"	,&treeData.evtTime1,	"evtTime1/l"); // l-> ULong64_t
+  tree->Branch("evtTime2"	,&treeData.evtTime2,	"evtTime2/l");
+  tree->Branch("evtTime3"	,&treeData.evtTime3,	"evtTime3/l");
 
 //  tree->Branch("triggerBits",&treeData.triggerBits,"triggerBits/i");
 
@@ -42,8 +42,8 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("patternChannel"	,treeData.patternChannel,"patternChannel[nPatterns]/i");
 
   tree->Branch("nTriggerWords"	,&treeData.nTriggerWords,"nTriggerWords/i");
-  tree->Branch("triggerWords"	,treeData.triggerWords,"triggerWords[nTriggerWordss]/i");
-  tree->Branch("triggerWordsBoard",treeData.triggerWordsBoard,"triggerWordsBoard[nTriggerWordss]/i");
+  tree->Branch("triggerWords"	,treeData.triggerWords,"triggerWords[nTriggerWords]/i");
+  tree->Branch("triggerWordsBoard",treeData.triggerWordsBoard,"triggerWordsBoard[nTriggerWords]/i");
 
   return ;
 } 
