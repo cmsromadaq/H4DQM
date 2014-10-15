@@ -18,7 +18,7 @@ class plotterTools{
 
 public:
 
-  plotterTools(char* filename, char*outfname, char*outdname);
+  plotterTools (const char * filename, const char * outfname, const char * outdname);
 
 
 
