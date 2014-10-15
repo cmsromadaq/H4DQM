@@ -358,22 +358,28 @@ void plotterTools::computeVariable(TString name, int varDim){
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
   }
  else if(name=="TDCinputTime1"){
-   for (uint j=0; j<tdc_readings[0].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j);
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j);
  }
  else if(name=="TDCinputTime2"){
-   for (uint j=0; j<tdc_readings[1].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j);
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[1].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j);
  }
  else if(name=="TDCinputTime3"){
-   for (uint j=0; j<tdc_readings[2].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[2].at(j);
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[2].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[2].at(j);
  }
  else if(name=="TDCinputTime4"){
-   for (uint j=0; j<tdc_readings[3].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
  }
  else if(name=="TDCtimeDiffX"){
-   for (uint j=0; j<tdc_readings[0].size() && j<tdc_readings[2].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j)-tdc_readings[2].at(j); // CHECK WHO IS X, Y
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[0].size() && j<tdc_readings[2].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j)-tdc_readings[2].at(j); // CHECK WHO IS X, Y
  }
  else if(name=="TDCtimeDiffY"){
-   for (uint j=0; j<tdc_readings[1].size() && j<tdc_readings[3].size(); j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j)-tdc_readings[3].at(j); // CHECK WHO IS X, Y
+   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
+   for (uint j=0; j<tdc_readings[1].size() && j<tdc_readings[3].size()&& j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j)-tdc_readings[3].at(j); // CHECK WHO IS X, Y
  }
  else if(name=="TDCrecoX"){ // WE NEED THE WIRE CHAMBER CALIBRATION TO FILL THESE
    //   variablesContainer_[variablesIterator_[name]][???]=0
@@ -630,12 +636,12 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
 }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
-  addPlot("TDCinputTime1",100,0,1,"1D",group_,module_);
-  addPlot("TDCinputTime2",100,0,1,"1D",group_,module_);
-  addPlot("TDCinputTime3",100,0,1,"1D",group_,module_);
-  addPlot("TDCinputTime4",100,0,1,"1D",group_,module_);
-  addPlot("TDCtimeDiffX",100,0,1,"1D",group_,module_);
-  addPlot("TDCtimeDiffY",100,0,1,"1D",group_,module_);
+  addPlot("TDCinputTime1",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot("TDCinputTime2",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot("TDCinputTime3",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot("TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot("TDCtimeDiffX",100,0,50000,"1D",group_,module_ ,MaxTdcReadings);
+  addPlot("TDCtimeDiffY",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot("TDCrecoX",100,0,1,"1D",group_,module_);
   addPlot("TDCrecoY",100,0,1,"1D",group_,module_);
   addPlot("TDChistoryRecoX",nBinsHistory,"history",group_,module_);

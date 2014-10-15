@@ -57,7 +57,8 @@ public:
 
   //tdc readings
   static const UInt_t MaxTdcChannels = 4;
-  std::vector<UInt_t> tdc_readings[MaxTdcChannels];
+  static const UInt_t MaxTdcReadings = 20;
+  std::vector<float> tdc_readings[MaxTdcChannels];
 
   void fillObjects();
   void initHodo();
