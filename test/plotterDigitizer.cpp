@@ -126,19 +126,21 @@ int main (int argc, char ** argv)
   string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
   string run;
   string spill;
+  unsigned numReduction=8;
 
   static struct option long_options[] = {
     {"plotsfolder", required_argument, 0,  'o' },
     {"digifolder",  required_argument, 0,  'i' },
     {"run",         required_argument, 0,  'r' },
     {"spill",       required_argument, 0,  's' },
+    {"numberReduction",       optional_argument, 0,  'n' },
     {0,             0,                 0,  0   }
   };
  
  int long_index =0;
  int opt;
 
- while ((opt = getopt_long(argc, argv,"i:o:r:s:", 
+ while ((opt = getopt_long(argc, argv,"i:o:r:s:n:", 
 			   long_options, &long_index )) != -1) {
    switch (opt) {
    case 'i' : DIGI_FOLDER=string(optarg);
@@ -148,6 +150,8 @@ int main (int argc, char ** argv)
    case 'r' : run=string(optarg);
      break;
    case 's' : spill=string(optarg);
+     break;
+   case 'n' : numReduction=atoi(optarg);
      break;
    case '?':
      /* getopt_long already printed an error message. */
@@ -241,7 +245,7 @@ int main (int argc, char ** argv)
   // loop over events
   for (int iEvent = 0 ; iEvent < plotter.inputTree_->GetEntries () ; ++iEvent)
     {
-//      if (iEvent % 10) continue ;  in case one needs to speed up
+      if ( (iEvent & (numReduction-1)) != 0) continue ; // in case one needs to speed up
       plotter.inputTree_->GetEvent (iEvent) ;
       for (int iSample = 0 ; iSample < nDigiSamples ; ++iSample)
         {
