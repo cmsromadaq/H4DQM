@@ -1,5 +1,6 @@
 #include <plotterTools.hpp>
 #include <assert.h>
+#define VERBOSE 0
 
 plotterTools::plotterTools(TString filename, TString outfname, TString outdname){
 
@@ -772,7 +773,7 @@ void plotterTools::initTdc(){
 void  plotterTools::readInputTree ()
 {
   //Instantiate the tree branches
-  inputTree_->Print();
+  //  inputTree_->Print();
 
   inputTree_->SetBranchAddress("evtNumber"    ,&treeStruct_.evtNumber);
   inputTree_->SetBranchAddress("evtTimeDist"    ,&treeStruct_.evtTimeDist);
@@ -1124,14 +1125,15 @@ int plotterTools::getStepHistoryPlots(){
 
 
 void plotterTools::saveHistos(){
-  std::cout << "==================== Saving histograms =======================" << std::endl;
-  std::cout << "outputFile " << outputFile_->GetName() << " opened" << std::endl;
+  if(VERBOSE){  std::cout << "==================== Saving histograms =======================" << std::endl;
+    std::cout << "outputFile " << outputFile_->GetName() << " opened" << std::endl;}
   outputFile_->cd();
   for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
     out->second->Write(out->first);
   outputFile_->Close();
-  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
+  if(VERBOSE){  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
   std::cout << "==================== DQM analysis is done =======================" << std::endl;
+  }
 }
 
 
@@ -1161,7 +1163,7 @@ pair<int, string> plotterTools::execute (const string & command)
 
 
 void plotterTools::plotHistos(){
-  std::cout << "==================== Plotting histograms =======================" << std::endl;
+  if(VERBOSE)  std::cout << "==================== Plotting histograms =======================" << std::endl;
   pair <int, string> outCode = execute ("ls " + string(outputDir_)) ;
   if (outCode.first != 0) outCode = execute ("mkdir " + string(outputDir_)) ;
   if (outCode.first != 0) 
@@ -1186,15 +1188,17 @@ void plotterTools::plotHistos(){
       setAxisTitles((TH2F*)out->second,((TAxis*)((TH2F*)out->second)->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second)->GetYaxis())->GetTitle());
       plotMe((TH2F*)out->second);
     }
-  std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
+  if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
 }
 
 void plotterTools::printHistos(){
-  std::cout << "==================== Booked histograms =======================" << std::endl;
-  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
-    std::cout << out->second->GetName() << std::endl;
-  std::cout << "==================== Loop over events =======================" << std::endl;
+  if(VERBOSE){
+    std::cout << "==================== Booked histograms =======================" << std::endl;
+    for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
+      std::cout << out->second->GetName() << std::endl;
+    std::cout << "==================== Loop over events =======================" << std::endl;
+  }
 }
 
 void::plotterTools::fillFiberOrder(){
