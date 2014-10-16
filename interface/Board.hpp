@@ -10,6 +10,8 @@ class boardHeader; //fwd decla
 
 typedef ifstream dataType;
 
+#define DEBUG_BOARD 0
+
 #define _MAXBOARDTYPE_ 9
 
 enum BoardTypes_t { _TIME_=1, //Fake board to get timestamps
@@ -40,9 +42,11 @@ public:
           stream.read ((char*)&currWord, WORDSIZE);
           ++nWords ;
         }
-      cout << "[Board][Unpack]            | dummy reading of " << nWords << " words\n" ; 
-      cout << "[Board][Unpack]            | is last word trailer " 
-           << (currWord == boardTrailerValue) << "\n" ;
+      if (DEBUG_BOARD) {
+	cout << "[Board][Unpack]            | dummy reading of " << nWords << " words\n" ; 
+	cout << "[Board][Unpack]            | is last word trailer " 
+	     << (currWord == boardTrailerValue) << "\n" ;
+      }
       stream.seekg (-1 * WORDSIZE, ios::cur) ;
 
       return -1 ; 
