@@ -783,20 +783,21 @@ void plotterTools::initTdc(){
 
 }
 
-void plotterTools::initAdcChannelNames(){
+void plotterTools::initAdcChannelNames(int nBinsHistory){
 
   adc_channelnames.clear();
 
-  for (UInt_t i=0; i<treeStruct_.nAdcChannels; i++){
+  for (UInt_t i=0; i<treeStruct_.nAdcChannels && i<MAX_ADC_CHANNELS; i++){
     TString name("ADC_board_");
-    for (uint j=3; j>=0; j--){
-      UInt_t field = ((treeStruct_.tdcBoard[i])>>8*j)&&(0x000000FF);
+    for (Int_t j=3; j>=0; j--){
+      UInt_t field = ((treeStruct_.adcBoard[i])>>(8*j))&(0x000000FF);
       name+=field;
     }
     name+='_';
-    name+=treeStruct_.tdcChannel[i];
-    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.tdcData[i])));
+    name+=treeStruct_.adcChannel[i];
+    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
     addPlot(name.Data(),4096,0,4096,"1D",group_,module_);
+    addPlot(name.Data(), nBinsHistory, "history", group_,module_);
   }
 
 }
@@ -869,7 +870,7 @@ void  plotterTools::Loop()
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
 
       if(iEntry==0)timeStart_=treeStruct_.evtTime[0];
-      if(iEntry==0 && wantADCplots) initAdcChannelNames();
+      if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
       if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime[0];
 
       fillObjects();

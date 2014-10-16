@@ -44,7 +44,7 @@ int main (int argc, char ** argv)
 
   string filename=ROOT_FOLDER+"/"+run+"/"+spill+".root";
   string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/ADC/";
-  string outfname=outdname+"dqmPlots"+"TDC"+".root";
+  string outfname=outdname+"dqmPlots"+"ADC"+".root";
   string integratedName=OUT_FOLDER+"/"+run+"/"+integratedfname;
 
   system( Form("mkdir -p %s", outdname.c_str()) );
@@ -57,7 +57,7 @@ int main (int argc, char ** argv)
 
   plotter.setPlotsFormat () ;
   plotter.readInputTree();  
-  int nentries = plotter.getTreeEntries();
+  //  int nentries = plotter.getTreeEntries();
   plotter.setStepHistoryPlots(20);
   plotter.setGroup("ADC");
   plotter.setModule("beam");

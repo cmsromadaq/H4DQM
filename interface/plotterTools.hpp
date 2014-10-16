@@ -76,7 +76,7 @@ public:
 
   //adc channel names
   std::map<TString,UInt_t*> adc_channelnames;
-  void initAdcChannelNames();
+  void initAdcChannelNames(int nBinsHistory);
 
   void bookPlotsADC();
   bool wantADCplots;
