@@ -9,9 +9,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("evtTimeDist"	,&treeData.evtTimeDist,	"evtTimeDist/i");
   tree->Branch("evtTimeStart"	,&treeData.evtTimeStart,"evtTimeStart/i");
 
-  tree->Branch("evtTime1"	,&treeData.evtTime1,	"evtTime1/l"); // l-> ULong64_t
-  tree->Branch("evtTime2"	,&treeData.evtTime2,	"evtTime2/l");
-  tree->Branch("evtTime3"	,&treeData.evtTime3,	"evtTime3/l");
+  tree->Branch("nEvtTimes"	,&treeData.nEvtTimes,	"nEvtTimes/i"); // l-> ULong64_t
+  tree->Branch("evtTime"	,treeData.evtTime,	"evtTime[nEvtTimes]/l"); // l-> ULong64_t
+  tree->Branch("evtTimeBoard"	,treeData.evtTimeBoard,	"evtTimeBoard[nEvtTimes]/i"); // l-> ULong64_t
 
 //  tree->Branch("triggerBits",&treeData.triggerBits,"triggerBits/i");
 
@@ -56,9 +56,18 @@ void Event::fillTreeData (treeStructData & treeData)
 {
   treeData.evtNumber = evtNumber ;
   //  if (DEBUG_UNPACKER) printf (" =  =  =  =  =  =  FILLING EVENT %d  =  =  =  =  = \n", treeData.evtNumber) ;
-  treeData.evtTime1 = evtTime1 ;
-  treeData.evtTime2 = evtTime2 ;
-  treeData.evtTime3 = evtTime3 ;
+  treeData.nEvtTimes = evtTimes.size () ;
+  if (DEBUG_UNPACKER)
+    {
+      cout << "[Event][fillTreeData]      | FILLING " << treeData.nEvtTimes << " Times Values\n" ;
+    }
+  for (unsigned int i = 0 ;i<fmin (MAX_RO, evtTimes.size ()) ;++i)
+    {
+      treeData.evtTimeBoard[i] =  evtTimes[i].board;
+      treeData.evtTime[i] =  evtTimes[i].time;
+    }
+
+
   treeData.evtTimeStart = evtTimeStart ;
   treeData.evtTimeDist = evtTimeDist ;
 
@@ -176,7 +185,5 @@ void Event::clear ()
   patterns.clear () ; 
   evtTimeDist = 0 ; // this number is unsigned
   evtTimeStart = 0 ; // this number is unsigned
-  evtTime1 = 0 ; // these numbers are unsigned
-  evtTime2 = 0 ;
-  evtTime3 = 0 ;
+  evtTimes.clear() ; // these numbers are unsigned
 }

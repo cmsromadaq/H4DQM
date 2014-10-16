@@ -18,6 +18,7 @@
 #define SMALL_HODO_X_NFIBERS 8
 #define SMALL_HODO_Y_NFIBERS 8
 #define MAX_TRIG_WORDS 32
+#define MAX_RO 10
 
 using namespace std ;
 
@@ -29,9 +30,10 @@ struct treeStructData
   unsigned int evtNumber ;
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
-  ULong64_t 	evtTime1 ;
-  ULong64_t 	evtTime2 ;
-  ULong64_t 	evtTime3 ;
+
+  unsigned int 	nEvtTimes ;
+  ULong64_t 	evtTime [MAX_RO] ;
+  unsigned int 	evtTimeBoard [MAX_RO] ;
 
 
 //  unsigned int triggerBits ;
@@ -113,6 +115,12 @@ struct scalerData
   unsigned int scalerValue;
 };
 
+struct timeData
+{
+  unsigned int board;
+  uint64_t time;
+};
+
 struct Event
 {
   Event (TFile * outFile, TTree * outTree) :
@@ -133,12 +141,10 @@ struct Event
   std::vector<scalerData> 	scalerWords ; 
   std::vector<patternData> 	patterns ; 
 
-  std::vector<WORD> 	patterns_shodo ; 
   unsigned int 		evtTimeDist ;
   unsigned int 		evtTimeStart ;
-  uint64_t 		evtTime1 ;
-  uint64_t 		evtTime2 ;
-  uint64_t 		evtTime3 ;
+
+  vector<timeData> 	evtTimes ;
 
   void clear () ;
   void Fill () ;

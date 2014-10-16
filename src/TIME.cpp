@@ -9,17 +9,20 @@ int TIME::Unpack (dataType &stream, Event * event, boardHeader &bH)
   uint64_t  myTime;
   stream.read ((char*)&myTime, 2 * WORDSIZE) ;
   myTime*=10;
-  if ( bH.crateId==1)
- 	 event->evtTime1 = myTime;
-  else if ( bH.crateId==2)
- 	 event->evtTime2 = myTime ;
-  else if ( bH.crateId==3)
- 	 event->evtTime2 = myTime ;
-  else 
-	{
-	printf("Configured only 3 crates for time %u\n",bH.crateId);
-	assert(0);
-	}
+// --   if ( bH.crateId==1)
+// --  	 event->evtTime1 = myTime;
+// --   else if ( bH.crateId==2)
+// --  	 event->evtTime2 = myTime ;
+// --   else if ( bH.crateId==3)
+// --  	 event->evtTime2 = myTime ;
+// --   else 
+// -- 	{
+// -- 	printf("Configured only 3 crates for time %u\n",bH.crateId);
+// -- 	assert(0);
+// -- 	}
+  timeData td; td.board=bH.boardID;
+  td.time=myTime;
+  event->evtTimes.push_back(td);
  
    
   if (DEBUG_UNPACKER)
