@@ -43,7 +43,7 @@ int main (int argc, char ** argv)
       }
 
   string filename=ROOT_FOLDER+"/"+run+"/"+spill+".root";
-  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/";
+  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/DAQ/";
   string outfname=outdname+"dqmPlots"+"DAQStatus"+".root";
   string integratedName=OUT_FOLDER+"/"+run+"/"+integratedfname;
 

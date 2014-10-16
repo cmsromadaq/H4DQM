@@ -43,7 +43,7 @@ int main (int argc, char ** argv)
       }
 
   string filename=ROOT_FOLDER+"/"+run+"/"+spill+".root";
-  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/";
+  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/hodo/";
   string outfname=outdname+"dqmPlots"+"hodo"+".root";
   string integratedName=OUT_FOLDER+"/"+run+"/"+integratedfname;
 
