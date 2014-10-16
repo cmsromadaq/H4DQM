@@ -31,6 +31,7 @@ void plotterTools::initIntegrated(TString nameFile){
   map<TString, TObject*>::iterator it;
 
   TH1F* evt_info=NULL;
+  TH1F* trg_info=NULL;
 
   TH1F* hX_info=NULL;
   TH1F* hY_info=NULL;
@@ -44,7 +45,11 @@ void plotterTools::initIntegrated(TString nameFile){
   it=outObjects_.find(plotLongNames_["nTotalEvts"]);
   if(it!=outObjects_.end()){
     evt_info=(TH1F*)outObjects_[plotLongNames_["nTotalEvts"]];
+    trg_info=(TH1F*)outObjects_[plotLongNames_["triggerRateHisto"]];
   }
+  trg_info->Print();
+
+
 
   //  if(isIntegratedNew){
     if(hX_info!=NULL){
@@ -52,8 +57,9 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
     }
     if(evt_info!=NULL){
-      std::cout<<"histo created"<<endl;
+
       integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+      integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,2000);
     }
 
     //  }else{
@@ -70,8 +76,10 @@ void plotterTools::initIntegrated(TString nameFile){
     //    }
     if(evt_info!=NULL){
       integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
+      integratedPlots_["triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("triggerRatePerSpill");
       if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,2000);
       }
     }
 
@@ -103,6 +111,12 @@ void plotterTools::initIntegrated(TString nameFile){
   //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
+
+  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,trg_info->GetMean());
+  //  integratedPlots_["triggerRatePerSpill"]->SetBinError(iBin,evt_info->GetRMS());
+  setAxisTitles(integratedPlots_["triggerRatePerSpill"], "nSpill","triggerRate" );
+  plotMe(integratedPlots_["triggerRatePerSpill"]);
+
 
   }
   integratedFile_->cd();
@@ -569,6 +583,8 @@ void plotterTools::computeVariable(TString name, int varDim){
 
  }else if(name=="triggerRate"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+ }else if(name=="triggerRateHisto"){//DAQ Status
+    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
   }
@@ -874,6 +890,7 @@ void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("triggerRate",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot("triggerRateHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
 }
 
