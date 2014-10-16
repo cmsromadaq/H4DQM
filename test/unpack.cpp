@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
 
   outFile->ls () ;
   outFile->cd () ;
-  outTree->Write () ;
+  outTree->Write ("",TObject::kOverwrite) ;
   outFile->Close () ;
   cout << "[UNPACKER] " << outfname << " is closed." << endl;
 

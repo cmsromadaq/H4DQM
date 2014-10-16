@@ -623,7 +623,7 @@ void plotterTools::computeVariable(TString name, int varDim){
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
  }else if(name=="deltaTime"){
-   variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime2-(int64_t)treeStruct_.evtTime1;
+   variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0];
 
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
@@ -811,9 +811,9 @@ void  plotterTools::readInputTree ()
   inputTree_->SetBranchAddress("evtTimeDist"    ,&treeStruct_.evtTimeDist);
   inputTree_->SetBranchAddress("evtTimeStart"    ,&treeStruct_.evtTimeStart);
 
-  inputTree_->SetBranchAddress("evtTime1"    ,&treeStruct_.evtTime1);
-  inputTree_->SetBranchAddress("evtTime2"    ,&treeStruct_.evtTime2);
-  inputTree_->SetBranchAddress("evtTime3"    ,&treeStruct_.evtTime3);
+  inputTree_->SetBranchAddress("nEvtTimes"    ,&treeStruct_.nEvtTimes);
+  inputTree_->SetBranchAddress("evtTime"    ,&treeStruct_.evtTime);
+  inputTree_->SetBranchAddress("evtTimeBoard"    ,&treeStruct_.evtTimeBoard);
 
   inputTree_->SetBranchAddress("nAdcChannels"    ,&treeStruct_.nAdcChannels);
   inputTree_->SetBranchAddress("adcBoard"    ,treeStruct_.adcBoard);
@@ -868,9 +868,10 @@ void  plotterTools::Loop()
 
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
 
-      if(iEntry==0)timeStart_=treeStruct_.evtTime1;
+      if(iEntry==0)timeStart_=treeStruct_.evtTime[0];
       if(iEntry==0 && wantADCplots) initAdcChannelNames();
-      if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime1;
+      if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime[0];
+
       fillObjects();
 
   
