@@ -74,6 +74,13 @@ public:
   static const UInt_t MaxTdcReadings = 20;
   std::vector<float> tdc_readings[MaxTdcChannels];
 
+  //adc channel names
+  std::map<TString,UInt_t*> adc_channelnames;
+  void initAdcChannelNames();
+
+  void bookPlotsADC();
+  bool wantADCplots;
+
   void fillObjects();
   void initHodo();
   void initTdc();

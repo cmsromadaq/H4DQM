@@ -17,6 +17,8 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
   outputFile_ = TFile::Open(outfname,"RECREATE");
   outputDir_=outdname;
 
+  wantADCplots = false;
+
 };
 
 void plotterTools::initIntegrated(TString nameFile){
@@ -670,7 +672,16 @@ void plotterTools::computeVariable(TString name, int varDim){
  }
 
 
+ {
+   std::map<TString,UInt_t*>::const_iterator it = adc_channelnames.find(name);
+   if (it!=adc_channelnames.end()){
+     variables_[variablesIterator_[name]]=*(it->second);
+   }
+ }
+
+
 }
+
 
 void plotterTools::fillObjects(){
   initHodo();
@@ -772,6 +783,24 @@ void plotterTools::initTdc(){
 
 }
 
+void plotterTools::initAdcChannelNames(){
+
+  adc_channelnames.clear();
+
+  for (UInt_t i=0; i<treeStruct_.nAdcChannels; i++){
+    TString name("ADC_board_");
+    for (uint j=3; j>=0; j--){
+      UInt_t field = ((treeStruct_.tdcBoard[i])>>8*j)&&(0x000000FF);
+      name+=field;
+    }
+    name+='_';
+    name+=treeStruct_.tdcChannel[i];
+    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.tdcData[i])));
+    addPlot(name.Data(),4096,0,4096,"1D",group_,module_);
+  }
+
+}
+
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 void  plotterTools::readInputTree ()
 {
@@ -820,6 +849,9 @@ void  plotterTools::readInputTree ()
   return ;
 } 
 
+void plotterTools::bookPlotsADC(){
+  wantADCplots=true;
+}
 
 void  plotterTools::Loop()
 {
@@ -837,6 +869,7 @@ void  plotterTools::Loop()
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
 
       if(iEntry==0)timeStart_=treeStruct_.evtTime1;
+      if(iEntry==0 && wantADCplots) initAdcChannelNames();
       if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime1;
       fillObjects();
 
