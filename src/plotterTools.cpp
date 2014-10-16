@@ -950,7 +950,7 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
   addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
-}
+ }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot("TDCinputTime1",100,0,50000,"1D",group_,module_,MaxTdcReadings);

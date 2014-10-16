@@ -168,37 +168,45 @@ int main (int argc, char ** argv)
   string outdname = PLOTS_FOLDER + "/" + run + "/" + spill + "/digitizer/" ;
   string outfname = outdname + "plots_" + spill + ".root" ;
 
+
   checkFolder (PLOTS_FOLDER + "/" + run) ;
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill) ;
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill + "/digitizer/") ;
 
+  
   plotterTools plotter (filename.c_str (), outfname.c_str (), outdname.c_str ()) ;
+  
+
   plotter.setPlotsFormat () ;
+  
   plotter.setModule ("pulses") ;
   plotter.setGroup ("digitizer") ;
-  
+    
   // get the number of channels and groups used from the digi file
   // ---- ---- ---- ---- ---- ---- ---- ----
-  UInt_t          digiGroup[9216] ;
-  TBranch        * b_digiGroup ;
-  plotter.inputTree_->SetBranchAddress ("digiGroup", digiGroup, &b_digiGroup) ;
-  UInt_t          digiChannel[9216] ;
-  TBranch        * b_digiChannel ;
-  plotter.inputTree_->SetBranchAddress ("digiChannel", digiChannel, &b_digiChannel) ;
+  UInt_t          digiGroup[40000] ;
+//
+  plotter.inputTree_->SetBranchAddress ("digiGroup", digiGroup);
+  UInt_t          digiChannel[40000] ;
+//
+  plotter.inputTree_->SetBranchAddress ("digiChannel", digiChannel);
   UInt_t          nDigiSamples ;
-  TBranch        *b_nDigiSamples ;
-  plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples, &b_nDigiSamples) ;
-  Float_t         digiSampleValue[9216] ;
-  TBranch        *b_digiSampleValue ;
-  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue, &b_digiSampleValue) ;
-  UInt_t          digiSampleIndex[9216] ;
-  TBranch        *b_digiSampleIndex ;
-  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex, &b_digiSampleIndex) ;
+//
+  plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples);
+  Float_t         digiSampleValue[40000] ;
+//
+  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue);
+  UInt_t          digiSampleIndex[40000] ;
+//
+  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex);
+//
+  
 
   plotter.inputTree_->GetEvent (0) ;
+  
   set<int> channels = listElements (digiChannel,  nDigiSamples) ;
   set<int> groups = listElements (digiGroup,  nDigiSamples) ;
-
+  
   // read the expected ranges for histos from xml file, or from the digi info?
   // ---- ---- ---- ---- ---- ---- ---- ----
   // get them from the file itself, by doing the first plot.
@@ -208,6 +216,8 @@ int main (int argc, char ** argv)
   float xmin = xRange.first ;
   float xmax = xRange.second ;
 
+    
+
   pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
   int yNbins = 100 ;
   float ymin = yRange.first - 0.1 * fabs (yRange.first) ;
@@ -215,7 +225,7 @@ int main (int argc, char ** argv)
 
   // prepare and fill the plots
   // ---- ---- ---- ---- ---- ---- ---- ----
-  
+    
   vector<TH2F *> histos ;
   for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
