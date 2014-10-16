@@ -1,6 +1,6 @@
 #include "interface/CAEN_V1290.hpp"
 
-#define DEBUG_UNPACKER 1
+#define DEBUG_UNPACKER 0
 #define DEBUG_VERBOSE_UNPACKER 0
 
 using namespace std;
