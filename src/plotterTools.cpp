@@ -47,7 +47,7 @@ void plotterTools::initIntegrated(TString nameFile){
     evt_info=(TH1F*)outObjects_[plotLongNames_["nTotalEvts"]];
     trg_info=(TH1F*)outObjects_[plotLongNames_["triggerRateHisto"]];
   }
-  trg_info->Print();
+
 
 
 
@@ -513,31 +513,74 @@ void plotterTools::computeVariable(TString name, int varDim){
 
  }else if(name == "beamProfileSmallX"){//small hodo
    
-   for(int i =0 ;i<8;i++){
+   for(int i =0 ;i<nFibersSmallHodo;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOnSmall_[hodoX1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOnSmall_[hodoSmallX][i]==1){
+       variablesContainer_[variablesIterator_[name]][i]=i;
+       std::cout<<"i small:"<<i<<endl;
+     }
    }
  }else if(name == "beamProfileSmallY"){
 
-   for(int i =0 ;i<8;i++){
+   for(int i =0 ;i<nFibersSmallHodo;i++){
      variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOnSmall_[1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     if(fibersOnSmall_[hodoSmallY][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
    }
  }else if(name=="nFibersOnSmallX"){
 
    int fibersOn=0;
-   for(int i=0;i<8;i++){
-     if(fibersOn_[hodoX1][i]==1) fibersOn++;
+   for(int i=0;i<nFibersSmallHodo;i++){
+     if(fibersOnSmall_[hodoSmallX][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
 
- }else if(name=="nFibersOnSmallX"){
+ }else if(name=="nFibersOnSmallY"){
 
    int fibersOn=0;
-   for(int i=0;i<8;i++){
-     if(fibersOn_[1][i]==1) fibersOn++;
+   for(int i=0;i<nFibersSmallHodo;i++){
+     if(fibersOnSmall_[hodoSmallY][i]==1) fibersOn++;
    }
    variables_[variablesIterator_[name]]=fibersOn;
+
+ }else if(name=="beamPositionSmallX"){
+
+   float pos=0;
+   int nFibersOn=0;
+   
+   for (int i=0;i<8;++i){   
+     if(fibersOnSmall_[hodoSmallX][i]==1){
+       nFibersOn++;
+       pos+=i; 
+     }
+   }
+
+
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
+
+ }else if(name=="beamPositionSmallY"){
+
+   float pos=0;
+   int nFibersOn=0;
+   
+   for (int i=0;i<8;++i){   
+     if(fibersOnSmall_[hodoSmallY][i]==1){
+       nFibersOn++;
+       pos+=i; 
+     }
+   }
+
+
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   variables_[variablesIterator_[name]]=pos;
 
  }else if(name=="beamPositionX"){
 
@@ -638,13 +681,31 @@ void plotterTools::fillObjects(){
   initHodo();
   initTdc();
 
-   // fibersOn_[0][10]=1;
-   // fibersOn_[0][11]=1;
-   // fibersOn_[0][12]=1;
+  //if you want to make a test
+  //   fibersOn_[0][10]=1;
+  //   fibersOn_[0][11]=1;
+  //   fibersOn_[0][12]=1;
 
-   // fibersOn_[1][20]=1;
-   // fibersOn_[1][21]=1;
-   // fibersOn_[1][22]=1;
+  //   fibersOn_[1][20]=1;
+  //   fibersOn_[1][21]=1;
+  //   fibersOn_[1][22]=1;
+
+  //   fibersOn_[2][10]=1;
+  //   fibersOn_[2][11]=1;
+  //   fibersOn_[2][12]=1;
+
+  //   fibersOn_[3][20]=1;
+  //   fibersOn_[3][21]=1;
+  //   fibersOn_[3][22]=1;
+
+
+  // fibersOnSmall_[0][4]=1;
+  // fibersOnSmall_[0][5]=1;
+  // fibersOnSmall_[0][6]=1;
+
+  // fibersOnSmall_[1][2]=1;
+  // fibersOnSmall_[1][3]=1;
+  // fibersOnSmall_[1][4]=1;
 
 
 }
@@ -771,7 +832,7 @@ void  plotterTools::Loop()
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
-  //  nentries=1;
+    nentries=1;
 
   //loop and fill histos
   for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
@@ -848,23 +909,23 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
 
-  addPlot("beamProfileX1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY1", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileX2", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY2", 64,-0.5, 64.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot("beamProfileY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
 
-  addPlot("nFibersOnX1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
-  addPlot("beamPositionX1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionX2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY1", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY2", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
-  addPlot("beamPositionX", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY", 64,-0.5, 64.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionX", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionY", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
 }
 
@@ -877,12 +938,14 @@ void plotterTools::bookCombinedPlotsHodo(){
 
 void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
-  addPlot("beamProfileSmallX", 8,-0.5, 8.5,"1D",group_,module_,8);//simple TH1F
-  addPlot("beamProfileSmallY", 8,-0.5, 8.5,"1D",group_,module_,8);//simple TH1F
+  addPlot("beamProfileSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
+  addPlot("beamProfileSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
 
-  addPlot("nFibersOnSmallX", 8,-0.5, 8.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnSmallY", 8,-0.5, 8.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot("nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
 
+  addPlot("beamPositionSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot("beamPositionSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
 
 
 }

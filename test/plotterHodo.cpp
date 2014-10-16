@@ -61,6 +61,10 @@ int main (int argc, char ** argv)
   plotter.fitHisto("beamPositionX","gaus");
   plotter.fitHisto("beamPositionY","gaus");
 
+  plotter.fitHisto("beamPositionSmallX","gaus");
+  plotter.fitHisto("beamPositionSmallY","gaus");
+
+
   plotter.bookCombinedPlotsHodo();
 
   plotter.plotHistos();

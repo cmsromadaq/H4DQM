@@ -22,6 +22,8 @@
 #define hodoX2 2
 #define hodoY2 3
 
+#define hodoSmallX 0
+#define hodoSmallY 1
 
 #define nPlanesSmallHodo 2
 #define nFibersSmallHodo 8
