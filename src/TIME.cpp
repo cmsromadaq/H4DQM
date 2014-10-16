@@ -1,7 +1,7 @@
 #include "interface/TIME.hpp"
 #include <assert.h>
 
-#define DEBUG_UNPACKER 1
+#define DEBUG_UNPACKER 0
 
 int TIME::Unpack (dataType &stream, Event * event, boardHeader &bH) 
 {

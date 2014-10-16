@@ -2,27 +2,34 @@
 
 int main (int argc, char ** argv) 
 {
-  char *filename = NULL;
-  char *outfname = NULL;
-  char *outdname = NULL;
-  int c;
+  string ROOT_FOLDER ="";
+  string OUT_FOLDER  ="";
+  string run="";
+  string spill="";
+  string integratedfname ="";
 
-  while ((c = getopt (argc, argv, "f:d:o:")) != -1)
+  int c;
+  while ((c = getopt (argc, argv, "i:o:r:s:I:")) != -1)
     switch (c)
       {
-      case 'f':
-	filename = optarg;
+      case 'i':
+	ROOT_FOLDER = string(optarg);
 	break;
      case 'o':
-	outfname = optarg;
+       OUT_FOLDER =  string(optarg);
 	break;
-      case 'd':
-	outdname = optarg;
+      case 'r':
+	run =  string(optarg);
 	break;
-
+      case 's':
+	spill =  string(optarg);
+	break;
+      case 'I':
+	integratedfname= string(optarg);
+	break;
 
       case '?':
-	if (optopt == 'f'|| optopt == 'o'|| optopt == 'd')
+	if (optopt == 'i'|| optopt == 'o'|| optopt == 'r'|| optopt == 's'||optopt == 'I')
 	  fprintf (stderr, "Option -%c requires an argument.\n", optopt);
 	else if (isprint (optopt))
 	  fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -34,6 +41,17 @@ int main (int argc, char ** argv)
       default:
 	exit (-1);
       }
+
+  string filename=ROOT_FOLDER+"/"+run+"/"+spill+".root";
+  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/";
+  string outfname=outdname+"dqmPlots"+"hodo"+".root";
+  string integratedName=OUT_FOLDER+"/"+run+"/"+integratedfname;
+
+  system( Form("mkdir -p %s", outdname.c_str()) );
+
+
+  std::cout<<filename<<" "<<outdname<<" "<<outfname<<" "<<integratedfname<<endl;
+
 
   plotterTools plotter(filename,outfname,outdname);
 
