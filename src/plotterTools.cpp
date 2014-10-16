@@ -247,13 +247,8 @@ void  plotterTools::setPlotsFormat ()
 void  plotterTools::plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
-  TString canvasName = outputDir_+ "/"+hname + "_small.png" ;
-  TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
-  histo->Draw () ;
-  c1->Print (canvasName, "png") ;
-  canvasName =outputDir_+ "/"+ hname + "_large.png" ;
-  delete c1 ;
-  c1 = new TCanvas ("c1", "c1", 800, 800) ;
+  TString  canvasName =outputDir_+ "/"+ hname + ".png" ;
+  TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw () ;
   c1->Print (canvasName, "png") ;
   delete c1 ;
@@ -279,15 +274,9 @@ void  plotterTools::plotMe (TH2F * histo)
 
 
 
-
   TString hname = histo->GetName () ;
-  TString canvasName =  outputDir_+ "/"+hname + "_small.png" ;
-  TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
-  histo->Draw ("colz") ;
-  c1->Print (canvasName, "png") ;
-  canvasName = outputDir_+ "/"+hname + "_large.png" ;
-  delete c1 ;
-  c1 = new TCanvas ("c1", "c1", 800, 800) ;
+  TString  canvasName = outputDir_+ "/"+hname + ".png" ;
+  TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw ("colz") ;
   c1->Print (canvasName, "png") ;
   delete c1 ;
@@ -303,17 +292,11 @@ void  plotterTools::plotMe (TH2F * histo)
 
 void  plotterTools::plotMe (TGraph * graph, const TString & name)
 {
-  TString canvasName =  outputDir_+ "/" +name + "_small.png" ;
-  TCanvas * c1 = new TCanvas ("c1", "c1", 300, 300) ;
+  TString  canvasName = outputDir_+ "/"+name + ".png" ;
+  TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   graph->SetMarkerStyle (8) ;
   graph->SetMarkerSize (1.5) ;
   graph->SetMarkerColor (kBlue) ;  
-  graph->Draw ("ALP") ;
-  c1->Print (canvasName, "png") ;
-  canvasName = outputDir_+ "/"+name + "_large.png" ;
-
-  delete c1 ;
-  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   graph->Draw ("ALP") ;
   c1->Print (canvasName, "png") ;
   delete c1 ;
