@@ -15,6 +15,7 @@
 #include <TBranch.h>
 
 #include <set>
+#include <map>
 #include <getopt.h>
 
 #include <plotterTools.hpp>
@@ -185,22 +186,15 @@ int main (int argc, char ** argv)
   // get the number of channels and groups used from the digi file
   // ---- ---- ---- ---- ---- ---- ---- ----
   UInt_t          digiGroup[40000] ;
-//
   plotter.inputTree_->SetBranchAddress ("digiGroup", digiGroup);
   UInt_t          digiChannel[40000] ;
-//
   plotter.inputTree_->SetBranchAddress ("digiChannel", digiChannel);
   UInt_t          nDigiSamples ;
-//
   plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples);
   Float_t         digiSampleValue[40000] ;
-//
   plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue);
   UInt_t          digiSampleIndex[40000] ;
-//
   plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex);
-//
-  
 
   plotter.inputTree_->GetEvent (0) ;
   
@@ -216,8 +210,6 @@ int main (int argc, char ** argv)
   float xmin = xRange.first ;
   float xmax = xRange.second ;
 
-    
-
   pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
   int yNbins = 100 ;
   float ymin = yRange.first - 0.1 * fabs (yRange.first) ;
@@ -226,7 +218,7 @@ int main (int argc, char ** argv)
   // prepare and fill the plots
   // ---- ---- ---- ---- ---- ---- ---- ----
     
-  vector<TH2F *> histos ;
+  map <int, TH2F *> histos ;
   for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
     {
@@ -241,11 +233,23 @@ int main (int argc, char ** argv)
                            "time", "voltage",
                            "2D", plotter.group_, plotter.module_) ;
                            
-          addToPersistency (dummy, plotter.inputTree_, *iGroup, *iChannel) ;
+//          addToPersistency (dummy, plotter.inputTree_, *iGroup, *iChannel) ;
           plotter.plotMe (dummy) ;
-          histos.push_back (dummy) ;
+          histos[10 * (*iGroup) + (*iChannel)] = dummy ;
         }
     }
+  // loop over events
+  for (int iEvent = 0 ; iEvent < plotter.inputTree_->GetEntries () ; ++iEvent)
+    {
+//      if (iEvent % 10) continue ;  in case one needs to speed up
+      plotter.inputTree_->GetEvent (iEvent) ;
+      for (int iSample = 0 ; iSample < nDigiSamples ; ++iSample)
+        {
+          histos[10 * digiGroup[iSample] + digiChannel[iSample]]->Fill (
+             digiSampleIndex[iSample], digiSampleValue[iSample]) ;
+        }
+    }// loop over events
+
   plotter.plotHistos () ;
   plotter.saveHistos () ;  
   return 0 ;
