@@ -238,7 +238,6 @@ int main (int argc, char ** argv)
                            "2D", plotter.group_, plotter.module_) ;
                            
 //          addToPersistency (dummy, plotter.inputTree_, *iGroup, *iChannel) ;
-          plotter.plotMe (dummy) ;
           histos[10 * (*iGroup) + (*iChannel)] = dummy ;
         }
     }

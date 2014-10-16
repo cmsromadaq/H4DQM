@@ -620,6 +620,9 @@ void plotterTools::computeVariable(TString name, int varDim){
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+ }else if(name=="deltaTime"){
+   variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime2-(int64_t)treeStruct_.evtTime1;
+
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
   }
@@ -951,6 +954,7 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
   addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
+  addPlot("deltaTime", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
  }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){

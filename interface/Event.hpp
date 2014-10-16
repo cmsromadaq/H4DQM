@@ -35,7 +35,6 @@ struct treeStructData
   ULong64_t 	evtTime [MAX_RO] ;
   unsigned int 	evtTimeBoard [MAX_RO] ;
 
-
 //  unsigned int triggerBits ;
 
   unsigned int nAdcChannels ;
@@ -45,6 +44,7 @@ struct treeStructData
   unsigned int adcData[MAX_ADC_CHANNELS] ;
 
   unsigned int nDigiSamples ;
+  unsigned int digiFrequency[MAX_DIGI_SAMPLES] ;
   unsigned int digiGroup[MAX_DIGI_SAMPLES] ;
   unsigned int digiChannel[MAX_DIGI_SAMPLES] ;
   unsigned int digiSampleIndex[MAX_DIGI_SAMPLES] ;
@@ -89,8 +89,9 @@ struct tdcData
 
 struct digiData
 {
-  unsigned int board;
+  unsigned int board ;
   unsigned int group ;
+  unsigned int frequency ;
   unsigned int channel ;
   unsigned int sampleIndex ;
   float sampleValue ;

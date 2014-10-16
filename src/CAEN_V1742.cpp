@@ -18,9 +18,6 @@
   //              ...   = [          .....             ]
 
 
-#define DEBUG_UNPACKER 0
-#define DEBUG_VERBOSE_UNPACKER 0
-
 #include "interface/CAEN_V1742.hpp"
 #include <bitset>
 
@@ -34,13 +31,13 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
 {
   isDigiSample_ = 0 ;
 
-  //PG loop over board words (the header was already read in SpillUnpacker
+  //PG loop over board words (the external header was already read in SpillUnpacker
   for (unsigned int i = 0 ; i < dig1742Words_ ; ++i)
     {
-	//cout<< "[CAEN_V1742]::[Unpack]:: fr="<<i<<"/"<<dig1742Words_ 
-	//	<< "  BoardHeader "<<std::hex<<bH.boardID<<std::dec
-	//	<< "  Ch "<< channelId_
-	//	<<endl;
+    //cout<< "[CAEN_V1742]::[Unpack]:: fr="<<i<<"/"<<dig1742Words_ 
+    //    << "  BoardHeader "<<std::hex<<bH.boardID<<std::dec
+    //    << "  Ch "<< channelId_
+    //    <<endl;
       // read the word from the stream
       // ---- ---- ---- ---- ---- ---- ---- ----
     
@@ -90,10 +87,22 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                 {
                   //This is the ChHeader[0]
                   short dt_type = digRawData_>>28 & 0xF ; //ChHeader is 1000 (0x8)
+                  frequency_ = digRawData_>>16 & 0x3 ;
+                      // 00 = 5GS/s
+                      // 01 = 2.5GS/s
+                      // 10 = 1GS/s
+                      // 11 = not used
+                  if (DEBUG_UNPACKER) 
+                    {
+                      cout << "[CAEN_V1742][Unpack]       | data taking frequency : " 
+                           << frequency_ << " : " << bitset<2> (frequency_) << "\n" ;
+                           
+                    }
                   if (dt_type != 0x8)
                     {
                       cout << "[CAEN_V1742][Unpack]       | ERROR: DIGI 1742 BLOCK SEEMS CORRUPTED\n" ;
-                      cout << "[CAEN_V1742][Unpack]       | ERROR: CH header : " << bitset<32> (digRawData_) << "\n" ;                  cout << "[CAEN_V1742][Unpack]       | ERROR:             10987654321098765432109876543210\n" ;
+                      cout << "[CAEN_V1742][Unpack]       | ERROR: CH header : " << bitset<32> (digRawData_) << "\n" ;
+                      cout << "[CAEN_V1742][Unpack]       | ERROR:             10987654321098765432109876543210\n" ;
                       cout << "[CAEN_V1742][Unpack]       | ERROR: quitting unpacking\n" ;                  
                       break ;
                     }
@@ -102,7 +111,8 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                   //PG FIXME check whether the second is better, when the trigger digitisation is on
                   if (DEBUG_UNPACKER) 
                     {
-                      cout << "[CAEN_V1742][Unpack]       | NEW CHANNEL size : " << nChWords << "\n" ;
+                      cout << "[CAEN_V1742][Unpack]       | NEW CHANNEL size : " 
+                           << nChWords << "\n" ;
                     }
                   nSamplesToReadout_ = nChWords ;
                   nChannelWords_ = nChWords ;
@@ -119,7 +129,8 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                   --nSamplesToReadout_ ;
                   if (DEBUG_UNPACKER) 
                     {
-                      cout << "[CAEN_V1742][Unpack]       | group " << groupId_ << " channel " << channelId_ << "\n" ;
+                      cout << "[CAEN_V1742][Unpack]       | group " 
+                           << groupId_ << " channel " << channelId_ << "\n" ;
                     }
                   //Next sample will be a sample and should be read as a float
                   isDigiSample_ = 1 ;
@@ -129,14 +140,16 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                 {
                   //This is a sample! 
                   digiData aDigiSample ;
-    		  aDigiSample.board=bH.boardID;
+                  aDigiSample.board = bH.boardID ;
                   aDigiSample.channel = channelId_ ;
                   aDigiSample.group = groupId_ ;
+                  aDigiSample.frequency = frequency_ ;
                   aDigiSample.sampleIndex = nSamplesRead_ ;
                   aDigiSample.sampleValue = digRawSample_ ;
                   if (DEBUG_VERBOSE_UNPACKER) 
                     {
-                      cout << "[CAEN_V1742][Unpack]       | sample " << aDigiSample.sampleIndex 
+                      cout << "[CAEN_V1742][Unpack]       | sample " 
+                           << aDigiSample.sampleIndex 
                            << " : " << aDigiSample.sampleValue << "\n" ;
                     }
                   event->digiValues.push_back (aDigiSample) ;

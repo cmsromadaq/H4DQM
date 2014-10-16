@@ -26,6 +26,7 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("tdcData"	,treeData.tdcData,"tdcData[nTdcChannels]/i");
 
   tree->Branch("nDigiSamples"	,&treeData.nDigiSamples,"nDigiSamples/i");
+  tree->Branch("digiFrequency"	,treeData.digiFrequency,"digiFrequency[nDigiSamples]/i");
   tree->Branch("digiGroup"	,treeData.digiGroup,"digiGroup[nDigiSamples]/i");
   tree->Branch("digiChannel"	,treeData.digiChannel,"digiChannel[nDigiSamples]/i");
   tree->Branch("digiSampleIndex",treeData.digiSampleIndex,"digiSampleIndex[nDigiSamples]/i");
@@ -110,6 +111,7 @@ void Event::fillTreeData (treeStructData & treeData)
 
   for (unsigned int i = 0 ; i < fmin (MAX_DIGI_SAMPLES, digiValues.size ()) ;++i)
     {
+      treeData.digiFrequency[i] = digiValues[i].frequency ;
       treeData.digiGroup[i] = digiValues[i].group ;
       treeData.digiChannel[i] = digiValues[i].channel ;
       treeData.digiBoard[i] = digiValues[i].board ;
