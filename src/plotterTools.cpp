@@ -51,18 +51,16 @@ void plotterTools::initIntegrated(TString nameFile){
 
 
 
-  //  if(isIntegratedNew){
     if(hX_info!=NULL){
       integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
       integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
     }
     if(evt_info!=NULL){
-
       integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+      integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",3000,0,3000);
       integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
     }
 
-    //  }else{
     if(hX_info!=NULL){
 
       integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
@@ -73,12 +71,13 @@ void plotterTools::initIntegrated(TString nameFile){
       }
 
     }
-    //    }
     if(evt_info!=NULL){
       integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
+      integratedPlots_["nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpillHisto");
       integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
       if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
+	integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",2000,0,2000);
 	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
       }
     }
@@ -111,6 +110,12 @@ void plotterTools::initIntegrated(TString nameFile){
   //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
+
+  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
+  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
+  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "Histo","Entries" );
+  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
+
 
   integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
   //  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
