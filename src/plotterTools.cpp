@@ -1,7 +1,7 @@
 #include <plotterTools.hpp>
 #include <assert.h>
 
-plotterTools::plotterTools(const char* filename, const char*outfname, const char* outdname){
+plotterTools::plotterTools(TString filename, TString outfname, TString outdname){
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
@@ -45,7 +45,7 @@ void plotterTools::initIntegrated(TString nameFile){
   it=outObjects_.find(plotLongNames_["nTotalEvts"]);
   if(it!=outObjects_.end()){
     evt_info=(TH1F*)outObjects_[plotLongNames_["nTotalEvts"]];
-    trg_info=(TH1F*)outObjects_[plotLongNames_["triggerRateHisto"]];
+    trg_info=(TH1F*)outObjects_[plotLongNames_["fractionTakenTrigHisto"]];
   }
 
 
@@ -59,7 +59,7 @@ void plotterTools::initIntegrated(TString nameFile){
     if(evt_info!=NULL){
 
       integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
-      integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,2000);
+      integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
     }
 
     //  }else{
@@ -76,10 +76,10 @@ void plotterTools::initIntegrated(TString nameFile){
     //    }
     if(evt_info!=NULL){
       integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
-      integratedPlots_["triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("triggerRatePerSpill");
+      integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
       if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
-	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,2000);
+	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
       }
     }
 
@@ -112,10 +112,10 @@ void plotterTools::initIntegrated(TString nameFile){
   setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
 
-  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,trg_info->GetMean());
-  //  integratedPlots_["triggerRatePerSpill"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["triggerRatePerSpill"], "nSpill","triggerRate" );
-  plotMe(integratedPlots_["triggerRatePerSpill"]);
+  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
+  //  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
+  setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
+  plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
 
 
   }
@@ -624,9 +624,9 @@ void plotterTools::computeVariable(TString name, int varDim){
    }
    variables_[variablesIterator_[name]]=pos;
 
- }else if(name=="triggerRate"){//DAQ Status
+ }else if(name=="fractionTakenTrig"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
- }else if(name=="triggerRateHisto"){//DAQ Status
+ }else if(name=="fractionTakenTrigHisto"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
@@ -832,7 +832,7 @@ void  plotterTools::Loop()
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
-    nentries=1;
+  //    nentries=1;
 
   //loop and fill histos
   for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
@@ -952,8 +952,8 @@ void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
-  addPlot("triggerRate",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
-  addPlot("triggerRateHisto",100,0,1,"1D",group_,module_);//simple TH1F
+  addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
 }
 

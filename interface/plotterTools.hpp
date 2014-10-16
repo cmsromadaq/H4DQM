@@ -33,7 +33,7 @@ class plotterTools{
 
 public:
 
-  plotterTools (const char * filename, const char * outfname, const char * outdname);
+  plotterTools (TString filename, TString outfname, TString outdname);
 
 
 
