@@ -25,16 +25,18 @@ done
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill
 
 ### PLOT MAKER -- make me configurable
-/home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
-/home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
-/home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
+### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
+### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
+### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
+/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root
 /home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
 ## hodo , TDC , DAQ 
 # copy skeleton php
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
-for dir in hodo TDC DAQ digitizer
+#for dir in hodo TDC DAQ digitizer total
+for dir in digitizer total
 do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
 done
