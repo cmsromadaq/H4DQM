@@ -23,9 +23,9 @@ void plotterTools::initIntegrated(TString nameFile){
   isIntegratedNew=true;
   integratedFile_=TFile::Open(nameFile,"new");
   if(integratedFile_==NULL){
-  isIntegratedNew=false;
+    isIntegratedNew=false;
     integratedFile_=TFile::Open(nameFile,"Update");
-  }
+    }
   assert(integratedFile_!=NULL);
 
   map<TString, TObject*>::iterator it;
@@ -40,6 +40,7 @@ void plotterTools::initIntegrated(TString nameFile){
   if(it!=outObjects_.end()){
    hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
    hY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionY"]];
+
   }
 
   it=outObjects_.find(plotLongNames_["nTotalEvts"]);
@@ -49,17 +50,6 @@ void plotterTools::initIntegrated(TString nameFile){
   }
 
 
-
-
-    if(hX_info!=NULL){
-      integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
-      integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
-    }
-    if(evt_info!=NULL){
-      integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
-      integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",3000,0,3000);
-      integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
-    }
 
     if(hX_info!=NULL){
 
@@ -75,10 +65,12 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
       integratedPlots_["nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpillHisto");
       integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
+      integratedPlots_["triggerRateHisto"]=(TH1F*)integratedFile_->Get("triggerRateHisto");
       if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
 	integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",2000,0,2000);
 	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
+	integratedPlots_["triggerRateHisto"]=new TH1F("triggerRateHisto","triggerRateHisto",2000,0,2000);
       }
     }
 
@@ -93,7 +85,6 @@ void plotterTools::initIntegrated(TString nameFile){
   integratedPlots_["hodo_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
   integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
 
-  std::cout<<"meanX:"<<hX_info->GetMean()<<"meanY:"<<hY_info->GetMean();
 
   setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
   setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
@@ -121,6 +112,12 @@ void plotterTools::initIntegrated(TString nameFile){
   //  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
   plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
+
+
+  integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_-timeStart_));//it's in Hz
+  //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
+  setAxisTitles(integratedPlots_["triggerRateHisto"], "trigger Rate (Hz)","Entries" );
+  plotMe(integratedPlots_["triggerRateHisto"]);
 
 
   }
@@ -353,7 +350,7 @@ void plotterTools::computeVariable(TString name, int varDim){
  if(name=="triggerEff"){
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
     //    *(variablesMap_.find(name)->second)=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
-  }else if(name=="nEvts"){
+ }else if(name=="nEvts"){
     variables_[variablesIterator_[name]]=((float)treeStruct_.evtNumber);
   }else if(name=="nTrigSPS"){
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[1]);
@@ -505,7 +502,6 @@ void plotterTools::computeVariable(TString name, int varDim){
      variablesContainer_[variablesIterator_[name]][i]=-1;
      if(fibersOnSmall_[hodoSmallX][i]==1){
        variablesContainer_[variablesIterator_[name]][i]=i;
-       std::cout<<"i small:"<<i<<endl;
      }
    }
  }else if(name == "beamProfileSmallY"){
@@ -828,7 +824,11 @@ void  plotterTools::Loop()
       inputTree_->GetEntry(iEntry);
 
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
+
+      if(iEntry==0)timeStart_=treeStruct_.evtTime1;
+      if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime1;
       fillObjects();
+
   
       for (std::map<TString,float*>::const_iterator iter = variablesMap_.begin ();
            iter != variablesMap_.end () ; ++iter)

@@ -50,6 +50,9 @@ public:
 
   treeStructData treeStruct_;
 
+  ULong64_t timeStart_;
+  ULong64_t timeEnd_;
+
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
   std::map<TString,TObject*> outObjects_;

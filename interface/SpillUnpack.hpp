@@ -20,8 +20,8 @@
 #include <TFile.h>
 #include <TTree.h>
 
-#define DEBUG_UNPACKER 1
-#define DEBUG_VERBOSE_UNPACKER 1
+#define DEBUG_UNPACKER 0
+#define DEBUG_VERBOSE_UNPACKER 0
 
 struct spillHeader
 {
