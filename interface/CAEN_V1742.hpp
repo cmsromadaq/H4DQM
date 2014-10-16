@@ -44,6 +44,7 @@ private :
   int nSamplesRead_ ;
   int channelId_ ;
   int groupId_ ;
+  WORD frequency_ ;
 
 
 };
