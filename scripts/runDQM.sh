@@ -25,3 +25,5 @@ done
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill
 
 /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
+/home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
+/home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
