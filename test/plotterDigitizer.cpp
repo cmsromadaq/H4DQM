@@ -62,22 +62,6 @@ void checkFolder (string folderName)
   return ;
 }
 
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
-void addToPersistency (TH2F * pPlot, TChain * event, 
-                       int digiGroup, int digiChannel)
-{
-  TString command = "digiSampleValue:digiSampleIndex>>" ;
-  command += pPlot->GetName () ;
-  TString selection = "digiGroup==" ;
-  selection += digiGroup ;
-  selection += "&&digiChannel==" ;
-  selection += digiChannel ;
-  event->Draw (command, selection) ;
-  return ;
-}
-
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -173,17 +157,12 @@ int main (int argc, char ** argv)
   string outdname = PLOTS_FOLDER + "/" + run + "/" + spill + "/digitizer/" ;
   string outfname = outdname + "plots_" + spill + ".root" ;
 
-
   checkFolder (PLOTS_FOLDER + "/" + run) ;
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill) ;
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill + "/digitizer/") ;
-
   
   plotterTools plotter (filename.c_str (), outfname.c_str (), outdname.c_str ()) ;
-  
-
   plotter.setPlotsFormat () ;
-  
   plotter.setModule ("pulses") ;
   plotter.setGroup ("digitizer") ;
     
@@ -214,6 +193,9 @@ int main (int argc, char ** argv)
   float xmin = xRange.first ;
   float xmax = xRange.second ;
 
+  // get the Y range for each histogram
+//  vector<float>  ;
+
   pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
   int yNbins = 100 ;
   float ymin = yRange.first - 0.1 * fabs (yRange.first) ;
@@ -235,7 +217,7 @@ int main (int argc, char ** argv)
           name += *iChannel ;
           TH2F * dummy = plotter.addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
                            "time", "voltage",
-                           "2D", plotter.group_, plotter.module_) ;
+                           "2D", plotter.group_, plotter.module_, 1) ;
                            
 //          addToPersistency (dummy, plotter.inputTree_, *iGroup, *iChannel) ;
           histos[10 * (*iGroup) + (*iChannel)] = dummy ;

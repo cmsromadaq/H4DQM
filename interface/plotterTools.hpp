@@ -7,6 +7,7 @@
 #include <TCanvas.h>
 #include <TH1.h>
 #include <TH2.h>
+#include <TProfile.h>
 #include <TGraph.h>
 #include <TRandom.h>
 #include <TChain.h>
@@ -55,6 +56,7 @@ public:
 
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
+  std::map<TString,int> makeProfile_;
   std::map<TString,TObject*> outObjects_;
   std::map<TString,TString> plotShortNames_;
   std::map<TString,TString> plotLongNames_;
@@ -89,7 +91,7 @@ public:
   void set_palette_fancy ();
   void setPlotsFormat ();
   void plotMe (TH1F * histo);
-  void plotMe (TH2F * histo);
+  void plotMe (TH2F * histo, int makeProfile = 0);
   void plotMe (TGraph * graph, const TString & name);
   void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);
@@ -116,7 +118,8 @@ public:
   void FillPlot(TString name, bool is2D=false,int varDim=1);//TH1F
   TGraph * addPlot(TString name,int nPoints,TString type, TString group, TString module);//TGraph
   TH1F * addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1);//TH1F
-  TH2F * addPlot (TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle, TString type, TString group, TString module);//TH2F
+  TH2F * addPlot (TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
+                  TString xTitle, TString yTitle, TString type, TString group, TString module, int addProfile = 0);//TH2F
   void addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module);
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
@@ -125,6 +128,8 @@ public:
   void computeVariable(TString name, int varDim=1);
   pair<int, string> execute (const string & command);
   void fitHisto(TString name, TString func);
+  float getMinimumP (TProfile * p) ;
+  float getMaximumP (TProfile * p) ;
 
   //fibers
   int findPosition(std::vector<int>* fiberVec, int n);
