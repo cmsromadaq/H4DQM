@@ -40,6 +40,10 @@ void plotterTools::initIntegrated(TString nameFile){
   TH1F* hX_info=NULL;
   TH1F* hY_info=NULL;
 
+  TH1F* hSX_info=NULL;
+  TH1F* hSY_info=NULL;
+
+
   it=outObjects_.find(plotLongNames_["beamPositionX"]);
   if(it!=outObjects_.end()){
    hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
@@ -53,6 +57,13 @@ void plotterTools::initIntegrated(TString nameFile){
     trg_info=(TH1F*)outObjects_[plotLongNames_["fractionTakenTrigHisto"]];
   }
 
+  it=outObjects_.find(plotLongNames_["beamPositionSmallX"]);
+  if(it!=outObjects_.end()){
+    cout<<"daje"<<endl;
+   hSX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallX"]];
+   hSY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallY"]];
+
+  }
 
 
     if(hX_info!=NULL){
@@ -83,6 +94,18 @@ void plotterTools::initIntegrated(TString nameFile){
 
     }
 
+    if(hSX_info!=NULL){
+
+      integratedPlots_["hodoSmall_meanX_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanX_spill");
+      integratedPlots_["hodoSmall_meanY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanY_spill");//add controls
+      if(integratedPlots_["hodoSmall_meanX_spill"]==NULL){
+	integratedPlots_["hodoSmall_meanX_spill"]=new TH1F("hodoSmall_meanX_spill","hodoSmall_meanX_spill",2000,0,2000);
+	integratedPlots_["hodoSmall_meanY_spill"]=new TH1F("hodoSmall_meanY_spill","hodoSmall_meanY_spill",2000,0,2000);
+      }
+
+    }
+
+
 
   if(hX_info!=NULL){
 
@@ -101,6 +124,25 @@ void plotterTools::initIntegrated(TString nameFile){
   plotMe(integratedPlots_["hodo_meanX_spill"]);
   plotMe(integratedPlots_["hodo_meanY_spill"]);
   }
+
+  if(hSX_info!=NULL){
+    
+    int iBin=0;
+    for(iBin=1;iBin<integratedPlots_["hodoSmall_meanX_spill"]->GetNbinsX() && integratedPlots_["hodoSmall_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}
+    integratedPlots_["hodoSmall_meanX_spill"]->SetBinContent(iBin,hX_info->GetMean());
+    integratedPlots_["hodoSmall_meanX_spill"]->SetBinError(iBin,hX_info->GetRMS());
+    
+    integratedPlots_["hodoSmall_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
+    integratedPlots_["hodoSmall_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
+    
+    
+    setAxisTitles(integratedPlots_["hodoSmall_meanX_spill"], "nSpill","mean X" );
+    setAxisTitles(integratedPlots_["hodoSmall_meanY_spill"], "nSpill","mean Y" );
+    
+    plotMe(integratedPlots_["hodoSmall_meanX_spill"]);
+    plotMe(integratedPlots_["hodoSmall_meanY_spill"]);
+  }
+
 
   if(evt_info != NULL){
 
@@ -758,7 +800,7 @@ void plotterTools::initHodo(){
    if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
      int word = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
      for(int j=1;j<=64;j++){
-       fibersOn_[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
+       //       fibersOn_[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
        std::vector<int> *x =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderA : &fiberOrderB;
        int y=findPosition(x,j);
        if(y<0) continue;
