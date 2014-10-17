@@ -83,6 +83,10 @@ int main (int argc, char ** argv)
   plotter.fitHisto("beamPositionSmallX","gaus");
   plotter.fitHisto("beamPositionSmallY","gaus");
 
+  plotter.fitHisto("deltaTime10","gaus");
+  plotter.fitHisto("deltaTime20","gaus");
+  plotter.fitHisto("deltaTime21","gaus");
+
 
   plotter.bookCombinedPlotsHodo();
 

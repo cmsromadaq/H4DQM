@@ -50,8 +50,8 @@ public:
 
   treeStructData treeStruct_;
 
-  ULong64_t timeStart_;
-  ULong64_t timeEnd_;
+  ULong64_t timeStart_[MAX_RO];
+  ULong64_t timeEnd_[MAX_RO];
 
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
