@@ -2,6 +2,36 @@
 #include <assert.h>
 #define VERBOSE 0
 
+
+float 
+plotterTools::getMinimumP (TProfile * p)
+{
+  float min = p->GetBinContent (1) ;
+  for (int i = 2 ; i <= p->GetNbinsX () ; ++i)
+    {
+      if (p->GetBinError (i) == 0) continue ;
+//      cout << min << " " << p->GetBinContent (i) << endl ;
+      if (p->GetBinContent (i) < min) min = p->GetBinContent (i) ;
+    }
+  return min ;
+}
+
+
+float 
+plotterTools::getMaximumP (TProfile * p)
+{
+  float max = p->GetBinContent (1) ;
+  for (int i = 2 ; i <= p->GetNbinsX () ; ++i)
+    {
+      if (p->GetBinError (i) == 0) continue ;
+//      cout << max << " " << p->GetBinContent (i) << endl ;
+      if (p->GetBinContent (i) > max) max = p->GetBinContent (i) ;
+    }
+  return max ;
+}
+
+
+
 plotterTools::plotterTools(TString filename, TString outfname, TString outdname){
 
   setPlotsFormat () ;
@@ -266,7 +296,7 @@ void  plotterTools::plotMe (TH1F * histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMe (TH2F * histo)
+void  plotterTools::plotMe (TH2F * histo, int makeProfile)
 {
 
   gStyle->SetPadTopMargin(0.05);
@@ -279,13 +309,34 @@ void  plotterTools::plotMe (TH2F * histo)
   gStyle->SetStatW (0.2) ;
   gStyle->SetStatH (0.15) ;
 
-
-
   TString hname = histo->GetName () ;
   TString  canvasName = outputDir_+ "/"+hname + ".png" ;
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
-  histo->Draw ("colz") ;
-  c1->Print (canvasName, "png") ;
+
+  if (!makeProfile)
+    {
+       histo->Draw ("colz") ;
+       c1->Print (canvasName, "png") ;
+    }
+  else
+    {
+      TProfile * dummy = histo->ProfileX () ;
+      dummy->SetMarkerColor (2) ;
+      dummy->SetMarkerStyle (5) ;
+      float Xmin = dummy->GetBinLowEdge (1) ;
+      float Xmax = dummy->GetBinLowEdge (dummy->GetNbinsX ()) + dummy->GetBinWidth (1) ;
+      float Ymin = getMinimumP (dummy) ; 
+      float Ymax = getMaximumP (dummy) ; 
+      float delta = Ymax - Ymin ;
+      Ymin -= 0.1 * delta ;
+      Ymax += 0.1 * delta ;
+      
+      TH1F * hdummy = c1->DrawFrame (Xmin, Ymin, Xmax, Ymax) ;
+      histo->Draw ("colz same") ;
+      dummy->Draw ("same") ;
+      c1->Print (canvasName, "png") ;
+      delete hdummy ;
+    }
   delete c1 ;
   return ;
 
@@ -1063,14 +1114,16 @@ TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TS
 }
 
 //for TH2F
-TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle,TString type, TString group, TString module){
-
+TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
+                             TString xTitle, TString yTitle,TString type, TString group, TString module, int addProfile)
+{
   initVariable(name);
 
    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
    outObjects_[longName]=((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
    plotLongNames_[name]=longName;
    plotShortNames_[longName]=name;
+   makeProfile_[longName] = addProfile ;
    return dynamic_cast<TH2F *> (outObjects_[longName]) ;
 
 }
@@ -1225,7 +1278,7 @@ void plotterTools::plotHistos(){
       plotMe((TH1F*)out->second);
     }else if(out->first.Contains("2D"))  {
       setAxisTitles((TH2F*)out->second,((TAxis*)((TH2F*)out->second)->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second)->GetYaxis())->GetTitle());
-      plotMe((TH2F*)out->second);
+      plotMe((TH2F*)out->second, makeProfile_[out->first]);
     }
   if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
