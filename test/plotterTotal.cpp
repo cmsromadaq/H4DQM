@@ -89,6 +89,7 @@ int main (int argc, char ** argv)
   plotter.fitHisto("deltaTime20","gaus");
   plotter.fitHisto("deltaTime21","gaus");
 
+  plotter.setPlotAxisRange("fractionTakenTrig","Y",0,1.1);
 
   plotter.bookCombinedPlotsHodo();
 

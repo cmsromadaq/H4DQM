@@ -1108,6 +1108,7 @@ void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  setPlotAxisRange("fractionTakenTrig","Y",0,1);
   addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
   addPlot("deltaTime10", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
@@ -1159,6 +1160,21 @@ void plotterTools::addPlotCombined(TString name, TString name1, TString name2,TS
   ((TH2F*)outObjects_[longName])->SetXTitle(((TH1F* )outObjects_[plotLongNames_[name1]])->GetTitle());
   ((TH2F*)outObjects_[longName])->SetYTitle(((TH1F* )outObjects_[plotLongNames_[name2]])->GetTitle());
 
+}
+
+void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float max){
+  if(plotLongNames_[name].Contains("1D")){
+    ((TH1F*) outObjects_[plotLongNames_[name]])->SetAxisRange(min,max,axis);
+  }else   if(plotLongNames_[name].Contains("history")){
+    if(axis=="X"){
+      ((TGraph*) outObjects_[plotLongNames_[name]])->GetXaxis()->SetRangeUser(min,max);
+    }else if(axis=="Y"){
+      std::cout<<"setting range"<<endl;
+      ((TGraph*) outObjects_[plotLongNames_[name]])->GetYaxis()->SetRangeUser(min,max);
+    }
+  }else if (plotLongNames_[name].Contains("2D")){
+    ((TH2F*) outObjects_[plotLongNames_[name]])->SetAxisRange(min,max,axis);
+  }
 }
 
 //for TGraph

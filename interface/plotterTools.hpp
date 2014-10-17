@@ -96,6 +96,7 @@ public:
   void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TGraph * graph, const TString  xTitle, const TString  yTitle);
+  void setPlotAxisRange(TString name, TString axis,float min, float max);
   void readInputTree ();
   void Loop();
   void saveHistos();
