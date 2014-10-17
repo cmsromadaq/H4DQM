@@ -31,12 +31,26 @@ done
 /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root
 /home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
+cd $output/$run/$spill/$dir/
+mkdir hodo
+mkdir DAQ
+mkdir ADC
+mkdir TDC 
+
+mv total/hodo_* hodo/
+mv total/DAQStatus_* DAQ/
+mv total/ADC_* ADC/
+mv total/TDC_* TDC/
+
+rm -r total
+
+
 ## hodo , TDC , DAQ 
 # copy skeleton php
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 #for dir in hodo TDC DAQ digitizer total
-for dir in digitizer total
+for dir in digitizer hodo DAQ ADC TDC
 do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
 done
