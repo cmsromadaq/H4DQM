@@ -84,8 +84,13 @@ int SpillUnpack::AddBoard (boardHeader bH)
     break;
   case _UNKWN_:
     boards_[bH.boardID]= new DummyBoard;
+    std::cout << "UNKNOWN BOARD " << std::hex << bH.boardID << std::dec << std::endl;
     //TO DO decide what to do.continue?
     break;
+  default:
+    boards_[bH.boardID]= new DummyBoard;
+    std::cout << "DEFAULT DUMMYBOARD " << std::hex << bH.boardID << std::dec << std::endl;
+    //TO DO decide what to do.continue?
   }
   return boards_.size () ;
 } 
