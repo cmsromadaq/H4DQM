@@ -869,6 +869,8 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
     name+=treeStruct_.adcChannel[i];
     adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
     addPlot(name.Data(),4096,0,4096,"1D",group_,module_);
+    name.Append("_hist");
+    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
     addPlot(name.Data(), nBinsHistory, "history", group_,module_);
   }
 
