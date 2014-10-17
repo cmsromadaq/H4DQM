@@ -16,7 +16,7 @@ int CAEN_V1495PU::Unpack(dataType &stream, Event *event,boardHeader &bH) {
 
       //event->patterns.push_back((unsigned int)currWord);
       myPattern.board=bH.boardID;
-      myPattern.channel=i-1; // TODO: check offset by one
+      myPattern.channel=i-2;
       myPattern.patternValue=currWord;
       event->patterns.push_back( myPattern );
 
