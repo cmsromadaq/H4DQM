@@ -23,6 +23,7 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
 
 void plotterTools::initIntegrated(TString nameFile){
 
+  gStyle->SetOptStat (0) ;
   isIntegratedNew=true;
   integratedFile_=TFile::Open(nameFile,"new");
   if(integratedFile_==NULL){
@@ -77,8 +78,9 @@ void plotterTools::initIntegrated(TString nameFile){
 	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
 	integratedPlots_["triggerRateHisto"]=new TH1F("triggerRateHisto","triggerRateHisto",2000,0,1000);
 	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,1000);
-      }
 	integratedPlots_["growingEventPlot"]=new TH1F("growingEventPlot","growingEventPlot",2000,0,1000);
+      }
+
     }
 
 
@@ -105,39 +107,40 @@ void plotterTools::initIntegrated(TString nameFile){
   int iBin=0;
   for(iBin=1;iBin<integratedPlots_["nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
   integratedPlots_["nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
-  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
 
-  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
-  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
 
 
   integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
-  //  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
   plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
 
+
+  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
+  plotMe(integratedPlots_["triggerRatePerSpill"]);
+
+  int oldEvents=integratedPlots_["growingEventPlot"]->GetBinContent(iBin-1);
+  integratedPlots_["growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["growingEventPlot"],"nSpill" ,"n Total Events" );
+  plotMe(integratedPlots_["growingEventPlot"]);
+
+
+  gStyle->SetOptStat ("emr") ;
+
+
+  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
+  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
 
   integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["triggerRateHisto"], "trigger Rate (Hz)","Entries" );
   plotMe(integratedPlots_["triggerRateHisto"]);
 
-  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
-  //  integratedPlots_["triggerRatePerSpill"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
-  plotMe(integratedPlots_["triggerRatePerSpill"]);
 
-  int oldEvents=integratedPlots_["growingEventPlot"]->GetBinContent(iBin-1);
-  integratedPlots_["growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
-  //  integratedPlots_["growingEventPlot"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["growingEventPlot"],"nSpill" ,"n Total Events" );
-  plotMe(integratedPlots_["growingEventPlot"]);
-
-
+  
 
   }
   integratedFile_->cd();
@@ -264,9 +267,12 @@ void  plotterTools::plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
   TString  canvasName =outputDir_+ "/"+ hname + ".png" ;
+
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw () ;
   c1->Print (canvasName, "png") ;
+
+
   delete c1 ;
   return ;
 }
