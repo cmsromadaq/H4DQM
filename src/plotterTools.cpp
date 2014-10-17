@@ -53,6 +53,7 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
 
 void plotterTools::initIntegrated(TString nameFile){
 
+  gStyle->SetOptStat (0) ;
   isIntegratedNew=true;
   integratedFile_=TFile::Open(nameFile,"new");
   if(integratedFile_==NULL){
@@ -100,13 +101,16 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
       integratedPlots_["triggerRateHisto"]=(TH1F*)integratedFile_->Get("triggerRateHisto");
       integratedPlots_["triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("triggerRatePerSpill");
+      integratedPlots_["growingEventPlot"]=(TH1F*)integratedFile_->Get("growingEventPlot");
       if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
 	integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",2000,100,10000);
 	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
 	integratedPlots_["triggerRateHisto"]=new TH1F("triggerRateHisto","triggerRateHisto",2000,0,1000);
 	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,1000);
+	integratedPlots_["growingEventPlot"]=new TH1F("growingEventPlot","growingEventPlot",2000,0,1000);
       }
+
     }
 
 
@@ -133,32 +137,40 @@ void plotterTools::initIntegrated(TString nameFile){
   int iBin=0;
   for(iBin=1;iBin<integratedPlots_["nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
   integratedPlots_["nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
-  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
 
-  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
-  //  integratedPlots_["nTotalEvtsPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
 
 
   integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
-  //  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
   plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
 
 
-  integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_-timeStart_));//it's in Hz
+  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
+  plotMe(integratedPlots_["triggerRatePerSpill"]);
+
+  int oldEvents=integratedPlots_["growingEventPlot"]->GetBinContent(iBin-1);
+  integratedPlots_["growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["growingEventPlot"],"nSpill" ,"n Total Events" );
+  plotMe(integratedPlots_["growingEventPlot"]);
+
+
+  gStyle->SetOptStat ("emr") ;
+
+
+  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
+  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
+
+  integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["triggerRateHisto"], "trigger Rate (Hz)","Entries" );
   plotMe(integratedPlots_["triggerRateHisto"]);
 
-  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_-timeStart_));//it's in Hz
-  //  integratedPlots_["triggerRatePerSpill"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
-  plotMe(integratedPlots_["triggerRatePerSpill"]);
 
+  
 
   }
   integratedFile_->cd();
@@ -285,9 +297,12 @@ void  plotterTools::plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
   TString  canvasName =outputDir_+ "/"+ hname + ".png" ;
+
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
   histo->Draw () ;
   c1->Print (canvasName, "png") ;
+
+
   delete c1 ;
   return ;
 }
@@ -673,8 +688,14 @@ void plotterTools::computeVariable(TString name, int varDim){
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
     variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
- }else if(name=="deltaTime"){
-   variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0];
+ }else if(name=="deltaTime10"){
+   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]);
+
+ }else if(name=="deltaTime20"){
+   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[2]-(int64_t)timeStart_[0]);
+
+ }else if(name=="deltaTime21"){
+   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[1])-((int64_t)timeStart_[2]-(int64_t)timeStart_[1]);
 
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
@@ -920,9 +941,15 @@ void  plotterTools::Loop()
 
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
 
-      if(iEntry==0)timeStart_=treeStruct_.evtTime[0];
+      if(iEntry==0){
+	for(int i =0;i<treeStruct_.nEvtTimes;++i)
+	  timeStart_[i]=treeStruct_.evtTime[i];
+      }
       if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
-      if(iEntry==(nentries -1))timeEnd_=treeStruct_.evtTime[0];
+      if(iEntry==(nentries -1)){
+	for(int i =0;i<treeStruct_.nEvtTimes;++i)
+	  timeEnd_[i]=treeStruct_.evtTime[i];
+      }
 
       fillObjects();
 
@@ -1040,7 +1067,9 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
   addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
   addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
-  addPlot("deltaTime", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
+  addPlot("deltaTime10", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot("deltaTime20", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot("deltaTime21", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
  }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
@@ -1067,7 +1096,9 @@ void plotterTools::bookCombinedPlots(){
 
 void plotterTools::fitHisto(TString name,TString func){
 
-  ((TH1F*) outObjects_[plotLongNames_[name]])->Fit(func);
+  map<TString, TObject*>::iterator it;
+  it=outObjects_.find(plotLongNames_[name]);
+  if(it!=outObjects_.end())  ((TH1F*) outObjects_[plotLongNames_[name]])->Fit(func);
 
 }
 

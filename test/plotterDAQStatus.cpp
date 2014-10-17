@@ -71,6 +71,10 @@ int main (int argc, char ** argv)
 
   if(integratedfname != "")  plotter.initIntegrated(integratedName); 
 
+  plotter.fitHisto("deltaTime10","gaus");
+  plotter.fitHisto("deltaTime20","gaus");
+  plotter.fitHisto("deltaTime21","gaus");
+
   plotter.plotHistos();
   plotter.saveHistos();
  

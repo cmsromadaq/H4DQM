@@ -63,9 +63,11 @@ int main (int argc, char ** argv)
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
   plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
- plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
+  plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("TDC"); 
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
+  plotter.setGroup("ADC");
+  plotter.bookPlotsADC();
 
   plotter.printHistos();
 
@@ -82,6 +84,10 @@ int main (int argc, char ** argv)
 
   plotter.fitHisto("beamPositionSmallX","gaus");
   plotter.fitHisto("beamPositionSmallY","gaus");
+
+  plotter.fitHisto("deltaTime10","gaus");
+  plotter.fitHisto("deltaTime20","gaus");
+  plotter.fitHisto("deltaTime21","gaus");
 
 
   plotter.bookCombinedPlotsHodo();
