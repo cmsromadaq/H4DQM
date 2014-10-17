@@ -63,9 +63,11 @@ int main (int argc, char ** argv)
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
   plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
- plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
+  plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("TDC"); 
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
+  plotter.setGroup("ADC");
+  plotter.bookPlotsADC();
 
   plotter.printHistos();
 
