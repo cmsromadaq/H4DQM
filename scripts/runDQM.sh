@@ -28,7 +28,7 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root
+/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
 /home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
 cd $output/$run/$spill/$dir/
@@ -42,7 +42,7 @@ mv total/DAQStatus_* DAQ/
 mv total/ADC_* ADC/
 mv total/TDC_* TDC/
 
-#rm -r total
+rm -r total
 
 
 ## hodo , TDC , DAQ 
