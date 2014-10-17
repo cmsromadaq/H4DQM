@@ -99,9 +99,16 @@ void plotterTools::initIntegrated(TString nameFile){
 
       integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
       integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
+      integratedPlots_["hodo_RMSX_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSX_spill");
+      integratedPlots_["hodo_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSY_spill");//add controls
+     
       if(integratedPlots_["hodo_meanX_spill"]==NULL){
 	integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
 	integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
+	integratedPlots_["hodo_RMSX_spill"]=new TH1F("hodo_RMSX_spill","hodo_RMSX_spill",2000,0,2000);
+	integratedPlots_["hodo_RMSY_spill"]=new TH1F("hodo_RMSY_spill","hodo_RMSY_spill",2000,0,2000);
+
+
       }
 
     }
@@ -127,9 +134,15 @@ void plotterTools::initIntegrated(TString nameFile){
 
       integratedPlots_["hodoSmall_meanX_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanX_spill");
       integratedPlots_["hodoSmall_meanY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanY_spill");//add controls
+      integratedPlots_["hodoSmall_RMSX_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_RMSX_spill");
+      integratedPlots_["hodoSmall_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_RMSY_spill");//add controls
+
       if(integratedPlots_["hodoSmall_meanX_spill"]==NULL){
 	integratedPlots_["hodoSmall_meanX_spill"]=new TH1F("hodoSmall_meanX_spill","hodoSmall_meanX_spill",2000,0,2000);
 	integratedPlots_["hodoSmall_meanY_spill"]=new TH1F("hodoSmall_meanY_spill","hodoSmall_meanY_spill",2000,0,2000);
+	integratedPlots_["hodoSmall_RMSX_spill"]=new TH1F("hodoSmall_RMSX_spill","hodoSmall_RMSX_spill",2000,0,2000);
+	integratedPlots_["hodoSmall_RMSY_spill"]=new TH1F("hodoSmall_RMSY_spill","hodoSmall_RMSY_spill",2000,0,2000);
+
       }
 
     }
@@ -146,12 +159,22 @@ void plotterTools::initIntegrated(TString nameFile){
   integratedPlots_["hodo_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
   integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
 
+  integratedPlots_["hodo_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());
+  integratedPlots_["hodo_RMSY_spill"]->SetBinContent(iBin,hX_info->GetRMS());
 
   setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
   setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
 
+  setAxisTitles(integratedPlots_["hodo_RMSX_spill"], "nSpill","RMS X" );
+  setAxisTitles(integratedPlots_["hodo_RMSY_spill"], "nSpill","RMS Y" );
+
+
   plotMe(integratedPlots_["hodo_meanX_spill"]);
   plotMe(integratedPlots_["hodo_meanY_spill"]);
+
+  plotMe(integratedPlots_["hodo_RMSX_spill"]);
+  plotMe(integratedPlots_["hodo_RMSY_spill"]);
+
   }
 
   if(hSX_info!=NULL){
@@ -163,13 +186,23 @@ void plotterTools::initIntegrated(TString nameFile){
     
     integratedPlots_["hodoSmall_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
     integratedPlots_["hodoSmall_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
-    
+
+    integratedPlots_["hodoSmall_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());    
+    integratedPlots_["hodoSmall_RMSY_spill"]->SetBinContent(iBin,hY_info->GetRMS());    
     
     setAxisTitles(integratedPlots_["hodoSmall_meanX_spill"], "nSpill","mean X" );
     setAxisTitles(integratedPlots_["hodoSmall_meanY_spill"], "nSpill","mean Y" );
     
     plotMe(integratedPlots_["hodoSmall_meanX_spill"]);
     plotMe(integratedPlots_["hodoSmall_meanY_spill"]);
+
+    setAxisTitles(integratedPlots_["hodoSmall_RMSX_spill"], "nSpill","RMS X" );
+    setAxisTitles(integratedPlots_["hodoSmall_RMSY_spill"], "nSpill","RMS Y" );
+    
+    plotMe(integratedPlots_["hodoSmall_RMSX_spill"]);
+    plotMe(integratedPlots_["hodoSmall_RMSY_spill"]);
+
+
   }
 
 
