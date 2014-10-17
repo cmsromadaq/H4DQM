@@ -189,9 +189,12 @@ int main (int argc, char ** argv)
   // get them from the file itself, by doing the first plot.
 
   pair<float, float> xRange = getRange (digiSampleIndex, nDigiSamples) ;
-  int xNbins = nDigiSamples ;
-  float xmin = xRange.first ;
-  float xmax = xRange.second ;
+//  int xNbins = nDigiSamples ;
+//  float xmin = xRange.first ;
+//  float xmax = xRange.second ;
+  int xNbins = 1024 ;
+  float xmin = 0 ;
+  float xmax = 1024 ;
 
   // get the Y range for each histogram
 //  vector<float>  ;

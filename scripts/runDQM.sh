@@ -41,6 +41,7 @@ mv total/hodo_* hodo/
 mv total/DAQStatus_* DAQ/
 mv total/ADC_* ADC/
 mv total/TDC_* TDC/
+mv total/*.root .
 
 rm -r total
 
