@@ -89,7 +89,6 @@ void plotterTools::initIntegrated(TString nameFile){
 
   it=outObjects_.find(plotLongNames_["beamPositionSmallX"]);
   if(it!=outObjects_.end()){
-    cout<<"daje"<<endl;
    hSX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallX"]];
    hSY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallY"]];
 
