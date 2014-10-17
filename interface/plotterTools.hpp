@@ -84,7 +84,7 @@ public:
   bool wantADCplots;
 
   void fillObjects();
-  void initHodo();
+  void fillHodo();
   void initTdc();
   void fillFiberOrder();
   void set_plot_blue ();

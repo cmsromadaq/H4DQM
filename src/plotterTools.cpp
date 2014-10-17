@@ -830,7 +830,7 @@ void plotterTools::computeVariable(TString name, int varDim){
 
 
 void plotterTools::fillObjects(){
-  initHodo();
+  fillHodo();
   initTdc();
 
   //if you want to make a test
@@ -862,7 +862,7 @@ void plotterTools::fillObjects(){
 
 }
 
-void plotterTools::initHodo(){
+void plotterTools::fillHodo(){
 
 
    for(int i=0;i<nPlanesHodo;++i){
@@ -880,35 +880,38 @@ void plotterTools::initHodo(){
 
    for(uint i=0;i<treeStruct_.nPatterns;++i){
 
-   if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
-     int word = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
-     for(int j=1;j<=64;j++){
-       //       fibersOn_[2*word+treeStruct_.patternChannel[i]/2][j-1]=0;
-       std::vector<int> *x =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderA : &fiberOrderB;
-       int y=findPosition(x,j);
-       if(y<0) continue;
-       fibersOn_[2*word+treeStruct_.patternChannel[i]%2][j-1]=(treeStruct_.pattern[i]>>(uint)y)&0b1;
-     }
-   }else if(treeStruct_.patternBoard[i]==0x08010001){
+     if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
+       int planecouple = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
+       for (unsigned int j=0; j<32; j++){
+	 std::vector<int> *fiberorder =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderB : &fiberOrderA;
+	 bool thisfibon = (treeStruct_.pattern[i]>>j)&0b1;
+	 fibersOn_[2*planecouple+treeStruct_.patternChannel[i]/2][fiberorder->at(j)-1]=thisfibon;
+       }
+     }else if(treeStruct_.patternBoard[i]==0x08010001){
      
      if(treeStruct_.patternChannel[i]!=1)continue;
        WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
        WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
 
-
-       for(int i=0;i<8;++i){
-	 fibersOnSmall_[0][i]=(bool)((wordX>>i)&0b1);
-	 fibersOnSmall_[1][i]=(bool)((wordY>>i)&0b1);
+       for(int j=0;j<8;j++){
+	 fibersOnSmall_[0][j]=(bool)((wordX>>j)&0b1);
+	 fibersOnSmall_[1][j]=(bool)((wordY>>j)&0b1);
 	 //	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
        }
      }
-     //     }
+
    
    }
 
+   
+//   for (int i=0; i<4; i++) {
+//     std::cout << "this is " << i << std::endl;
+//     for (int j=0; j<64; j++){
+//       std::cout << j+1 << "-" << fibersOn_[i][j] << " ";
+//     }
+//     std::cout << std::endl;
+//   }
 
-
-   //   for(int i=0;i<64;i++)std::cout<<fibersOn_[0][i]<<" ";
 
 
    //   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
@@ -1005,10 +1008,11 @@ void plotterTools::bookPlotsADC(){
 void  plotterTools::Loop()
 {
 
+
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
-  //    nentries=1;
+  //  nentries=1;
 
   //loop and fill histos
   for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
@@ -1096,6 +1100,7 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
+  fillFiberOrder();
 
   addPlot("beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
   addPlot("beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
@@ -1416,6 +1421,10 @@ void plotterTools::printHistos(){
 }
 
 void::plotterTools::fillFiberOrder(){
+
+  fiberOrderA.clear();
+  fiberOrderB.clear();
+
   fiberOrderA.push_back(31);
   fiberOrderA.push_back(29);
   fiberOrderA.push_back(23);

@@ -87,11 +87,12 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                 {
                   //This is the ChHeader[0]
                   short dt_type = digRawData_>>28 & 0xF ; //ChHeader is 1000 (0x8)
-                  frequency_ = digRawData_>>16 & 0x3 ;
-                      // 00 = 5GS/s
-                      // 01 = 2.5GS/s
-                      // 10 = 1GS/s
-                      // 11 = not used
+    
+		  frequency_ = digRawData_>>26 & 0x3 ;
+		  // 00 = 5GS/s
+		  // 01 = 2.5GS/s
+		  // 10 = 1GS/s
+		  // 11 = not used
                   if (DEBUG_UNPACKER) 
                     {
                       cout << "[CAEN_V1742][Unpack]       | data taking frequency : " 
@@ -106,7 +107,7 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                       cout << "[CAEN_V1742][Unpack]       | ERROR: quitting unpacking\n" ;                  
                       break ;
                     }
-                  unsigned int nChWords = digRawData_ & 0xFFFFFFF ; 
+                  unsigned int nChWords = digRawData_ & 0x3FFFFFF ; 
 //                  unsigned int nChWords2 = digRawData_ & 0xFFF ; 
                   //PG FIXME check whether the second is better, when the trigger digitisation is on
                   if (DEBUG_UNPACKER) 
