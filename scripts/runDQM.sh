@@ -42,7 +42,7 @@ mv total/DAQStatus_* DAQ/
 mv total/ADC_* ADC/
 mv total/TDC_* TDC/
 
-rm -r total
+#rm -r total
 
 
 ## hodo , TDC , DAQ 
