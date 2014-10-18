@@ -13,6 +13,9 @@
 #include <TChain.h>
 #include <TString.h>
 
+#include <set>
+#include <tuple>
+
 #include <Event.hpp>
 
 #define nPlanesHodo 4
@@ -56,8 +59,9 @@ public:
 
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
-  std::map<TString,int> makeProfile_;
+  std::map<TString,bool> makeProfile_;
   std::map<TString,TObject*> outObjects_;
+  std::map<TString,bool> vetoFillObjects;
   std::map<TString,TString> plotShortNames_;
   std::map<TString,TString> plotLongNames_;
   std::vector<float> variables_;//<value,dimension>
@@ -80,18 +84,26 @@ public:
   std::map<TString,UInt_t*> adc_channelnames;
   void initAdcChannelNames(int nBinsHistory);
 
+  //digitizer channel names
+  template <class T> set<int> listElements (T * array, int Nmax);
+  map <int, TH2F *> digi_histos ;
+  void initDigiPlots();
+
   void bookPlotsADC();
   bool wantADCplots;
 
+  void bookPlotsDigitizer();
+  bool wantDigiplots;
+
   void fillObjects();
   void fillHodo();
-  void initTdc();
+  void fillTdc();
   void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
   void setPlotsFormat ();
   void plotMe (TH1F * histo);
-  void plotMe (TH2F * histo, int makeProfile = 0);
+  void plotMe (TH2F * histo, bool makeProfile = false);
   void plotMe (TGraph * graph, const TString & name);
   void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);
@@ -117,10 +129,10 @@ public:
   int getStepHistoryPlots();
   void FillPlot(TString name, int point, float X);//TGraph
   void FillPlot(TString name, bool is2D=false,int varDim=1);//TH1F
-  TGraph * addPlot(TString name,int nPoints,TString type, TString group, TString module);//TGraph
-  TH1F * addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1);//TH1F
+  TGraph * addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill=false);//TGraph
+  TH1F * addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TH1F
   TH2F * addPlot (TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
-                  TString xTitle, TString yTitle, TString type, TString group, TString module, int addProfile = 0);//TH2F
+                  TString xTitle, TString yTitle, TString type, TString group, TString module, bool addProfile = false, bool vetoFill=false);
   void addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module);
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);

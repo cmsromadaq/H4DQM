@@ -51,7 +51,7 @@ execute (const string & command)
 void checkFolder (string folderName)
 {
   pair <int, string> outCode = execute ("ls " + folderName) ;
-  if (outCode.first != 0) outCode = execute ("mkdir " + folderName) ;
+  if (outCode.first != 0) outCode = execute ("mkdir -p " + folderName) ;
   if (outCode.first != 0) 
     {
       cerr << "[plotDigitizer] ERROR cannot create " << folderName << ":\n"
@@ -66,37 +66,6 @@ void checkFolder (string folderName)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-template <class T>
-pair<float, float>
-getRange (T * array, int Nmax)
-{
-  float min = array[0] ;
-  float max = array[0] ;
-  for (int i = 0 ; i < Nmax ; ++i)
-    {
-      if (array[i] > max) max = array[i] ;
-      if (array[i] < min) min = array[i] ;
-    }
-  return pair<float, float> (min, max) ;
-}
-
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-
-template <class T>
-set<int>
-listElements (T * array, int Nmax)
-{
-  set<int> elements ;
-  for (int i = 0 ; i < Nmax ; ++i)
-    {
-      if (elements.find (array[i]) != elements.end ()) continue ;
-      elements.insert (array[i]) ;
-    }
-  return elements ;
-}
-
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
@@ -110,7 +79,7 @@ int main (int argc, char ** argv)
   string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
   string run;
   string spill;
-  unsigned numReduction=8;
+  unsigned numReduction=1;
 
   static struct option long_options[] = {
     {"plotsfolder", required_argument, 0,  'o' },
@@ -161,84 +130,25 @@ int main (int argc, char ** argv)
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill) ;
   checkFolder (PLOTS_FOLDER + "/" + run + "/" + spill + "/digitizer/") ;
   
+
+
   plotterTools plotter (filename.c_str (), outfname.c_str (), outdname.c_str ()) ;
   plotter.setPlotsFormat () ;
-  plotter.setModule ("pulses") ;
+  plotter.readInputTree();  
+  int nentries = plotter.getTreeEntries();
+  plotter.setStepHistoryPlots(20);
   plotter.setGroup ("digitizer") ;
-    
-  // get the number of channels and groups used from the digi file
-  // ---- ---- ---- ---- ---- ---- ---- ----
-  UInt_t          digiGroup[40000] ;
-  plotter.inputTree_->SetBranchAddress ("digiGroup", digiGroup);
-  UInt_t          digiChannel[40000] ;
-  plotter.inputTree_->SetBranchAddress ("digiChannel", digiChannel);
-  UInt_t          nDigiSamples ;
-  plotter.inputTree_->SetBranchAddress("nDigiSamples", &nDigiSamples);
-  Float_t         digiSampleValue[40000] ;
-  plotter.inputTree_->SetBranchAddress("digiSampleValue", digiSampleValue);
-  UInt_t          digiSampleIndex[40000] ;
-  plotter.inputTree_->SetBranchAddress("digiSampleIndex", digiSampleIndex);
+  plotter.setModule("beam");
+  plotter.bookPlotsDigitizer();
+  plotter.printHistos();
 
-  plotter.inputTree_->GetEvent (0) ;
-  
-  set<int> channels = listElements (digiChannel,  nDigiSamples) ;
-  set<int> groups = listElements (digiGroup,  nDigiSamples) ;
-  
-  // read the expected ranges for histos from xml file, or from the digi info?
-  // ---- ---- ---- ---- ---- ---- ---- ----
-  // get them from the file itself, by doing the first plot.
+  plotter.Loop();
 
-  pair<float, float> xRange = getRange (digiSampleIndex, nDigiSamples) ;
-//  int xNbins = nDigiSamples ;
-//  float xmin = xRange.first ;
-//  float xmax = xRange.second ;
-  int xNbins = 1024 ;
-  float xmin = 0 ;
-  float xmax = 1024 ;
+  plotter.plotHistos();
+  plotter.saveHistos();
+ 
 
-  // get the Y range for each histogram
-//  vector<float>  ;
 
-  pair<float, float> yRange = getRange (digiSampleValue, nDigiSamples) ;
-  int yNbins = 100 ;
-  float ymin = yRange.first - 0.1 * fabs (yRange.first) ;
-  float ymax = yRange.second + 0.1 * fabs (yRange.second) ;
 
-  // prepare and fill the plots
-  // ---- ---- ---- ---- ---- ---- ---- ----
-    
-  map <int, TH2F *> histos ;
-  for (set<int>::iterator iGroup = groups.begin () ; 
-       iGroup != groups.end () ; ++iGroup)
-    {
-      for (set<int>::iterator iChannel = channels.begin () ; 
-           iChannel != channels.end () ; ++iChannel)
-        {
-          TString name = "digiPersPlot_gr" ;
-          name += *iGroup ;
-          name += "_ch" ;
-          name += *iChannel ;
-          TH2F * dummy = plotter.addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
-                           "time", "voltage",
-                           "2D", plotter.group_, plotter.module_, 1) ;
-                           
-//          addToPersistency (dummy, plotter.inputTree_, *iGroup, *iChannel) ;
-          histos[10 * (*iGroup) + (*iChannel)] = dummy ;
-        }
-    }
-  // loop over events
-  for (int iEvent = 0 ; iEvent < plotter.inputTree_->GetEntries () ; ++iEvent)
-    {
-      if ( (iEvent & (numReduction-1)) != 0) continue ; // in case one needs to speed up
-      plotter.inputTree_->GetEvent (iEvent) ;
-      for (int iSample = 0 ; iSample < nDigiSamples ; ++iSample)
-        {
-          histos[10 * digiGroup[iSample] + digiChannel[iSample]]->Fill (
-             digiSampleIndex[iSample], digiSampleValue[iSample]) ;
-        }
-    }// loop over events
-
-  plotter.plotHistos () ;
-  plotter.saveHistos () ;  
   return 0 ;
 }
