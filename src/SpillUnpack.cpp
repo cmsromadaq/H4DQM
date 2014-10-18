@@ -74,7 +74,7 @@ int SpillUnpack::AddBoard (boardHeader bH)
     boards_[bH.boardID]= new CAEN_V792(bH.boardSize);
     break;
   case _CAENV1290_:
-    boards_[bH.boardID]= new CAEN_V1290 (bH.boardSize) ;
+    boards_[bH.boardID]= new CAEN_V1290 () ;
     break;
   case _CAENV1495PU_:
     boards_[bH.boardID]= new CAEN_V1495PU (bH.boardSize) ;
@@ -294,7 +294,7 @@ int SpillUnpack::UnpackBoards(WORD nboards) {
     else
       {
         cout << "[SpillUnpack][UnpackBoards]| ERROR :" 
-             << " trailer for board " << iBoard << " not found\n" ; 
+             << " trailer for board " << iBoard << " not found " << std::hex << word << std::dec << std::endl;
         return 1 ; 
       }  
   } // loop on boards to be read
