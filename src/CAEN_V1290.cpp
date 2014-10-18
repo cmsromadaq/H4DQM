@@ -18,10 +18,10 @@ int CAEN_V1290::Unpack (dataType &stream, Event * event,boardHeader &bH)
 	      if (DEBUG_UNPACKER) 
             cout << "[CAEN_V12490][Unpack]       | " 
                  << "TDC 1190 BOE: event " << tdcEvent+1 << "\n";
-	      if (tdcEvent+1 != event->evtNumber)
+	      if (tdcEvent+1 != event->id.evtNumber)
             cout << "[CAEN_V12490][Unpack]       | " 
                  << "WARNING MISMATCH IN EVT NUMBER TDCEVT " 
-                 <<  tdcEvent+1 << " EVT " << event->evtNumber << "\n";
+                 <<  tdcEvent+1 << " EVT " << event->id.evtNumber << "\n";
 	    }
 	  else if (tdcRawData>>28 == 8) //TDC EOE
 	    {

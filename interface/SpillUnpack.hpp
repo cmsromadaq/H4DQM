@@ -63,7 +63,7 @@ public:
   // add a board if not existing
   int  AddBoard (boardHeader bH) ; 
   int  Unpack(int events);
-  int UnpackEvents( WORD nevents );
+  int UnpackEvents( WORD nevents, spillHeader *this_spill );
   static WORD GetBoardTypeId (WORD);
   static WORD GetBoardId (WORD);
   static WORD GetBoardCrateId (WORD);

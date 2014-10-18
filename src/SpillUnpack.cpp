@@ -143,7 +143,7 @@ int SpillUnpack::Unpack(int events = -1){
         rawFile->read ((char*)&spillH.spillNumber, WORDSIZE);
         rawFile->read ((char*)&spillH.spillSize, WORDSIZE);
         rawFile->read ((char*)&spillH.nEvents, WORDSIZE);
-      
+
         if (DEBUG_UNPACKER) {
           cout << "[SpillUnpack][Unpack]      | ======= BEGIN SPILL ======= \n" ;
           cout << "[SpillUnpack][Unpack]      | Spill " 		<< spillH.spillNumber << "\n" ;
@@ -152,7 +152,7 @@ int SpillUnpack::Unpack(int events = -1){
         }
         
         if (-1 == events) events = spillH.nEvents ; 
-        UnpackEvents (events) ;
+        UnpackEvents (events,&spillH) ;
       } 
 
       rawFile->read ((char*)&word, WORDSIZE);
@@ -177,7 +177,7 @@ int SpillUnpack::Unpack(int events = -1){
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-int SpillUnpack::UnpackEvents (WORD nevents) {
+int SpillUnpack::UnpackEvents (WORD nevents, spillHeader *this_spill) {
 
   WORD word;
   WORD nevt = 1 ;
@@ -195,7 +195,9 @@ int SpillUnpack::UnpackEvents (WORD nevents) {
           rawFile->read ((char*)&eventH.eventNumber, WORDSIZE);
           rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
           rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
-          event_->evtNumber = eventH.eventNumber ;
+	  event_->id.runNumber = this_spill->runNumber;
+	  event_->id.spillNumber = this_spill->spillNumber;
+          event_->id.evtNumber = eventH.eventNumber ;
     
           if (DEBUG_UNPACKER) 
             {
