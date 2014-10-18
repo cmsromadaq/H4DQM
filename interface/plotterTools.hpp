@@ -12,6 +12,7 @@
 #include <TRandom.h>
 #include <TChain.h>
 #include <TString.h>
+#include <TLegend.h>
 
 #include <Event.hpp>
 
