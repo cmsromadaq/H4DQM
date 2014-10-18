@@ -113,19 +113,19 @@ void plotterTools::initIntegrated(TString nameFile){
 
     }
     if(evt_info!=NULL){
-      integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
-      integratedPlots_["nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpillHisto");
-      integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
-      integratedPlots_["triggerRateHisto"]=(TH1F*)integratedFile_->Get("triggerRateHisto");
-      integratedPlots_["triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("triggerRatePerSpill");
-      integratedPlots_["growingEventPlot"]=(TH1F*)integratedFile_->Get("growingEventPlot");
-      if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
-	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
-	integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",2000,100,10000);
-	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
-	integratedPlots_["triggerRateHisto"]=new TH1F("triggerRateHisto","triggerRateHisto",2000,0,1000);
-	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,1000);
-	integratedPlots_["growingEventPlot"]=new TH1F("growingEventPlot","growingEventPlot",2000,0,1000);
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpill");
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpillHisto");
+      integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_fractionTakenTrigPerSpill");
+      integratedPlots_["DAQStatus_triggerRateHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRateHisto");
+      integratedPlots_["DAQStatus_triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRatePerSpill");
+      integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
+      if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
+	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
+	integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
+	integratedPlots_["DAQStatus_growingEventPlot"]=new TH1F("DAQStatus_growingEventPlot","DAQStatus_growingEventPlot",2000,0,1000);
       }
 
     }
@@ -209,39 +209,40 @@ void plotterTools::initIntegrated(TString nameFile){
   if(evt_info != NULL){
 
   int iBin=0;
-  for(iBin=1;iBin<integratedPlots_["nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
-  integratedPlots_["nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
+  for(iBin=1;iBin<integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
+  integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"], "nSpill","nEvts" );
+  plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]);
 
 
 
-  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
-  setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
-  plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
+  integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
+  setAxisTitles(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
+  plotMe(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]);
 
 
-  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
-  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
-  plotMe(integratedPlots_["triggerRatePerSpill"]);
+  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  setAxisTitles(integratedPlots_["DAQStatus_triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
+  std::cout<<"NAME----"<<integratedPlots_["DAQStatus_triggerRatePerSpill"]->GetName();
+  plotMe(integratedPlots_["DAQStatus_triggerRatePerSpill"]);
 
-  int oldEvents=integratedPlots_["growingEventPlot"]->GetBinContent(iBin-1);
-  integratedPlots_["growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["growingEventPlot"],"nSpill" ,"n Total Events" );
-  plotMe(integratedPlots_["growingEventPlot"]);
+  int oldEvents=integratedPlots_["DAQStatus_growingEventPlot"]->GetBinContent(iBin-1);
+  integratedPlots_["DAQStatus_growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_growingEventPlot"],"nSpill" ,"n Total Events" );
+  plotMe(integratedPlots_["DAQStatus_growingEventPlot"]);
 
 
   gStyle->SetOptStat ("emr") ;
 
 
-  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
+  integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
+  plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]);
 
-  integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["triggerRateHisto"], "trigger Rate (Hz)","Entries" );
-  plotMe(integratedPlots_["triggerRateHisto"]);
+  setAxisTitles(integratedPlots_["DAQStatus_triggerRateHisto"], "trigger Rate (Hz)","Entries" );
+  plotMe(integratedPlots_["DAQStatus_triggerRateHisto"]);
 
 
   
