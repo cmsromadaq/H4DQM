@@ -56,4 +56,15 @@ do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
 done
 
+# touch -R
+find $output/$run/$spill -type f -exec touch {} \;
+
+[ -h $output/$run/last ] && rm $output/$run/last
+[ -h $output/last ] && rm $output/last
+
+ln -s $output/$run/last $output/$run/$spill
+ln -s $output/last $output/$run
+
 rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
+
