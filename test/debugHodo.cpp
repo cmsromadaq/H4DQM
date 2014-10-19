@@ -67,7 +67,7 @@ for (long long iEntry=0;iEntry<t->GetEntries();++iEntry)
 {
 	t->GetEntry(iEntry);
 	if ( (iEntry &1023) ==0 ) printf("Entry=%lld/%lld\n",iEntry,t->GetEntries());
-	//if (iEntry >10000 ) { printf("Stopping at 10 000 \n");break;}
+	//if (iEntry >50000 ) { printf("Stopping at 50 000 \n");break;}
 	//fill 
 	for(UInt_t i=0;i<nPatterns;++i){
 
@@ -107,6 +107,12 @@ for (long long iEntry=0;iEntry<t->GetEntries();++iEntry)
 				if (isY and is2)
 					{
 					if (isB) { isB=false;isD=true; }
+					}
+				/// -------PIANO 2--------------
+				if ( (isY and is1) or (isX and is2) ) 
+					{
+					//if (isA) { isB=true; isA=false;}
+					//else if (isB) { isA=true; isB=false;}
 					}
 
 				if (!isA and !isB and !isC and !isD and !isI)
