@@ -26,7 +26,8 @@ using namespace std ;
 // data format used as bridge between the high level structures and the root tree
 struct treeStructData
 {
-  // unsigned int runNumber ; to be added soon
+  unsigned int runNumber ;
+  unsigned int spillNumber ;
   unsigned int evtNumber ;
   unsigned int evtTimeDist ;
   unsigned int evtTimeStart ;
@@ -122,6 +123,13 @@ struct timeData
   uint64_t time;
 };
 
+struct eventId
+{
+  unsigned int runNumber;
+  unsigned int spillNumber;
+  unsigned int evtNumber;
+};
+
 struct Event
 {
   Event (TFile * outFile, TTree * outTree) :
@@ -133,7 +141,7 @@ struct Event
 
   ~Event () { }
 
-  unsigned int 		evtNumber ;
+  eventId id;
   std::vector<triggerWordData> 		triggerWords ;
   std::vector<bool> 	triggerBits ;
   std::vector<adcData> 	adcValues ; 

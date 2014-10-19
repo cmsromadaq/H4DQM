@@ -44,9 +44,9 @@ int CAEN_V792::Unpack (dataType &stream, Event * event, boardHeader &bH)
             cout << "[CAEN_V792][Unpack]        |  EOE. Event: " << adcEvt+1 << "\n" ; 
           }
 
-        if (adcEvt+1 != event->evtNumber)
+        if (adcEvt+1 != event->id.evtNumber)
              cout << "[CAEN_V792][Unpack]        | WARNING MISMATCH IN EVT NUMBER ADCEVT " 
-                  << adcEvt+1 << " EVT " << event->evtNumber << "\n" ;
+                  << adcEvt+1 << " EVT " << event->id.evtNumber << "\n" ;
       }
   }
 }
