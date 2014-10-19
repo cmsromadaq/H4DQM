@@ -47,7 +47,10 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
   outputFile_ = TFile::Open(outfname,"RECREATE");
   outputDir_=outdname;
 
+  fillFiberOrder();
+
   wantADCplots = false;
+  wantDigiplots = false;
 
 };
 
@@ -487,7 +490,7 @@ void  plotterTools::plotMe (TH1F * histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMe (TH2F * histo, int makeProfile)
+void  plotterTools::plotMe (TH2F * histo, bool makeProfile)
 {
 
   gStyle->SetPadTopMargin(0.05);
@@ -511,6 +514,7 @@ void  plotterTools::plotMe (TH2F * histo, int makeProfile)
     }
   else
     {
+
       TProfile * dummy = histo->ProfileX () ;
       dummy->SetMarkerColor (2) ;
       dummy->SetMarkerStyle (5) ;
@@ -936,13 +940,13 @@ void plotterTools::computeVariable(TString name, int varDim){
    }
  }
 
-
 }
 
 
 void plotterTools::fillObjects(){
+
   fillHodo();
-  initTdc();
+  fillTdc();
 
   //if you want to make a test
   //   fibersOn_[0][10]=1;
@@ -1029,7 +1033,7 @@ void plotterTools::fillHodo(){
 }
 
 
-void plotterTools::initTdc(){
+void plotterTools::fillTdc(){
 
   for (uint j=0; j<MaxTdcChannels; j++){
     tdc_readings[j].clear();
@@ -1063,6 +1067,58 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
   }
 
 }
+
+
+template <class T>
+set<int>
+plotterTools::listElements (T * array, int Nmax)
+{
+  set<int> elements ;
+  for (int i = 0 ; i < Nmax ; ++i)
+    {
+      if (elements.find (array[i]) != elements.end ()) continue ;
+      elements.insert (array[i]) ;
+    }
+  return elements ;
+}
+
+
+void plotterTools::initDigiPlots(){
+
+  std::set<int> channels = listElements (treeStruct_.digiChannel,  treeStruct_.nDigiSamples) ;
+  std::set<int> groups = listElements (treeStruct_.digiGroup,  treeStruct_.nDigiSamples) ;
+  
+  int xNbins = 1024 ;
+  float xmin = 0 ;
+  float xmax = 1024 ;
+
+  int yNbins = 100 ;
+  float ymin = (*std::min_element(treeStruct_.digiSampleValue,treeStruct_.digiSampleValue+treeStruct_.nDigiSamples));
+  float ymax = (*std::max_element(treeStruct_.digiSampleValue,treeStruct_.digiSampleValue+treeStruct_.nDigiSamples));
+  ymin -= 0.1*fabs(ymin);
+  ymax += 0.1*fabs(ymax);
+
+  for (set<int>::iterator iGroup = groups.begin () ; 
+       iGroup != groups.end () ; ++iGroup)
+    {
+      for (set<int>::iterator iChannel = channels.begin () ; 
+           iChannel != channels.end () ; ++iChannel)
+        {
+          TString name = "digiPersPlot_gr" ;
+          name += *iGroup ;
+          name += "_ch" ;
+          name += *iChannel ;
+          TH2F * dummy = addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
+				  "time", "voltage",
+				  "2D", group_, module_, 1, true) ;
+          digi_histos[10 * (*iGroup) + (*iChannel)] = dummy ;
+        }
+    }
+  
+}
+
+
+
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 void  plotterTools::readInputTree ()
@@ -1116,6 +1172,10 @@ void plotterTools::bookPlotsADC(){
   wantADCplots=true;
 }
 
+void plotterTools::bookPlotsDigitizer(){
+  wantDigiplots=true;
+}
+
 void  plotterTools::Loop()
 {
 
@@ -1137,6 +1197,7 @@ void  plotterTools::Loop()
 	  timeStart_[i]=treeStruct_.evtTime[i];
       }
       if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
+      if(iEntry==0 && wantDigiplots) initDigiPlots();
       if(iEntry==(nentries -1)){
 	for(int i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeEnd_[i]=treeStruct_.evtTime[i];
@@ -1144,6 +1205,14 @@ void  plotterTools::Loop()
 
       fillObjects();
 
+      if (wantDigiplots){
+
+	for (int iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	  {
+	    digi_histos[10 * treeStruct_.digiGroup[iSample] + treeStruct_.digiChannel[iSample]]->Fill (treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]) ;
+	  }
+      }
+    
   
       for (std::map<TString,float*>::const_iterator iter = variablesMap_.begin ();
            iter != variablesMap_.end () ; ++iter)
@@ -1154,7 +1223,7 @@ void  plotterTools::Loop()
               FillPlot (iter->first, false, variablesContainer_[variablesIterator_[iter->first]].size ()) ;
             } else if (plotLongNames_[iter->first].Contains ("2D"))
             {
-              FillPlot (iter->first, true) ;
+              FillPlot (iter->first, true);
             }
            
           if (iEntry%historyStep_==0 && iEntry!=0)
@@ -1168,33 +1237,42 @@ void  plotterTools::Loop()
                 }
             }
         }
+
+
     } // loop over the events
+
+
 }
+
+
 
 
 //for TGraph
 void plotterTools::FillPlot(TString name, int point, float X)
 {
   computeVariable (name) ;
-  ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, variables_[variablesIterator_[name]]) ;
+  if (!(vetoFillObjects[name]))
+    ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, variables_[variablesIterator_[name]]) ;
 }
 
 //for TH1F and TH2F
 void plotterTools::FillPlot(TString name, bool is2D, int varDim){
+
   if(!is2D){
     computeVariable(name,varDim);  
     if(!(varDim>1)){
-      ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variables_[variablesIterator_[name]]);
+      if (!(vetoFillObjects[name]))
+	((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variables_[variablesIterator_[name]]);
     }else{
-
-
       for(int i=0;i<varDim;i++){
+      if (!(vetoFillObjects[name]))
 	  ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][i]);
       }
     }
   }else {
-    computeVariable(name,2);
-    ((TH2F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][0],variablesContainer_[variablesIterator_[name]][1]);
+      computeVariable(name,2);
+      if (!(vetoFillObjects[name]))
+	((TH2F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][0],variablesContainer_[variablesIterator_[name]][1]);
   }
   
 }
@@ -1210,8 +1288,6 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 }
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
-
-  fillFiberOrder();
 
   addPlot("beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
   addPlot("beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
@@ -1330,23 +1406,27 @@ void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float 
 
 //for TGraph
 TGraph *
-plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module){
+plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill){
 
   initVariable(name);
 
     TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
     outObjects_[longName]=((TObject*)  bookGraph(name,nPoints,type, group_,module_));
+    if (vetoFill) vetoFillObjects[name]=true;
+    else vetoFillObjects[name]=false;
     plotLongNames_[name]=longName;
     plotShortNames_[longName]=name;
     return dynamic_cast<TGraph *> (outObjects_[longName]) ;
 }
 
 //for TH1F
-TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim){
+TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill){
   initVariable(name,varDim);
 
    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
    outObjects_[longName]=((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
+   if (vetoFill) vetoFillObjects[name]=true;
+   else vetoFillObjects[name]=false;
    plotLongNames_[name]=longName;
    plotShortNames_[longName]=name;
    return dynamic_cast<TH1F *> (outObjects_[longName]) ;
@@ -1356,12 +1436,14 @@ TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TS
 
 //for TH2F
 TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
-                             TString xTitle, TString yTitle,TString type, TString group, TString module, int addProfile)
+                             TString xTitle, TString yTitle,TString type, TString group, TString module, bool addProfile, bool vetoFill)
 {
   initVariable(name);
 
    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
    outObjects_[longName]=((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
+   if (vetoFill) vetoFillObjects[name]=true;
+   else vetoFillObjects[name]=false;
    plotLongNames_[name]=longName;
    plotShortNames_[longName]=name;
    makeProfile_[longName] = addProfile ;

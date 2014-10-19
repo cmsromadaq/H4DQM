@@ -7,11 +7,11 @@ using namespace std;
 
 int CAEN_V1290::Unpack (dataType &stream, Event * event,boardHeader &bH)
 {
-  for (unsigned int i = 0; i < tdc1290Words_; ++i)
+  while (true)
 	{
 	  unsigned int tdcRawData;
 	  stream.read ((char*)&tdcRawData, sizeof (tdcRawData));
-	  //	  if (DEBUG_VERBOSE_UNPACKER) printf ("TDC WORD %d: %X\n",i,tdcRawData);
+	  if (DEBUG_VERBOSE_UNPACKER) printf ("TDC WORD: %X\n",tdcRawData);
 	  if (tdcRawData>>28 == 10 ) //TDC BOE
 	    {
 	      unsigned int tdcEvent=tdcRawData & 0xFFFFFFF;
@@ -25,6 +25,7 @@ int CAEN_V1290::Unpack (dataType &stream, Event * event,boardHeader &bH)
 	    }
 	  else if (tdcRawData>>28 == 8) //TDC EOE
 	    {
+	      break;
 	    }
 	  else if (tdcRawData>>28 == 0) //TDC DATUM
 	    {
