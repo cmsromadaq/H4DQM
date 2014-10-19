@@ -73,10 +73,10 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
             {
               cout << "[CAEN_V1742][Unpack]       | DIGI 1742 BOE: event " << digiEvt+1 << "\n" ;
             }
-          if (digiEvt+1 != event->evtNumber)
+          if (digiEvt+1 != event->id.evtNumber)
               cout << "[CAEN_V1742][Unpack]       | "
                    << "WARNING MISMATCH IN EVT NUMBER DIGIEVT " <<  digiEvt+1 
-                   << " EVT " << event->evtNumber << endl;
+                   << " EVT " << event->id.evtNumber << endl;
             
         }
       else if (i>4)

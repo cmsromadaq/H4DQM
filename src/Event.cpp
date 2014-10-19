@@ -5,7 +5,9 @@
 void Event::createOutBranches (TTree* tree,treeStructData& treeData)
 {
   //Instantiate the tree branches
-  tree->Branch("evtNumber"	,&treeData.evtNumber,	"evtNumber/i");
+  tree->Branch("runNumber"	,&treeData.runNumber,"runNumber/i");
+  tree->Branch("spillNumber"	,&treeData.spillNumber,"spillNumber/i");
+  tree->Branch("evtNumber"	,&treeData.evtNumber,"evtNumber/i");
   tree->Branch("evtTimeDist"	,&treeData.evtTimeDist,	"evtTimeDist/i");
   tree->Branch("evtTimeStart"	,&treeData.evtTimeStart,"evtTimeStart/i");
 
@@ -55,7 +57,9 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
 
 void Event::fillTreeData (treeStructData & treeData)
 {
-  treeData.evtNumber = evtNumber ;
+  treeData.runNumber = id.runNumber ;
+  treeData.spillNumber = id.spillNumber ;
+  treeData.evtNumber = id.evtNumber ;
   //  if (DEBUG_UNPACKER) printf (" =  =  =  =  =  =  FILLING EVENT %d  =  =  =  =  = \n", treeData.evtNumber) ;
   treeData.nEvtTimes = evtTimes.size () ;
   if (DEBUG_UNPACKER)
@@ -177,7 +181,9 @@ void Event::Fill ()
 
 void Event::clear ()
 {
-  evtNumber = 0 ; // this number is unsigned
+  id.runNumber = 0 ; // this number is unsigned
+  id.spillNumber = 0 ; // this number is unsigned
+  id.evtNumber = 0 ; // this number is unsigned
   triggerWords.clear() ;
 //  triggerBits.clear () ;
   adcValues.clear () ; 

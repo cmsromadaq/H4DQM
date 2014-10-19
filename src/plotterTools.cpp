@@ -113,19 +113,19 @@ void plotterTools::initIntegrated(TString nameFile){
 
     }
     if(evt_info!=NULL){
-      integratedPlots_["nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpill");
-      integratedPlots_["nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("nTotalEvtsPerSpillHisto");
-      integratedPlots_["fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("fractionTakenTrigPerSpill");
-      integratedPlots_["triggerRateHisto"]=(TH1F*)integratedFile_->Get("triggerRateHisto");
-      integratedPlots_["triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("triggerRatePerSpill");
-      integratedPlots_["growingEventPlot"]=(TH1F*)integratedFile_->Get("growingEventPlot");
-      if(integratedPlots_["nTotalEvtsPerSpill"]==NULL){
-	integratedPlots_["nTotalEvtsPerSpill"]=new TH1F("nTotalEvtsPerSpill","nTotalEvtsPerSpill",2000,0,2000);
-	integratedPlots_["nTotalEvtsPerSpillHisto"]=new TH1F("nTotalEvtsPerSpillHisto","nTotalEvtsPerSpillHisto",2000,100,10000);
-	integratedPlots_["fractionTakenTrigPerSpill"]=new TH1F("fractionTakenTrigPerSpill","fractionTakenTrigPerSpill",2000,0,2000);
-	integratedPlots_["triggerRateHisto"]=new TH1F("triggerRateHisto","triggerRateHisto",2000,0,1000);
-	integratedPlots_["triggerRatePerSpill"]=new TH1F("triggerRatePerSpill","triggerRatePerSpill",2000,0,1000);
-	integratedPlots_["growingEventPlot"]=new TH1F("growingEventPlot","growingEventPlot",2000,0,1000);
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpill");
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpillHisto");
+      integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_fractionTakenTrigPerSpill");
+      integratedPlots_["DAQStatus_triggerRateHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRateHisto");
+      integratedPlots_["DAQStatus_triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRatePerSpill");
+      integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
+      if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
+	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
+	integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
+	integratedPlots_["DAQStatus_growingEventPlot"]=new TH1F("DAQStatus_growingEventPlot","DAQStatus_growingEventPlot",2000,0,1000);
       }
 
     }
@@ -209,39 +209,40 @@ void plotterTools::initIntegrated(TString nameFile){
   if(evt_info != NULL){
 
   int iBin=0;
-  for(iBin=1;iBin<integratedPlots_["nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
-  integratedPlots_["nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpill"], "nSpill","nEvts" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpill"]);
+  for(iBin=1;iBin<integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
+  integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"], "nSpill","nEvts" );
+  plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]);
 
 
 
-  integratedPlots_["fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
-  setAxisTitles(integratedPlots_["fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
-  plotMe(integratedPlots_["fractionTakenTrigPerSpill"]);
+  integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
+  setAxisTitles(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
+  plotMe(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]);
 
 
-  integratedPlots_["triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
-  setAxisTitles(integratedPlots_["triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
-  plotMe(integratedPlots_["triggerRatePerSpill"]);
+  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  setAxisTitles(integratedPlots_["DAQStatus_triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
+  std::cout<<"NAME----"<<integratedPlots_["DAQStatus_triggerRatePerSpill"]->GetName();
+  plotMe(integratedPlots_["DAQStatus_triggerRatePerSpill"]);
 
-  int oldEvents=integratedPlots_["growingEventPlot"]->GetBinContent(iBin-1);
-  integratedPlots_["growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["growingEventPlot"],"nSpill" ,"n Total Events" );
-  plotMe(integratedPlots_["growingEventPlot"]);
+  int oldEvents=integratedPlots_["DAQStatus_growingEventPlot"]->GetBinContent(iBin-1);
+  integratedPlots_["DAQStatus_growingEventPlot"]->SetBinContent(iBin,oldEvents+evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_growingEventPlot"],"nSpill" ,"n Total Events" );
+  plotMe(integratedPlots_["DAQStatus_growingEventPlot"]);
 
 
   gStyle->SetOptStat ("emr") ;
 
 
-  integratedPlots_["nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
-  setAxisTitles(integratedPlots_["nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
-  plotMe(integratedPlots_["nTotalEvtsPerSpillHisto"]);
+  integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]->Fill(evt_info->GetEntries());
+  setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
+  plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]);
 
-  integratedPlots_["triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
-  setAxisTitles(integratedPlots_["triggerRateHisto"], "trigger Rate (Hz)","Entries" );
-  plotMe(integratedPlots_["triggerRateHisto"]);
+  setAxisTitles(integratedPlots_["DAQStatus_triggerRateHisto"], "trigger Rate (Hz)","Entries" );
+  plotMe(integratedPlots_["DAQStatus_triggerRateHisto"]);
 
 
   
@@ -371,10 +372,111 @@ void  plotterTools::plotMe (TH1F * histo)
 {
   TString hname = histo->GetName () ;
   TString  canvasName =outputDir_+ "/"+ hname + ".png" ;
-
+	
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
-  histo->Draw () ;
+  string myName=histo->GetName();
+  int stat=gStyle->GetOptStat();
+  if ( myName.find("MULTILINE") !=string::npos )
+	  	{
+		if (myName[myName.size()-1] != '0') return; 
+		gStyle->SetOptStat(0);
+		//create and draw 
+		TPad *p0= new TPad("p0","p0",0,0.0,1,.2); p0->SetTopMargin(0); p0->SetBottomMargin(.5);
+		TPad *p1= new TPad("p1","p1",0,0.2,1,.3); p1->SetTopMargin(0); p1->SetBottomMargin(0);
+		TPad *p2= new TPad("p2","p2",0,0.3,1,.4); p2->SetTopMargin(0); p2->SetBottomMargin(0);
+		TPad *p3= new TPad("p3","p3",0,0.4,1,.5); p3->SetTopMargin(0); p3->SetBottomMargin(0);
+		TPad *p4= new TPad("p4","p4",0,0.5,1,.6); p4->SetTopMargin(0); p4->SetBottomMargin(0);
+		TPad *p5= new TPad("p5","p5",0,0.6,1,.7); p5->SetTopMargin(0); p5->SetBottomMargin(0);
+		TPad *p6= new TPad("p6","p6",0,0.7,1,.8); p6->SetTopMargin(0); p6->SetBottomMargin(0);
+		TPad *p7= new TPad("p7","p7",0,0.8,1,1.); p7->SetTopMargin(.5); p7->SetBottomMargin(0);
+		p0->Draw();
+		p1->Draw();
+		p2->Draw();
+		p3->Draw();
+		p4->Draw();
+		p5->Draw();
+		p6->Draw();
+		p7->Draw();
+
+		TH1F *h0=histo;
+		myName.erase(myName.size()-1); myName+= "1";
+		cout<< "Getting Histo"<<myName<<endl;
+		TH1F *h1=(TH1F*)outObjects_[myName];
+		myName.erase(myName.size()-1); myName+= "2";
+		cout<< "Getting Histo"<<myName<<endl;
+		TH1F *h2=(TH1F*)outObjects_[myName];
+
+		h0->SetLineColor(kBlue);
+		h1->SetLineColor(kRed);
+		h2->SetLineColor(kGreen);
+
+		h0->SetFillColor(0);
+		h1->SetFillColor(0);
+		h2->SetFillColor(0);
+		h0->SetFillStyle(0);
+		h1->SetFillStyle(0);
+		h2->SetFillStyle(0);
+		h0->SetTitle("");
+		h0->GetYaxis()->SetTitle("");
+	
+		h0->Scale(3);
+		h1->Scale(2);
+		h2->Scale(1);
+
+		// draw
+		p7->cd();
+		h0->GetXaxis()->SetRangeUser(     0,625000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		TLegend *l=new TLegend(0.35,.5,.65,.98);
+			l->SetFillColor(0);
+			l->SetFillStyle(0);
+			l->SetBorderSize(0);
+			l->AddEntry(h0,"Time0","F");
+			l->AddEntry(h1,"Time1","F");
+			l->AddEntry(h2,"Time2","F");
+			l->Draw();
+		p6->cd();
+		h0->GetXaxis()->SetRangeUser(625000,1250000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p5->cd();
+		h0->GetXaxis()->SetRangeUser(1250000,1875000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p4->cd();
+		h0->GetXaxis()->SetRangeUser(1875000,2500000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p3->cd();
+		h0->GetXaxis()->SetRangeUser(2500000,3125000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p2->cd();
+		h0->GetXaxis()->SetRangeUser(3125000,3750000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p1->cd();
+		h0->GetXaxis()->SetRangeUser(3750000,4375000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		p0->cd();
+		h0->GetXaxis()->SetRangeUser(4375000,5000000-1);
+		h0->DrawCopy("HIST");
+		h1->Draw("HIST SAME");
+		h2->Draw("HIST SAME");
+		}
+  else
+  	histo->Draw () ;
   c1->Print (canvasName, "png") ;
+  gStyle->SetOptStat(stat);
 
 
   delete c1 ;
@@ -773,6 +875,15 @@ void plotterTools::computeVariable(TString name, int varDim){
 
  }else if(name=="nTotalEvts"){
     variables_[variablesIterator_[name]]=((float)1.);
+  
+ }else if(name=="MULTILINE_time0"){
+    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[0]-(int64_t)timeStart_[0];
+  
+ }else if(name=="MULTILINE_time1"){
+    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[1]-(int64_t)timeStart_[1];
+  
+ }else if(name=="MULTILINE_time2"){
+    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[2]-(int64_t)timeStart_[2];
   }
  else if(name=="TDCinputTime1"){//TDC
    for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
@@ -1151,6 +1262,9 @@ void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot("deltaTime10", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
   addPlot("deltaTime20", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
   addPlot("deltaTime21", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot("MULTILINE_time0",500000,0,5000000,"1D",group_,module_);
+  addPlot("MULTILINE_time1",500000,0,5000000,"1D",group_,module_);
+  addPlot("MULTILINE_time2",500000,0,5000000,"1D",group_,module_);
  }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
