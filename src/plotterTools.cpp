@@ -1534,7 +1534,7 @@ void plotterTools::printHistos(){
   }
 }
 
-void::plotterTools::fillFiberOrder(){
+void plotterTools::fillFiberOrder(){
 
   fiberOrderA.clear();
   fiberOrderB.clear();
