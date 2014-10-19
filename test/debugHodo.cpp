@@ -27,8 +27,8 @@ using namespace std;
 // fwd decl because it's a long list
 vector<int> fiberOrderA;
 vector<int> fiberOrderB;
-vector<int> fiberOrderA1;
-vector<int> fiberOrderB1;
+vector<int> fiberOrderC;
+vector<int> fiberOrderI;
 void fillFiberOrder();
 
 int main(int argc, char**argv){
@@ -66,7 +66,7 @@ for (long long iEntry=0;iEntry<t->GetEntries();++iEntry)
 {
 	t->GetEntry(iEntry);
 	if ( (iEntry &1023) ==0 ) printf("Entry=%lld/%lld\n",iEntry,t->GetEntries());
-	if (iEntry >100000 ) break;
+	//if (iEntry >100000 ) { printf("Stopping at 100 000 \n");break;}
 	//fill 
 	for(UInt_t i=0;i<nPatterns;++i){
 
@@ -83,18 +83,26 @@ for (long long iEntry=0;iEntry<t->GetEntries();++iEntry)
 				bool is2= (patternChannel[i]/2 == 1);
 				bool isA= (patternChannel[i]%2 == 0);
 				bool isB= (patternChannel[i]%2 == 1);
-
+				bool isI=false;
+				bool isC=false;
+				
 				if (isX and is1 ) 
 					{
 					if (isA) { isA=false; isB=true; }
-					if (isB) { isB=false; isA=true; }
+					if (isB) { 
+						isB=false; //isA=true; 
+						isA=false;
+						isC=true;
+						}
 					}
 
 				bool thisfibon = (pattern[i]>>j) &0b1;
 				//std::vector<int> *fiberorder = ((bool)( patternChannel[i]&0b1) ) ? &fiberOrderB : &fiberOrderA;
 				std::vector<int> *fiberorder ;
+				if (isI) fiberorder=&fiberOrderI;
 				if (isA) fiberorder=&fiberOrderA;
 				if (isB) fiberorder=&fiberOrderB;
+				if (isC) fiberorder=&fiberOrderC;
 				//fibersOn_[2*planecouple+patternChannel[i]/2][fiberorder->at(j)-1]=thisfibon;
 				int pos=0;
 				if (isY) pos+=2;
@@ -234,7 +242,73 @@ void fillFiberOrder(){
 	fiberOrderB.push_back(43);
 	fiberOrderB.push_back(33);
 	fiberOrderB.push_back(35);
+
+	fiberOrderI.push_back(1);
+	fiberOrderI.push_back(2);
+	fiberOrderI.push_back(3);
+	fiberOrderI.push_back(4);
+	fiberOrderI.push_back(5);
+	fiberOrderI.push_back(6);
+	fiberOrderI.push_back(7);
+	fiberOrderI.push_back(8);
+	fiberOrderI.push_back(9);
+	fiberOrderI.push_back(10);
+	fiberOrderI.push_back(11);
+	fiberOrderI.push_back(12);
+	fiberOrderI.push_back(13);
+	fiberOrderI.push_back(14);
+	fiberOrderI.push_back(15);
+	fiberOrderI.push_back(16);
+	fiberOrderI.push_back(17);
+	fiberOrderI.push_back(18);
+	fiberOrderI.push_back(19);
+	fiberOrderI.push_back(20);
+	fiberOrderI.push_back(21);
+	fiberOrderI.push_back(22);
+	fiberOrderI.push_back(23);
+	fiberOrderI.push_back(24);
+	fiberOrderI.push_back(25);
+	fiberOrderI.push_back(26);
+	fiberOrderI.push_back(27);
+	fiberOrderI.push_back(28);
+	fiberOrderI.push_back(29);
+	fiberOrderI.push_back(30);
+	fiberOrderI.push_back(31);
+	fiberOrderI.push_back(32);
 	
+	fiberOrderC.push_back(13+4);//12
+	fiberOrderC.push_back(23+4);//22
+	fiberOrderC.push_back(15+4);//15 --14
+	fiberOrderC.push_back(21+4); //21 --20
+	fiberOrderC.push_back(20+4); //20 -- 19
+	fiberOrderC.push_back(18+4); // 17
+	fiberOrderC.push_back(28+4);
+	fiberOrderC.push_back(26+4);//26,25
+	fiberOrderC.push_back(2  );// XXXX
+	fiberOrderC.push_back(4  );// XXXX
+	fiberOrderC.push_back(8 +4);
+	fiberOrderC.push_back(6 +4);//6
+	fiberOrderC.push_back(16+4); 
+	fiberOrderC.push_back(14+4);//13
+	fiberOrderC.push_back(24+4);//24,23
+	fiberOrderC.push_back(22+4);//21
+	fiberOrderC.push_back(27+4);//26
+	fiberOrderC.push_back(25+4);//24
+	fiberOrderC.push_back(19+4);
+	fiberOrderC.push_back(17+4);
+	fiberOrderC.push_back(1 +4);
+	fiberOrderC.push_back(3 +4);
+	fiberOrderC.push_back(11+4);
+	fiberOrderC.push_back(9 +4);
+	fiberOrderC.push_back(3   ); //XXXX
+	fiberOrderC.push_back(1   ); //XXXX
+	fiberOrderC.push_back(7 +4);
+	fiberOrderC.push_back(5 +4);
+	fiberOrderC.push_back(2 +4);
+	fiberOrderC.push_back(4 +4);
+	fiberOrderC.push_back(12+4); //12
+	fiberOrderC.push_back(10+4);
+
 	return;
 }
 
