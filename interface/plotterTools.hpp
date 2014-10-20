@@ -33,6 +33,11 @@
 #define nPlanesSmallHodo 2
 #define nFibersSmallHodo 8
 
+//schema to be checked: Xleft, Xright, Ydown, Yup
+#define wcXl 3
+#define wcXr 2
+#define wcYd 1
+#define wcYu 0
 
 class plotterTools{
 
@@ -60,6 +65,8 @@ public:
 
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
+  std::vector<int> fiberOrderC;
+  std::vector<int> fiberOrderD;
   std::map<TString,bool> makeProfile_;
   std::map<TString,TObject*> outObjects_;
   std::map<TString,bool> vetoFillObjects;

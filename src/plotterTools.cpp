@@ -905,33 +905,24 @@ void plotterTools::computeVariable(TString name, int varDim){
    for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
    for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
  }
- else if(name=="TDCtimeDiffX"){
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[0].size() && j<tdc_readings[2].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j)-tdc_readings[2].at(j); // CHECK WHO IS X, Y
+ else if(name=="TDCrecoX" || name=="TDChistoryRecoX"){
+   variables_[variablesIterator_[name]]=-999;
+   if (tdc_readings[wcXl].size()!=0 && tdc_readings[wcXr].size()!=0){
+     float TXl = *std::min_element(tdc_readings[wcXl].begin(),tdc_readings[wcXl].begin()+tdc_readings[wcXl].size());
+     float TXr = *std::min_element(tdc_readings[wcXr].begin(),tdc_readings[wcXr].begin()+tdc_readings[wcXr].size());
+     float X = (TXr-TXl)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
+     variables_[variablesIterator_[name]]=X;
+   }
  }
- else if(name=="TDCtimeDiffY"){
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[1].size() && j<tdc_readings[3].size()&& j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j)-tdc_readings[3].at(j); // CHECK WHO IS X, Y
+ else if(name=="TDCrecoY" || name=="TDChistoryRecoY"){
+   variables_[variablesIterator_[name]]=-999;
+   if (tdc_readings[wcYd].size()!=0 && tdc_readings[wcYu].size()!=0){
+     float TYd = *std::min_element(tdc_readings[wcYd].begin(),tdc_readings[wcYd].begin()+tdc_readings[wcYd].size());
+     float TYu = *std::min_element(tdc_readings[wcYu].begin(),tdc_readings[wcYu].begin()+tdc_readings[wcYu].size());
+     float Y = (TYu-TYd)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
+     variables_[variablesIterator_[name]]=Y;
+   }
  }
- else if(name=="TDCrecoX"){ // WE NEED THE WIRE CHAMBER CALIBRATION TO FILL THESE
-   //   variablesContainer_[variablesIterator_[name]][???]=0
- }
- else if(name=="TDCrecoY"){
-   //   variablesContainer_[variablesIterator_[name]][???]=0
- }
- else if(name=="TDChistoryRecoX"){
-   //   variablesContainer_[variablesIterator_[name]][???]
- }
- else if(name=="TDChistoryRecoY"){
-   //   variablesContainer_[variablesIterator_[name]][???]
- }
- else if(name=="TDChistoryRMSX"){
-   //   variablesContainer_[variablesIterator_[name]][???]
- }
- else if(name=="TDChistoryRMSY"){
-   //   variablesContainer_[variablesIterator_[name]][???]
- }
-
 
  {
    std::map<TString,UInt_t*>::const_iterator it = adc_channelnames.find(name);
@@ -939,6 +930,8 @@ void plotterTools::computeVariable(TString name, int varDim){
      variables_[variablesIterator_[name]]=*(it->second);
    }
  }
+
+
 
 }
 
@@ -1403,14 +1396,10 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot("TDCinputTime2",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot("TDCinputTime3",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot("TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCtimeDiffX",100,0,50000,"1D",group_,module_ ,MaxTdcReadings);
-  addPlot("TDCtimeDiffY",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCrecoX",100,0,1,"1D",group_,module_);
-  addPlot("TDCrecoY",100,0,1,"1D",group_,module_);
+  addPlot("TDCrecoX",100,-50,50,"1D",group_,module_);
+  addPlot("TDCrecoY",100,-50,50,"1D",group_,module_);
   addPlot("TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot("TDChistoryRecoY",nBinsHistory,"history",group_,module_);
-  addPlot("TDChistoryRMSX",nBinsHistory,"history",group_,module_);
-  addPlot("TDChistoryRMSY",nBinsHistory,"history",group_,module_);
 }
 
 void plotterTools::bookCombinedPlots(){
