@@ -87,6 +87,7 @@ public:
   static const UInt_t MaxTdcChannels = 4;
   static const UInt_t MaxTdcReadings = 20;
   std::vector<float> tdc_readings[MaxTdcChannels];
+  float tdc_recox, tdc_recoy;
 
   //adc channel names
   std::map<TString,UInt_t*> adc_channelnames;

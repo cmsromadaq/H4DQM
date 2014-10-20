@@ -66,7 +66,7 @@ int main (int argc, char ** argv)
 
   plotter.Loop();
 
-  //  plotter.bookCombinedPlots();
+  //  plotter.bookCombinedPlotsTDC();
 
   plotter.plotHistos();
   plotter.saveHistos();

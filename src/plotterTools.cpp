@@ -906,22 +906,14 @@ void plotterTools::computeVariable(TString name, int varDim){
    for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
  }
  else if(name=="TDCrecoX" || name=="TDChistoryRecoX"){
-   variables_[variablesIterator_[name]]=-999;
-   if (tdc_readings[wcXl].size()!=0 && tdc_readings[wcXr].size()!=0){
-     float TXl = *std::min_element(tdc_readings[wcXl].begin(),tdc_readings[wcXl].begin()+tdc_readings[wcXl].size());
-     float TXr = *std::min_element(tdc_readings[wcXr].begin(),tdc_readings[wcXr].begin()+tdc_readings[wcXr].size());
-     float X = (TXr-TXl)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
-     variables_[variablesIterator_[name]]=X;
-   }
+   variables_[variablesIterator_[name]]=tdc_recox;
  }
  else if(name=="TDCrecoY" || name=="TDChistoryRecoY"){
-   variables_[variablesIterator_[name]]=-999;
-   if (tdc_readings[wcYd].size()!=0 && tdc_readings[wcYu].size()!=0){
-     float TYd = *std::min_element(tdc_readings[wcYd].begin(),tdc_readings[wcYd].begin()+tdc_readings[wcYd].size());
-     float TYu = *std::min_element(tdc_readings[wcYu].begin(),tdc_readings[wcYu].begin()+tdc_readings[wcYu].size());
-     float Y = (TYu-TYd)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
-     variables_[variablesIterator_[name]]=Y;
-   }
+   variables_[variablesIterator_[name]]=tdc_recoy;
+ }
+ else if(name=="TDCrecoPos"){
+   variablesContainer_[variablesIterator_[name]][0]=tdc_recox;
+   variablesContainer_[variablesIterator_[name]][1]=tdc_recoy;
  }
 
  {
@@ -1086,11 +1078,26 @@ void plotterTools::fillTdc(){
   for (uint j=0; j<MaxTdcChannels; j++){
     tdc_readings[j].clear();
   }
+  tdc_recox=-999;
+  tdc_recoy=-999;
 
   for (uint i=0; i<treeStruct_.nTdcChannels; i++){
     if (treeStruct_.tdcBoard[i]==0x07030001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
       tdc_readings[treeStruct_.tdcChannel[i]].push_back((float)treeStruct_.tdcData[i]);
     }
+  }
+
+  if (tdc_readings[wcXl].size()!=0 && tdc_readings[wcXr].size()!=0){
+    float TXl = *std::min_element(tdc_readings[wcXl].begin(),tdc_readings[wcXl].begin()+tdc_readings[wcXl].size());
+    float TXr = *std::min_element(tdc_readings[wcXr].begin(),tdc_readings[wcXr].begin()+tdc_readings[wcXr].size());
+    float X = (TXr-TXl)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
+    tdc_recox = X;
+  }
+  if (tdc_readings[wcYd].size()!=0 && tdc_readings[wcYu].size()!=0){
+    float TYd = *std::min_element(tdc_readings[wcYd].begin(),tdc_readings[wcYd].begin()+tdc_readings[wcYd].size());
+    float TYu = *std::min_element(tdc_readings[wcYu].begin(),tdc_readings[wcYu].begin()+tdc_readings[wcYu].size());
+    float Y = (TYu-TYd)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
+     tdc_recoy = Y;
   }
 
 }
@@ -1241,13 +1248,13 @@ void  plotterTools::Loop()
       if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
 
       if(iEntry==0){
-	for(int i =0;i<treeStruct_.nEvtTimes;++i)
+	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeStart_[i]=treeStruct_.evtTime[i];
       }
       if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
       if(iEntry==0 && wantDigiplots) initDigiPlots();
       if(iEntry==(nentries -1)){
-	for(int i =0;i<treeStruct_.nEvtTimes;++i)
+	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeEnd_[i]=treeStruct_.evtTime[i];
       }
 
@@ -1255,7 +1262,7 @@ void  plotterTools::Loop()
 
       if (wantDigiplots){
 
-	for (int iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
 	    digi_histos[10 * treeStruct_.digiGroup[iSample] + treeStruct_.digiChannel[iSample]]->Fill (treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]) ;
 	  }
@@ -1400,6 +1407,7 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot("TDCrecoY",100,-50,50,"1D",group_,module_);
   addPlot("TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot("TDChistoryRecoY",nBinsHistory,"history",group_,module_);
+  addPlot("TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
 }
 
 void plotterTools::bookCombinedPlots(){
