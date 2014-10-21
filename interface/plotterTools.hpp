@@ -1,6 +1,7 @@
 #ifndef PLOT_TOOLS
 #define PLOT_TOOLS
 
+#include <vector>
 #include <TStyle.h>
 #include <TROOT.h>
 #include <TColor.h>
@@ -38,6 +39,52 @@
 #define wcXr 2
 #define wcYd 1
 #define wcYu 0
+
+typedef enum PlotType {
+  kPlot1D,
+  kPlot2D,
+  kPlotGraph,
+  kPlotHistory
+} PlotType;
+
+class varPlot{
+
+public:
+
+  float* Get(uint i);
+  std::pair<float*,float*> Get2D(uint i);
+  uint Size();
+  TObject* Plot();
+  void Fill(float val, int i=-1);
+  void Fill2D(float valX, float valY, int i=-1);
+  void ClearVectors();
+  varPlot();
+  varPlot(int *iThisEntry, int *iHistEntry_, PlotType type_, bool profile_=false, uint size_=0);
+  ~varPlot();
+
+  TString name;
+  int *iThisEntry;
+  int *iHistEntry;
+
+  std::vector<float>* Get();
+  std::pair<std::vector<float>*, std::vector<float>*> Get2D();
+
+  void SetPlot(TObject* plot_);
+  TObject* GetPlot();
+  void SetName(TString name_);
+
+  bool doProfile;
+  int type;
+  std::vector<float> x;
+  std::vector<float> y;
+  TObject *plot;
+
+  std::vector<float> *xptr;
+  std::vector<float> *yptr;
+
+private:
+
+};
 
 class plotterTools{
 
@@ -77,7 +124,10 @@ public:
   std::map<TString,int> variablesIterator_;
   std::map<TString,std::vector<float> > variablesContainer_;
   std::map<TString,TString > variablesContainerTitles_;
+  std::map<TString,varPlot*> varplots;
 
+  int iThisEntry;
+  int iHistEntry;
 
   //fibers
   bool fibersOn_[nPlanesHodo][nFibersHodo];
@@ -103,6 +153,9 @@ public:
 
   void bookPlotsDigitizer();
   bool wantDigiplots;
+
+  void initOutputTree();
+  TTree *outputTree;
 
   void fillObjects();
   void fillHodo();
@@ -136,8 +189,6 @@ public:
   void setStepHistoryPlots(int n);
   int getTreeEntries();
   int getStepHistoryPlots();
-  void FillPlot(TString name, int point, float X);//TGraph
-  void FillPlot(TString name, bool is2D=false,int varDim=1);//TH1F
   TGraph * addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill=false);//TGraph
   TH1F * addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TH1F
   TH2F * addPlot (TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
@@ -147,7 +198,7 @@ public:
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
   TH2F* bookHistoCombined(TString name,TString name1, TString name2);
   void initVariable(TString name, int varDim=1);
-  void computeVariable(TString name, int varDim=1);
+  void computeVariable(TString name);
   pair<int, string> execute (const string & command);
   void fitHisto(TString name, TString func);
   float getMinimumP (TProfile * p) ;
