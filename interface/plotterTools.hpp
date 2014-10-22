@@ -21,7 +21,8 @@
 
 #define nPlanesHodo 4
 #define nFibersHodo 64
-//check if it is true this schema
+
+// not the real hodoscope mapping, just for internal DQM use
 #define hodoX1 0
 #define hodoY1 1
 #define hodoX2 2
