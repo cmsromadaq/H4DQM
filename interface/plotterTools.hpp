@@ -37,10 +37,10 @@
 #define nFibersSmallHodo 8
 
 //schema to be checked: Xleft, Xright, Ydown, Yup
-#define wcXl 3
-#define wcXr 2
-#define wcYd 1
-#define wcYu 0
+#define wcXl 0
+#define wcXr 1
+#define wcYd 2
+#define wcYu 3
 
 typedef enum PlotType {
   kPlot1D,
@@ -83,6 +83,8 @@ public:
 
   std::vector<float> *xptr;
   std::vector<float> *yptr;
+
+  Waveform *waveform;
 
 private:
 
@@ -150,6 +152,7 @@ public:
   map <int, TH2F *> digi_histos ;
   map <int, Waveform *> digi_waveforms;
   void initDigiPlots();
+  TString getDigiChannelName(int group, int channel);
 
   void bookPlotsADC();
   bool wantADCplots;
