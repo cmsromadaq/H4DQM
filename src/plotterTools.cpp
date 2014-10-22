@@ -604,7 +604,7 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 
   if (!makeProfile)
     {
-      if (hname==TString("ADC_MatrixView")) histo->Draw ("colz text e1") ;
+      if (hname.Contains("MatrixView")) histo->Draw ("colz text e1") ;
       else histo->Draw ("colz") ;
        c1->Print (canvasName, "png") ;
     }
@@ -1270,6 +1270,8 @@ void plotterTools::initDigiPlots(){
 
   addPlot(1,"digi_sum_max_amplitude",4096,0,16384,"1D",group_,module_);
 
+  addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
+
 }
 
 TString plotterTools::getDigiChannelName(int group, int channel){
@@ -1823,6 +1825,22 @@ void plotterTools::fillMatrixView(){
       }
     }
   }
+
+  int matrcef3[2][2];
+  matrcef3[0][0]=1;
+  matrcef3[0][1]=2;
+  matrcef3[1][0]=4; // TO BE CHECKED
+  matrcef3[1][1]=3;
+
+  h= (TH2F*)(varplots["MatrixViewCeF3"]->GetPlot());
+  for (int i=0; i<2; i++){
+    for (int j=0; j<2; j++){
+      TString name = Form("digi_gr0_ch%d_max_amplitude",matrcef3[i][j]-1);
+      h->SetBinContent(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetMean());
+      h->SetBinError(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetRMS());
+    }
+  }
+  
 
 }
 
