@@ -45,6 +45,7 @@ varPlot::varPlot(){
   xptr = &x;
   yptr = &y;
   plot = NULL;
+  waveform = NULL;
 }
 
 varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
@@ -53,6 +54,7 @@ varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profil
   xptr = &x;
   yptr = &y;
   plot = NULL;
+  waveform = NULL;
 }
 
 varPlot::~varPlot(){
@@ -1691,8 +1693,8 @@ void plotterTools::fillFiberOrder(){
 
   fiberOrderA.clear();
   fiberOrderB.clear();
-  fiberOrderC.clear();
-  fiberOrderD.clear();
+//  fiberOrderC.clear();
+//  fiberOrderD.clear();
 
   fiberOrderA.push_back(31);
   fiberOrderA.push_back(29);

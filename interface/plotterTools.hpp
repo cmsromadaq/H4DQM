@@ -117,8 +117,8 @@ public:
 
   std::vector<int> fiberOrderA;
   std::vector<int> fiberOrderB;
-  std::vector<int> fiberOrderC;
-  std::vector<int> fiberOrderD;
+//  std::vector<int> fiberOrderC;
+//  std::vector<int> fiberOrderD;
   std::map<TString,bool> makeProfile_;
   std::map<TString,TObject*> outObjects_;
   std::map<TString,bool> vetoFillObjects;

@@ -61,8 +61,8 @@ int main (int argc, char ** argv)
   plotter.readInputTree();  
   int nentries = plotter.getTreeEntries();
   plotter.setStepHistoryPlots(20);
-  plotter.setGroup("hodo");
   plotter.setModule("beam");
+  plotter.setGroup("hodo");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
   plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
@@ -71,6 +71,8 @@ int main (int argc, char ** argv)
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("ADC");
   plotter.bookPlotsADC();
+  plotter.setGroup("digitizer");
+  plotter.bookPlotsDigitizer();
 
   plotter.printHistos();
 
