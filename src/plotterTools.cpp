@@ -9,9 +9,14 @@ void outTreeBranch::addMember(TString name, int pos){
   members.push_back(std::make_pair<TString,int>(name,pos));
 }
 
+void outTreeBranch::addDummy(int howmany){
+  for (int i=0; i<howmany; i++) members.push_back(std::make_pair<TString,int>("DUMMY",-1));
+}
+
 void outTreeBranch::Fill(){
   data.clear();
   for (std::vector<std::pair<TString,int> >::const_iterator it = members.begin(); it!=members.end(); it++){
+    if (it->first=="DUMMY") {data.push_back(-999); continue;}
     if ((*varplots)[it->first]->type!=kPlot1D) {std::cout << "WRONG TYPE" << std::endl; continue;}
     if ((*varplots)[it->first]->Get()->size()<=it->second) {std::cout << "WRONG SIZE" << std::endl; continue;}
     data.push_back(*((*varplots)[it->first]->Get(it->second)));
@@ -33,6 +38,11 @@ void varPlot::SetPlot(TObject* plot_){plot=plot_;}
 TObject* varPlot::GetPlot(){return plot;}
 void varPlot::SetName(TString name_){name=name_;}
 void varPlot::ClearVectors(){x.clear(); y.clear();}
+
+void varPlot::SetGM(TString group_, TString module_){
+  group = group_;
+  module = module_;
+}
 
 void varPlot::Fill(float val, int i) {
   if (type!=kPlot1D && type!=kPlotGraph) {std::cout << "WRONG 1D " << name.Data() << std::endl; return;}
@@ -452,9 +462,9 @@ void  plotterTools::setPlotsFormat ()
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMe (TH1F * histo)
+void  plotterTools::plotMe (TH1F * histo, TString name)
 {
-  TString hname = histo->GetName () ;
+  TString hname = (name==TString("")) ? histo->GetName () : name.Data();
   TString  canvasName =outputDir_+ "/"+ hname + ".png" ;
 	
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
@@ -571,7 +581,7 @@ void  plotterTools::plotMe (TH1F * histo)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMe (TH2F * histo, bool makeProfile)
+void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 {
 
   gStyle->SetPadTopMargin(0.05);
@@ -584,7 +594,7 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile)
   gStyle->SetStatW (0.2) ;
   gStyle->SetStatH (0.15) ;
 
-  TString hname = histo->GetName () ;
+  TString hname = (name==TString("")) ? histo->GetName () : name.Data();
   TString  canvasName = outputDir_+ "/"+hname + ".png" ;
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
 
@@ -1151,10 +1161,10 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
     name+='_';
     name+=treeStruct_.adcChannel[i];
     adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
-    addPlot(name.Data(),4096,0,4096,"1D",group_,module_);
+    addPlot(1,name.Data(),4096,0,4096,"1D",group_,module_);
     name.Append("_hist");
     adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
-    addPlot(name.Data(), nBinsHistory, "history", group_,module_);
+    addPlot(0,name.Data(), nBinsHistory, "history", group_,module_);
   }
 
 }
@@ -1195,18 +1205,21 @@ void plotterTools::initDigiPlots(){
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
         {
+
+	  if (*iChannel>=nActiveDigitizerChannels) continue;
+
           TString name = getDigiChannelName(*iGroup,*iChannel);
-          addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
-		   "time", "voltage",
-		   "2D", group_, module_, 1, true) ;
+          addPlot(1,name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
+		  "time", "voltage",
+		  "2D", group_, module_, 1, true) ;
 	  varplots[name]->waveform = new Waveform();
 
-	  addPlot(Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(Form("%s_pedestal_rms",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(Form("%s_max_amplitude",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(Form("%s_time_at_max",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(Form("%s_time_at_frac30",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(Form("%s_time_at_frac50",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(1,Form("%s_pedestal_rms",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(1,Form("%s_max_amplitude",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(1,Form("%s_time_at_max",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(0,Form("%s_time_at_frac30",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(0,Form("%s_time_at_frac50",name.Data()),4096,0,4096,"1D",group_,module_);
 
         }
     }
@@ -1305,8 +1318,11 @@ void plotterTools::initTreeVars(){
 
   outTreeBranch *br;
   br = new outTreeBranch("ADCvalues",&varplots);
-  for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
-  for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  if (wantADCplots){
+    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  }
+  else br->addDummy(28);
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
   for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
   for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
@@ -1316,28 +1332,31 @@ void plotterTools::initTreeVars(){
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
 
-
-  const int my_cef3_channels = 4;
   br = new outTreeBranch("digi_max_amplitude",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch("digi_pedestal",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch("digi_pedestal_rms",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch("digi_time_at_max",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch("digi_time_at_frac30",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch("digi_time_at_frac50",&varplots);
-  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-
-
+    
   for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));
   }
@@ -1405,6 +1424,9 @@ void  plotterTools::Loop()
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
+
+	    if (treeStruct_.digiChannel[iSample]>=nActiveDigitizerChannels) continue;
+
 	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
 	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
@@ -1451,85 +1473,85 @@ void  plotterTools::Loop()
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
-  addPlot("nEvts", nBinsHistory, "history", group_,module_);//simple TGraph
-  addPlot("triggerEff",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
-  addPlot("nTrigSPS", 100,0,3000, "1D",group_,module_);//simple TH1F
-  addPlot("nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
-  addPlot("nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
+  addPlot(0,"nEvts", nBinsHistory, "history", group_,module_);//simple TGraph
+  addPlot(1,"triggerEff",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot(0,"nTrigSPS", 100,0,3000, "1D",group_,module_);//simple TH1F
+  addPlot(0,"nTrigSPSVsnTrig", 100,0,3000, 100,0,3000,"nTrigSPS","nTrig","2D",group_,module_);//simple TH2F
+  addPlot(0,"nTrigSPSVsnTrig3D", 100,0,3000, "1D",group_,module_,3);// TH1F with more than one variable to fill per event
 }
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
-  addPlot("beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot("beamProfileY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot(1,"beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot(1,"beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot(1,"beamProfileX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot(1,"beamProfileY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
 
-  addPlot("nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
-  addPlot("beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
-  addPlot("beamPositionX", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionY", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionX", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionY", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
 }
 
 void plotterTools::bookCombinedPlotsHodo(){
 //
-//  addPlotCombined("hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-//  addPlotCombined("hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+//  addPlotCombined(0,"hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+//  addPlotCombined(0,"hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
 //
 }
 
 void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
 
-  addPlot("beamProfileSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
-  addPlot("beamProfileSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
+  addPlot(1,"beamProfileSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
+  addPlot(1,"beamProfileSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
 
-  addPlot("nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-  addPlot("nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
 
-  addPlot("beamPositionSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-  addPlot("beamPositionSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
 
 
 }
 
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
-  addPlot("fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
-  addPlot("fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
-  addPlot("nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
-  addPlot("deltaTime10", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
-  addPlot("deltaTime20", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
-  addPlot("deltaTime21", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
-  addPlot("MULTILINE_time0",500000,0,5000000,"1D",group_,module_);
-  addPlot("MULTILINE_time1",500000,0,5000000,"1D",group_,module_);
-  addPlot("MULTILINE_time2",500000,0,5000000,"1D",group_,module_);
+  addPlot(1,"fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
+  addPlot(0,"fractionTakenTrigHisto",100,0,1,"1D",group_,module_);//simple TH1F
+  addPlot(0,"nTotalEvts", 1,-0.5, 1.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"deltaTime10", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot(0,"deltaTime20", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot(0,"deltaTime21", 100,-60.5, 59.5,"1D",group_,module_);//simple TH1F          
+  addPlot(0,"MULTILINE_time0",500000,0,5000000,"1D",group_,module_);
+  addPlot(0,"MULTILINE_time1",500000,0,5000000,"1D",group_,module_);
+  addPlot(0,"MULTILINE_time2",500000,0,5000000,"1D",group_,module_);
  }
 
 void plotterTools::bookPlotsTDC(int nBinsHistory){
-  addPlot("TDCinputTime1",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCinputTime2",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCinputTime3",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot("TDCrecoX",100,-50,50,"1D",group_,module_);
-  addPlot("TDCrecoY",100,-50,50,"1D",group_,module_);
-  addPlot("TDChistoryRecoX",nBinsHistory,"history",group_,module_);
-  addPlot("TDChistoryRecoY",nBinsHistory,"history",group_,module_);
-  addPlot("TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+  addPlot(0,"TDCinputTime1",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot(0,"TDCinputTime2",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot(0,"TDCinputTime3",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot(0,"TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
+  addPlot(0,"TDCrecoX",100,-50,50,"1D",group_,module_);
+  addPlot(0,"TDCrecoY",100,-50,50,"1D",group_,module_);
+  addPlot(0,"TDChistoryRecoX",nBinsHistory,"history",group_,module_);
+  addPlot(0,"TDChistoryRecoY",nBinsHistory,"history",group_,module_);
+  addPlot(1,"TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
 }
 
 void plotterTools::bookCombinedPlots(){
-//  //  addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-////  addPlotCombined("HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
-////  addPlotCombined("HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
+////  addPlotCombined(0,"nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+////  addPlotCombined(0,"HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
+////  addPlotCombined(0,"HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
 //
 }
 
@@ -1541,11 +1563,13 @@ void plotterTools::fitHisto(TString name,TString func){
 
 }
 
-void plotterTools::addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module){
+void plotterTools::addPlotCombined(bool doPlot, TString name, TString name1, TString name2,TString type, TString group , TString module){
 
   varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D);
   var->SetName(name);
   var->SetPlot((TObject*)  bookHistoCombined(name,name1,name2));
+  var->doPlot = doPlot;
+  var->SetGM(group,module);
   varplots[name]=var;
   
   ((TH2F*)var->GetPlot())->SetTitle(name);
@@ -1566,7 +1590,7 @@ void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float 
 
 //for TGraph
 TGraph *
-plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill){
+plotterTools::addPlot(bool doPlot, TString name,int nPoints,TString type, TString group, TString module, bool vetoFill){
 
     if (vetoFill) vetoFillObjects[name]=true;
     else vetoFillObjects[name]=false;
@@ -1574,13 +1598,15 @@ plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TStr
     varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlotGraph,false,nPoints);
     var->SetName(name);
     var->SetPlot((TObject*)  bookGraph(name,nPoints,type, group_,module_));
+    var->doPlot = doPlot;
+    var->SetGM(group,module);
     varplots[name]=var;
 
     return dynamic_cast<TGraph *> (var->GetPlot()) ;
 }
 
 //for TH1F
-TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill){
+TH1F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill){
 
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
@@ -1588,6 +1614,8 @@ TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TS
    varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot1D,false,varDim);
    var->SetName(name);
    var->SetPlot((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
+   var->doPlot = doPlot;
+   var->SetGM(group,module);
    varplots[name]=var;
 
    return dynamic_cast<TH1F *> (var->GetPlot());
@@ -1596,7 +1624,7 @@ TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TS
 }
 
 //for TH2F
-TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
+TH2F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
                              TString xTitle, TString yTitle,TString type, TString group, TString module, bool addProfile, bool vetoFill)
 {
 
@@ -1607,6 +1635,8 @@ TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, in
    varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D,addProfile);
    var->SetName(name);
    var->SetPlot((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
+   var->doPlot = doPlot;
+   var->SetGM(group,module);
    varplots[name]=var;
 
    return dynamic_cast<TH2F *> (var->GetPlot());
@@ -1743,18 +1773,17 @@ void plotterTools::plotHistos(){
       exit (1) ;
     }
 
-
-
   for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
+    if(out->second->doPlot==false) continue;
     if(out->second->type==kPlotGraph)  {
       setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
-      plotMe((TGraph*)out->second->GetPlot(), out->first);
+      plotMe((TGraph*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }else if(out->second->type==kPlot1D)  {
       setAxisTitles((TH1F*)out->second->GetPlot(),out->second->name.Data(),"Events");
-      plotMe((TH1F*)out->second->GetPlot());
+      plotMe((TH1F*)out->second->GetPlot(),Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }else if(out->second->type==kPlot2D)  {
       setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());
-      plotMe((TH2F*)out->second->GetPlot(), out->second->doProfile);
+      plotMe((TH2F*)out->second->GetPlot(), out->second->doProfile, Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }
   if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }

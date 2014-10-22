@@ -22,6 +22,8 @@
 
 #include "interface/Waveform.hpp"
 
+#define nActiveDigitizerChannels 4
+
 #define nPlanesHodo 4
 #define nFibersHodo 64
 
@@ -76,6 +78,11 @@ public:
   TObject* GetPlot();
   void SetName(TString name_);
 
+  void SetGM(TString group_, TString module_);
+  bool doPlot;
+  TString group;
+  TString module;
+
   bool doProfile;
   int type;
   std::vector<float> x;
@@ -107,6 +114,7 @@ public:
 
   void Fill();
   void addMember(TString name, int pos = 0);
+  void addDummy(int howmany);
 
   std::map<TString,varPlot*> *varplots;
 
@@ -207,8 +215,8 @@ public:
   void set_plot_blue ();
   void set_palette_fancy ();
   void setPlotsFormat ();
-  void plotMe (TH1F * histo);
-  void plotMe (TH2F * histo, bool makeProfile = false);
+  void plotMe (TH1F * histo, TString name="");
+  void plotMe (TH2F * histo, bool makeProfile = false, TString name="");
   void plotMe (TGraph * graph, const TString & name);
   void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);
@@ -232,11 +240,11 @@ public:
   void setStepHistoryPlots(int n);
   int getTreeEntries();
   int getStepHistoryPlots();
-  TGraph * addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill=false);//TGraph
-  TH1F * addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TH1F
-  TH2F * addPlot (TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
+  TGraph * addPlot(bool doPlot, TString name,int nPoints,TString type, TString group, TString module, bool vetoFill=false);//TGraph
+  TH1F * addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TH1F
+  TH2F * addPlot (bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
                   TString xTitle, TString yTitle, TString type, TString group, TString module, bool addProfile = false, bool vetoFill=false);
-  void addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module);
+  void addPlotCombined(bool doPlot, TString name, TString name1, TString name2,TString type, TString group , TString module);
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
   TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
   TH2F* bookHistoCombined(TString name,TString name1, TString name2);
