@@ -5,15 +5,15 @@
 
 
 void outTreeBranch::addMember(TString name, int pos){
-  if (varplots->find(name)==varplots->end()) {std::cout << "WRONG" << std::endl; return;}
+  if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
   members.push_back(std::make_pair<TString,int>(name,pos));
 }
 
 void outTreeBranch::Fill(){
   data.clear();
   for (std::vector<std::pair<TString,int> >::const_iterator it = members.begin(); it!=members.end(); it++){
-    if ((*varplots)[it->first]->type!=kPlot1D) {std::cout << "WRONG" << std::endl; continue;}
-    if ((*varplots)[it->first]->Get()->size()<=it->second) {std::cout << "WRONG" << std::endl; continue;}
+    if ((*varplots)[it->first]->type!=kPlot1D) {std::cout << "WRONG TYPE" << std::endl; continue;}
+    if ((*varplots)[it->first]->Get()->size()<=it->second) {std::cout << "WRONG SIZE" << std::endl; continue;}
     data.push_back(*((*varplots)[it->first]->Get(it->second)));
   }
 }
@@ -1302,9 +1302,38 @@ void plotterTools::initTreeVars(){
 
   outTreeBranch *br;
   br = new outTreeBranch("ADCvalues",&varplots);
-  for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i));
-  for (int i=4; i<=7; i++) br->addMember(Form("ADC_board_11301_%d",i));
+  for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+  for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
+  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
+  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
+  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
+  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);
+  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
+  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
+
+
+  const int my_cef3_channels = 4;
+  br = new outTreeBranch("digi_max_amplitude",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
+  treevars[br->name]=br;
+  br = new outTreeBranch("digi_pedestal",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
+  treevars[br->name]=br;
+  br = new outTreeBranch("digi_pedestal_rms",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
+  treevars[br->name]=br;
+  br = new outTreeBranch("digi_time_at_max",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
+  treevars[br->name]=br;
+  br = new outTreeBranch("digi_time_at_frac30",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
+  treevars[br->name]=br;
+  br = new outTreeBranch("digi_time_at_frac50",&varplots);
+  for (int i=0; i<my_cef3_channels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
+  treevars[br->name]=br;
+
 
   for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));
