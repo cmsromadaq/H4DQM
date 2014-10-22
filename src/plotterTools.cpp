@@ -77,6 +77,8 @@ varPlot::varPlot(){
   yptr = &y;
   plot = NULL;
   waveform = NULL;
+  doPlot = true;
+  doProfile = false;
 }
 
 varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
@@ -86,6 +88,8 @@ varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profil
   yptr = &y;
   plot = NULL;
   waveform = NULL;
+  doPlot = true;
+  doProfile = false;
 }
 
 varPlot::~varPlot(){
@@ -1150,6 +1154,8 @@ void plotterTools::fillTdc(){
 
 void plotterTools::initAdcChannelNames(int nBinsHistory){
 
+  group_ = "ADC";
+
   adc_channelnames.clear();
 
   for (UInt_t i=0; i<treeStruct_.nAdcChannels && i<MAX_ADC_CHANNELS; i++){
@@ -1185,6 +1191,8 @@ plotterTools::listElements (T * array, int Nmax)
 
 
 void plotterTools::initDigiPlots(){
+
+  group_ = "digitizer";
 
   std::set<int> channels = listElements (treeStruct_.digiChannel,  treeStruct_.nDigiSamples) ;
   std::set<int> groups = listElements (treeStruct_.digiGroup,  treeStruct_.nDigiSamples) ;
