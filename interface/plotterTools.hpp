@@ -19,6 +19,8 @@
 
 #include <Event.hpp>
 
+#include "interface/Waveform.hpp"
+
 #define nPlanesHodo 4
 #define nFibersHodo 64
 //check if it is true this schema
@@ -96,6 +98,7 @@ public:
   //digitizer channel names
   template <class T> set<int> listElements (T * array, int Nmax);
   map <int, TH2F *> digi_histos ;
+  map <int, Waveform *> digi_waveforms;
   void initDigiPlots();
 
   void bookPlotsADC();
@@ -103,6 +106,18 @@ public:
 
   void bookPlotsDigitizer();
   bool wantDigiplots;
+
+  inline float timeSampleUnit(int drs4Freq)
+  {
+    if (drs4Freq == 0)
+      return 0.2E-9;
+    else if (drs4Freq == 1)
+      return 0.4E-9;
+    else if (drs4Freq == 2)
+      return 1.E-9;
+    
+    return -999.;
+  }
 
   void fillObjects();
   void fillHodo();

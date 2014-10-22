@@ -1167,6 +1167,7 @@ void plotterTools::initDigiPlots(){
 				  "time", "voltage",
 				  "2D", group_, module_, 1, true) ;
           digi_histos[10 * (*iGroup) + (*iChannel)] = dummy ;
+	  digi_waveforms[10 * (*iGroup) + (*iChannel)] = new Waveform();
         }
     }
   
@@ -1261,10 +1262,13 @@ void  plotterTools::Loop()
       fillObjects();
 
       if (wantDigiplots){
-
+	for (std::map<int,Waveform*>::iterator it=digi_waveforms.begin();it!=digi_waveforms.end();++it)
+	  (*it).second->clear();
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
 	    digi_histos[10 * treeStruct_.digiGroup[iSample] + treeStruct_.digiChannel[iSample]]->Fill (treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]) ;
+	    digi_waveforms[10 * treeStruct_.digiGroup[iSample] + treeStruct_.digiChannel[iSample]]->addTimeAndSample(0,0);
+														     //treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample));
 	  }
       }
     
