@@ -1533,10 +1533,10 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"beamProfileDrawX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
   addPlot(1,"beamProfileDrawY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
 
-  addPlot(0,"nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
   addPlot(0,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(0,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
@@ -1562,8 +1562,8 @@ void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
   addPlot(1,"beamProfileDrawSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
   addPlot(1,"beamProfileDrawSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
 
-  addPlot(0,"nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
 
   addPlot(0,"beamPositionSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
   addPlot(0,"beamPositionSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
