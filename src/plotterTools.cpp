@@ -1140,7 +1140,8 @@ void plotterTools::fillHodo(){
      }
      else if(treeStruct_.patternBoard[i]==0x08010001){
      
-     if(treeStruct_.patternChannel[i]!=1)continue;
+       if(treeStruct_.patternChannel[i]!=0) continue;
+
        WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
        WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
 
