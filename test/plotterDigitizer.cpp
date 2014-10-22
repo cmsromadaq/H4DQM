@@ -72,6 +72,9 @@ void checkFolder (string folderName)
 
 int main (int argc, char ** argv) 
 {
+
+  gROOT->ProcessLine("#include <vector>");
+
   // read the info from command line
   // ---- ---- ---- ---- ---- ---- ---- ----
   

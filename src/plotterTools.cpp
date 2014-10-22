@@ -2,6 +2,63 @@
 #include <assert.h>
 #define VERBOSE 0
 
+std::vector<float>* varPlot::Get(){ return &x; }
+std::pair<std::vector<float>*, std::vector<float>*> varPlot::Get2D(){ return std::make_pair<std::vector<float>*, std::vector<float>*>(&x,&y); }
+float* varPlot::Get(uint i){ return &(x.at(i)); }
+std::pair<float*,float*> varPlot::Get2D(uint i){ return std::make_pair<float*,float*>(&(x.at(i)),&(y.at(i))); }
+uint varPlot::Size() { return x.size(); }
+TObject* varPlot::Plot(){ return plot; }
+void varPlot::SetPlot(TObject* plot_){plot=plot_;}
+TObject* varPlot::GetPlot(){return plot;}
+void varPlot::SetName(TString name_){name=name_;}
+void varPlot::ClearVectors(){x.clear(); y.clear();}
+
+void varPlot::Fill(float val, int i) {
+  if (type!=kPlot1D && type!=kPlotGraph) {std::cout << "WRONG 1D " << name.Data() << std::endl; return;}
+  if (type==kPlot1D){
+    if (i<0) x.push_back(val);
+    else {
+      if (x.size()<=i) x.resize(i+1);
+      x.at(i)=val;
+    }
+  }
+  if (type==kPlot1D) (dynamic_cast<TH1F*>(plot))->Fill(val);
+  else if (type==kPlotGraph) (dynamic_cast<TGraph*>(plot))->SetPoint(*iHistEntry,*iThisEntry,val);
+}
+void varPlot::Fill2D(float valX, float valY, int i) {
+  if (type!=kPlot2D) {std::cout << "WRONG 2D " << name.Data() << std::endl; return;}
+  if (type==kPlot2D){
+    if (i<0) {x.push_back(valX); y.push_back(valY);}
+    else {
+      if (x.size()<=i) {
+	x.resize(i+1);
+	y.resize(i+1);
+      }
+      x.at(i)=valX;
+      y.at(i)=valY;
+    }
+  }
+  if (type==kPlot2D) (dynamic_cast<TH2F*>(plot))->Fill(valX,valY);
+}
+
+varPlot::varPlot(){
+  xptr = &x;
+  yptr = &y;
+  plot = NULL;
+}
+
+varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
+  x.resize(size_);
+  y.resize(size_);
+  xptr = &x;
+  yptr = &y;
+  plot = NULL;
+}
+
+varPlot::~varPlot(){
+  if (plot) delete plot;
+}
+
 
 float 
 plotterTools::getMinimumP (TProfile * p)
@@ -65,7 +122,7 @@ void plotterTools::initIntegrated(TString nameFile){
     }
   assert(integratedFile_!=NULL);
 
-  map<TString, TObject*>::iterator it;
+  map<TString, varPlot*>::iterator it;
 
   TH1F* evt_info=NULL;
   TH1F* trg_info=NULL;
@@ -77,28 +134,28 @@ void plotterTools::initIntegrated(TString nameFile){
   TH1F* hSY_info=NULL;
 
 
-  it=outObjects_.find(plotLongNames_["beamPositionX"]);
-  if(it!=outObjects_.end()){
-   hX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionX"]];
-   hY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionY"]];
+  it=varplots.find("beamPositionX");
+  if(it!=varplots.end()){
+    hX_info=(TH1F*)varplots["beamPositionX"]->GetPlot();
+    hY_info=(TH1F*)varplots["beamPositionY"]->GetPlot();
 
   }
 
-  it=outObjects_.find(plotLongNames_["nTotalEvts"]);
-  if(it!=outObjects_.end()){
-    evt_info=(TH1F*)outObjects_[plotLongNames_["nTotalEvts"]];
-    trg_info=(TH1F*)outObjects_[plotLongNames_["fractionTakenTrigHisto"]];
+  it=varplots.find("nTotalEvts");
+  if(it!=varplots.end()){
+    evt_info=(TH1F*)varplots["nTotalEvts"]->GetPlot();
+    trg_info=(TH1F*)varplots["fractionTakenTrigHisto"]->GetPlot();
   }
 
-  it=outObjects_.find(plotLongNames_["beamPositionSmallX"]);
-  if(it!=outObjects_.end()){
-   hSX_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallX"]];
-   hSY_info=(TH1F*)outObjects_[plotLongNames_["beamPositionSmallY"]];
+  it=varplots.find("beamPositionSmallX");
+  if(it!=varplots.end()){
+    hSX_info=(TH1F*)varplots["beamPositionSmallX"]->GetPlot();
+    hSY_info=(TH1F*)varplots["beamPositionSmallY"]->GetPlot();
 
   }
 
 
-    if(hX_info!=NULL){
+  if(hX_info!=NULL){
 
       integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
       integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
@@ -404,10 +461,10 @@ void  plotterTools::plotMe (TH1F * histo)
 		TH1F *h0=histo;
 		myName.erase(myName.size()-1); myName+= "1";
 		cout<< "Getting Histo"<<myName<<endl;
-		TH1F *h1=(TH1F*)outObjects_[myName];
+		TH1F *h1=(TH1F*)(varplots[myName]->GetPlot());
 		myName.erase(myName.size()-1); myName+= "2";
 		cout<< "Getting Histo"<<myName<<endl;
-		TH1F *h2=(TH1F*)outObjects_[myName];
+		TH1F *h2=(TH1F*)(varplots[myName]->GetPlot());
 
 		h0->SetLineColor(kBlue);
 		h1->SetLineColor(kRed);
@@ -587,46 +644,28 @@ void  plotterTools::setAxisTitles (TGraph * histo, const TString  xTitle, const 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
-void plotterTools::initVariable(TString name,int varDim){
-  variablesIterator_[name]=variables_.size();
-  variables_.resize(variables_.size()+1);
-  variablesMap_[name]=&variables_[variables_.size()];
-  variablesContainer_[variablesIterator_[name]].resize(varDim);
-}
-
-// ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
-
-void plotterTools::computeVariable(TString name, int varDim){
-  //TODO use same structure for multi and unidimensional variables
-  if(varDim != 1) {
-    variablesContainer_[variablesIterator_[name]].resize(varDim);
-    variables_[variablesIterator_[name]]=variablesContainer_[variablesIterator_[name]][0];
-  }
+void plotterTools::computeVariable(TString name){
  
  if(name=="triggerEff"){
-    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
-    //    *(variablesMap_.find(name)->second)=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="nEvts"){
-    variables_[variablesIterator_[name]]=((float)treeStruct_.evtNumber);
+   varplots[name]->Fill(((float)treeStruct_.evtNumber));
   }else if(name=="nTrigSPS"){
-    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[1]);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[1]));
   }else if(name=="nTrigSPSVsnTrig"){
-    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
-    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
+   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]));
   }else if(name=="nTrigSPSVsnTrig3D"){
-    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
-    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
-    variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
+   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2])); // FIX
+//    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
+//    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
+//    variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
  }else if(name=="nFibersOnX1"){
-
-
-
 
    int fibersOn=0;
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX1][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="nFibersOnY1"){
 
@@ -634,7 +673,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY1][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="nFibersOnX2"){
 
@@ -642,7 +681,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX2][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="nFibersOnY2"){
 
@@ -650,34 +689,34 @@ void plotterTools::computeVariable(TString name, int varDim){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY2][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="beamProfileX1"){
 
    for(int i=0;i<64;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[hodoX1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     varplots[name]->Fill(0,i);
+     if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(1,i);
    }
 
  }else if(name=="beamProfileY1"){
 
    for(int i=0;i<64;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[hodoY1][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     varplots[name]->Fill(0,i);
+     if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(1,i);
    }
 
  }else if(name=="beamProfileX2"){
 
    for(int i=0;i<64;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[hodoX2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     varplots[name]->Fill(0,i);
+     if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(1,i);
    }
 
  }else if(name=="beamProfileY2"){
 
    for(int i=0;i<64;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOn_[hodoY2][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     varplots[name]->Fill(0,i);
+     if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(1,i);
    }
 
  }else if(name=="beamPositionX1"){
@@ -695,7 +734,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
 
  }else if(name=="beamPositionY1"){
@@ -713,7 +752,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
 
  }else if(name=="beamPositionX2"){
@@ -731,7 +770,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
 
  }else if(name=="beamPositionY2"){
@@ -749,22 +788,20 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
 
  }else if(name == "beamProfileSmallX"){//small hodo
    
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOnSmall_[hodoSmallX][i]==1){
-       variablesContainer_[variablesIterator_[name]][i]=i;
-     }
+     varplots[name]->Fill(0,i);
+     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(1,i);
    }
  }else if(name == "beamProfileSmallY"){
 
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     variablesContainer_[variablesIterator_[name]][i]=-1;
-     if(fibersOnSmall_[hodoSmallY][i]==1) variablesContainer_[variablesIterator_[name]][i]=i;
+     varplots[name]->Fill(0,i);
+     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(1,i);
    }
  }else if(name=="nFibersOnSmallX"){
 
@@ -772,7 +809,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    for(int i=0;i<nFibersSmallHodo;i++){
      if(fibersOnSmall_[hodoSmallX][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="nFibersOnSmallY"){
 
@@ -780,7 +817,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    for(int i=0;i<nFibersSmallHodo;i++){
      if(fibersOnSmall_[hodoSmallY][i]==1) fibersOn++;
    }
-   variables_[variablesIterator_[name]]=fibersOn;
+   varplots[name]->Fill(fibersOn);
 
  }else if(name=="beamPositionSmallX"){
 
@@ -800,7 +837,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
  }else if(name=="beamPositionSmallY"){
 
@@ -820,7 +857,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
  }else if(name=="beamPositionX"){
 
@@ -841,7 +878,7 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
  }else if(name=="beamPositionY"){
 
@@ -862,64 +899,59 @@ void plotterTools::computeVariable(TString name, int varDim){
    }else{
      pos=-1;
    }
-   variables_[variablesIterator_[name]]=pos;
+   varplots[name]->Fill(pos);
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
-    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
-    variables_[variablesIterator_[name]]=((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="deltaTime10"){
-   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]);
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]));
 
  }else if(name=="deltaTime20"){
-   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[2]-(int64_t)timeStart_[0]);
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[2]-(int64_t)timeStart_[0]));
 
  }else if(name=="deltaTime21"){
-   variables_[variablesIterator_[name]]=((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[1])-((int64_t)timeStart_[2]-(int64_t)timeStart_[1]);
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[1])-((int64_t)timeStart_[2]-(int64_t)timeStart_[1]));
 
  }else if(name=="nTotalEvts"){
-    variables_[variablesIterator_[name]]=((float)1.);
+   varplots[name]->Fill(((float)1.));
   
  }else if(name=="MULTILINE_time0"){
-    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[0]-(int64_t)timeStart_[0];
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[0]-(int64_t)timeStart_[0]);
   
  }else if(name=="MULTILINE_time1"){
-    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[1]-(int64_t)timeStart_[1];
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[1]-(int64_t)timeStart_[1]);
   
  }else if(name=="MULTILINE_time2"){
-    variables_[variablesIterator_[name]]=(int64_t)treeStruct_.evtTime[2]-(int64_t)timeStart_[2];
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[2]-(int64_t)timeStart_[2]);
   }
  else if(name=="TDCinputTime1"){//TDC
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[0].at(j);
+   for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[0].at(j));
  }
  else if(name=="TDCinputTime2"){
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[1].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[1].at(j);
+   for (uint j=0; j<tdc_readings[1].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[1].at(j));
  }
  else if(name=="TDCinputTime3"){
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[2].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[2].at(j);
+   for (uint j=0; j<tdc_readings[2].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[2].at(j));
  }
  else if(name=="TDCinputTime4"){
-   for (uint j=0; j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=-999;
-   for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) variablesContainer_[variablesIterator_[name]][j]=tdc_readings[3].at(j);
+   for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[3].at(j));
  }
- else if(name=="TDCrecoX" || name=="TDChistoryRecoX"){
-   variables_[variablesIterator_[name]]=tdc_recox;
+ else if(name=="TDCrecoX"){
+   varplots[name]->Fill(tdc_recox);
  }
- else if(name=="TDCrecoY" || name=="TDChistoryRecoY"){
-   variables_[variablesIterator_[name]]=tdc_recoy;
+ else if(name=="TDCrecoY"){
+   varplots[name]->Fill(tdc_recoy);
  }
  else if(name=="TDCrecoPos"){
-   variablesContainer_[variablesIterator_[name]][0]=tdc_recox;
-   variablesContainer_[variablesIterator_[name]][1]=tdc_recoy;
+   varplots[name]->Fill2D(tdc_recox,tdc_recoy);
  }
 
  {
    std::map<TString,UInt_t*>::const_iterator it = adc_channelnames.find(name);
    if (it!=adc_channelnames.end()){
-     variables_[variablesIterator_[name]]=*(it->second);
+     varplots[name]->Fill(*(it->second));
    }
  }
 
@@ -932,33 +964,6 @@ void plotterTools::fillObjects(){
 
   fillHodo();
   fillTdc();
-
-  //if you want to make a test
-  //   fibersOn_[0][10]=1;
-  //   fibersOn_[0][11]=1;
-  //   fibersOn_[0][12]=1;
-
-  //   fibersOn_[1][20]=1;
-  //   fibersOn_[1][21]=1;
-  //   fibersOn_[1][22]=1;
-
-  //   fibersOn_[2][10]=1;
-  //   fibersOn_[2][11]=1;
-  //   fibersOn_[2][12]=1;
-
-  //   fibersOn_[3][20]=1;
-  //   fibersOn_[3][21]=1;
-  //   fibersOn_[3][22]=1;
-
-
-  // fibersOnSmall_[0][4]=1;
-  // fibersOnSmall_[0][5]=1;
-  // fibersOnSmall_[0][6]=1;
-
-  // fibersOnSmall_[1][2]=1;
-  // fibersOnSmall_[1][3]=1;
-  // fibersOnSmall_[1][4]=1;
-
 
 }
 
@@ -1077,18 +1082,6 @@ void plotterTools::fillHodo(){
    
    }
 
-   
-//   for (int i=0; i<4; i++) {
-//     std::cout << "this is " << i << std::endl;
-//     for (int j=0; j<64; j++){
-//       std::cout << j+1 << "-" << fibersOn_[i][j] << " ";
-//     }
-//     std::cout << std::endl;
-//   }
-
-
-
-   //   for(int i=0;i<8;i++)	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
 }
 
 
@@ -1178,20 +1171,31 @@ void plotterTools::initDigiPlots(){
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
         {
-          TString name = "digiPersPlot_gr" ;
-          name += *iGroup ;
-          name += "_ch" ;
-          name += *iChannel ;
-          TH2F * dummy = addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
-				  "time", "voltage",
-				  "2D", group_, module_, 1, true) ;
-          digi_histos[10 * (*iGroup) + (*iChannel)] = dummy ;
+          TString name = getDigiChannelName(*iGroup,*iChannel);
+          addPlot (name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
+		   "time", "voltage",
+		   "2D", group_, module_, 1, true) ;
+	  varplots[name]->waveform = new Waveform();
+
+	  addPlot(Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_pedestal_rms",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_max_amplitude",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_max",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_frac30",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_frac50",name.Data()),4096,0,4096,"1D",group_,module_);
+
         }
     }
   
 }
 
-
+TString plotterTools::getDigiChannelName(int group, int channel){
+  TString name = "digiPersPlot_gr" ;
+  name += group ;
+  name += "_ch" ;
+  name += channel ;
+  return name;
+}
 
 
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
@@ -1250,6 +1254,23 @@ void plotterTools::bookPlotsDigitizer(){
   wantDigiplots=true;
 }
 
+void plotterTools::initOutputTree(){
+  outputFile_->cd();
+  std::cout << "Creating tree in file " << outputFile_->GetName() << std::endl;
+  outputTree = new TTree("outputTree","outputTree");
+      for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
+           iter != varplots.end () ; ++iter)
+        {
+	  if (iter->second->type==kPlot1D){
+	    outputTree->Branch(iter->second->name.Data(),&(iter->second->xptr));
+	  }
+	  else if (iter->second->type==kPlot2D){
+	    outputTree->Branch(Form("%s_X",iter->second->name.Data()),&(iter->second->xptr));
+	    outputTree->Branch(Form("%s_Y",iter->second->name.Data()),&(iter->second->yptr));
+	  }
+	}
+}
+
 void  plotterTools::Loop()
 {
 
@@ -1272,6 +1293,7 @@ void  plotterTools::Loop()
       }
       if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
       if(iEntry==0 && wantDigiplots) initDigiPlots();
+      if(iEntry==0) initOutputTree();
       if(iEntry==(nentries -1)){
 	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeEnd_[i]=treeStruct_.evtTime[i];
@@ -1279,77 +1301,70 @@ void  plotterTools::Loop()
 
       fillObjects();
 
+      for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
+           iter != varplots.end () ; ++iter)
+        {
+
+	  iter->second->ClearVectors();
+
+	  if (iter->second->type!=kPlotGraph) computeVariable(iter->first);
+	  else if (iEntry%historyStep_==0 && iEntry!=0 && (int)iEntry/historyStep_-1 < nBinsHistory){
+	    iHistEntry = (int)iEntry/historyStep_-1;
+	    iThisEntry = iEntry;
+	    computeVariable(iter->first);
+	  }
+	}
+
+
       if (wantDigiplots){
+
+	for (std::map<TString,varPlot*>::iterator it=varplots.begin();it!=varplots.end();++it)
+	  if (it->second->waveform) it->second->waveform->clear();
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
-	    digi_histos[10 * treeStruct_.digiGroup[iSample] + treeStruct_.digiChannel[iSample]]->Fill (treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]) ;
+	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
+	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]);
+	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
 	  }
+
+	//Add reconstruction of waveforms
+	for (std::map<TString,varPlot*>::iterator it=varplots.begin();it!=varplots.end();++it)
+	  {
+
+	    if (!(it->second->waveform)) continue;
+
+	    Waveform::baseline_informations wave_pedestal;
+	    Waveform::max_amplitude_informations wave_max;
+
+	    wave_pedestal=it->second->waveform->baseline(5,44); //use 40 samples between 5-44 to get pedestal and RMS
+	    it->second->waveform->offset(wave_pedestal.pedestal);
+
+	    it->second->waveform->rescale(-1); 
+	    wave_max=it->second->waveform->max_amplitude(50,600,5); //find max amplitude between 50 and 500 samples
+
+
+	    varplots[Form("%s_pedestal",it->second->name.Data())]->Fill(wave_pedestal.pedestal);
+	    varplots[Form("%s_pedestal_rms",it->second->name.Data())]->Fill(wave_pedestal.rms);
+	    varplots[Form("%s_max_amplitude",it->second->name.Data())]->Fill(wave_max.max_amplitude);
+	    varplots[Form("%s_time_at_max",it->second->name.Data())]->Fill(wave_max.time_at_max*1.e9);
+	    varplots[Form("%s_time_at_frac30",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
+	    varplots[Form("%s_time_at_frac50",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
+	  }
+
       }
-    
-  
-      for (std::map<TString,float*>::const_iterator iter = variablesMap_.begin ();
-           iter != variablesMap_.end () ; ++iter)
-        {
-          if(plotLongNames_[iter->first].Contains("1D"))
-            {
+      
 
-              FillPlot (iter->first, false, variablesContainer_[variablesIterator_[iter->first]].size ()) ;
-            } else if (plotLongNames_[iter->first].Contains ("2D"))
-            {
-              FillPlot (iter->first, true);
-            }
-           
-          if (iEntry%historyStep_==0 && iEntry!=0)
-            {
-              if ( (int)iEntry/historyStep_-1 < nBinsHistory) //all history plots should go here
-                {
-                  if (plotLongNames_[iter->first].Contains("history"))
-                    {
-                      FillPlot(iter->first,(int)iEntry/historyStep_-1,iEntry);
-                    }
-                }
-            }
-        }
-
+      outputTree->Fill();
 
     } // loop over the events
 
 
+
+  std::cout << outputTree->GetEntries() << std::endl;
+
 }
 
-
-
-
-//for TGraph
-void plotterTools::FillPlot(TString name, int point, float X)
-{
-  computeVariable (name) ;
-  if (!(vetoFillObjects[name]))
-    ((TGraph*) outObjects_[plotLongNames_[name]])->SetPoint(point, X, variables_[variablesIterator_[name]]) ;
-}
-
-//for TH1F and TH2F
-void plotterTools::FillPlot(TString name, bool is2D, int varDim){
-
-  if(!is2D){
-    computeVariable(name,varDim);  
-    if(!(varDim>1)){
-      if (!(vetoFillObjects[name]))
-	((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variables_[variablesIterator_[name]]);
-    }else{
-      for(int i=0;i<varDim;i++){
-      if (!(vetoFillObjects[name]))
-	  ((TH1F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][i]);
-      }
-    }
-  }else {
-      computeVariable(name,2);
-      if (!(vetoFillObjects[name]))
-	((TH2F*) outObjects_[plotLongNames_[name]])->Fill(variablesContainer_[variablesIterator_[name]][0],variablesContainer_[variablesIterator_[name]][1]);
-  }
-  
-}
 
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
@@ -1384,10 +1399,10 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
 }
 
 void plotterTools::bookCombinedPlotsHodo(){
-
-  addPlotCombined("hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-  addPlotCombined("hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-
+//
+//  addPlotCombined("hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+//  addPlotCombined("hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+//
 }
 
 void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
@@ -1430,77 +1445,70 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
 }
 
 void plotterTools::bookCombinedPlots(){
-  addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-//  addPlotCombined("HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
-//  addPlotCombined("HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
-
+//  //  addPlotCombined("nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+////  addPlotCombined("HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
+////  addPlotCombined("HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
+//
 }
 
 void plotterTools::fitHisto(TString name,TString func){
 
-  map<TString, TObject*>::iterator it;
-  it=outObjects_.find(plotLongNames_[name]);
-  if(it!=outObjects_.end())  ((TH1F*) outObjects_[plotLongNames_[name]])->Fit(func);
+  map<TString, varPlot*>::iterator it;
+  it=varplots.find(name);
+  if(it!=varplots.end()) ((TH1F*) it->second->GetPlot())->Fit(func);
 
 }
 
 void plotterTools::addPlotCombined(TString name, TString name1, TString name2,TString type, TString group , TString module){
-  initVariable(name);
-  TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-  outObjects_[longName]=((TObject*) bookHistoCombined(name,name1,name2));
-  plotLongNames_[name]=longName;
-  plotShortNames_[longName]=name;
 
-  ((TH2F*)outObjects_[longName])->SetTitle(name);
-  ((TH2F*)outObjects_[longName])->SetName(plotLongNames_[name]);
-
-
-  ((TH2F*)outObjects_[longName])->SetXTitle(((TH1F* )outObjects_[plotLongNames_[name1]])->GetTitle());
-  ((TH2F*)outObjects_[longName])->SetYTitle(((TH1F* )outObjects_[plotLongNames_[name2]])->GetTitle());
+  varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D);
+  var->SetName(name);
+  var->SetPlot((TObject*)  bookHistoCombined(name,name1,name2));
+  varplots[name]=var;
+  
+  ((TH2F*)var->GetPlot())->SetTitle(name);
+  ((TH2F*)var->GetPlot())->SetName(name);
+  ((TH2F*)var->GetPlot())->SetXTitle(((TH1F* )varplots[name1]->GetPlot())->GetTitle());
+  ((TH2F*)var->GetPlot())->SetYTitle(((TH1F* )varplots[name2]->GetPlot())->GetTitle());
 
 }
 
 void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float max){
-  if(plotLongNames_[name].Contains("1D")){
-    ((TH1F*) outObjects_[plotLongNames_[name]])->SetAxisRange(min,max,axis);
-  }else   if(plotLongNames_[name].Contains("history")){
-    if(axis=="X"){
-      ((TGraph*) outObjects_[plotLongNames_[name]])->GetXaxis()->SetRangeUser(min,max);
-    }else if(axis=="Y"){
-      std::cout<<"setting range"<<endl;
-      ((TGraph*) outObjects_[plotLongNames_[name]])->GetYaxis()->SetRangeUser(min,max);
-    }
-  }else if (plotLongNames_[name].Contains("2D")){
-    ((TH2F*) outObjects_[plotLongNames_[name]])->SetAxisRange(min,max,axis);
+  if (varplots[name]->type==kPlot1D) ((TH1F*)(varplots[name]->GetPlot()))->SetAxisRange(min,max,axis);
+  else if (varplots[name]->type==kPlotGraph) {
+    if (axis=="X") ((TGraph*)(varplots[name]->GetPlot()))->GetXaxis()->SetRangeUser(min,max);
+    else if (axis=="Y") ((TGraph*)(varplots[name]->GetPlot()))->GetYaxis()->SetRangeUser(min,max); 
   }
+  else if (varplots[name]->type==kPlot2D) ((TH2F*)(varplots[name]->GetPlot()))->SetAxisRange(min,max,axis);
 }
 
 //for TGraph
 TGraph *
 plotterTools::addPlot(TString name,int nPoints,TString type, TString group, TString module, bool vetoFill){
 
-  initVariable(name);
-
-    TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-    outObjects_[longName]=((TObject*)  bookGraph(name,nPoints,type, group_,module_));
     if (vetoFill) vetoFillObjects[name]=true;
     else vetoFillObjects[name]=false;
-    plotLongNames_[name]=longName;
-    plotShortNames_[longName]=name;
-    return dynamic_cast<TGraph *> (outObjects_[longName]) ;
+
+    varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlotGraph,false,nPoints);
+    var->SetName(name);
+    var->SetPlot((TObject*)  bookGraph(name,nPoints,type, group_,module_));
+    varplots[name]=var;
+
+    return dynamic_cast<TGraph *> (var->GetPlot()) ;
 }
 
 //for TH1F
 TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill){
-  initVariable(name,varDim);
 
-   TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-   outObjects_[longName]=((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
-   plotLongNames_[name]=longName;
-   plotShortNames_[longName]=name;
-   return dynamic_cast<TH1F *> (outObjects_[longName]) ;
+
+   varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot1D,false,varDim);
+   var->SetName(name);
+   var->SetPlot((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
+   varplots[name]=var;
+
+   return dynamic_cast<TH1F *> (var->GetPlot());
 
 
 }
@@ -1509,37 +1517,30 @@ TH1F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, TS
 TH2F * plotterTools::addPlot(TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
                              TString xTitle, TString yTitle,TString type, TString group, TString module, bool addProfile, bool vetoFill)
 {
-  initVariable(name);
 
-   TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-   outObjects_[longName]=((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
+
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
-   plotLongNames_[name]=longName;
-   plotShortNames_[longName]=name;
-   makeProfile_[longName] = addProfile ;
-   return dynamic_cast<TH2F *> (outObjects_[longName]) ;
+
+   varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D,addProfile);
+   var->SetName(name);
+   var->SetPlot((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
+   varplots[name]=var;
+
+   return dynamic_cast<TH2F *> (var->GetPlot());
 
 }
 
 
 //TH1F
 TH1F* plotterTools::bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module){
-  TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-  TH1F* histo = new TH1F (name, longName , nBinsX, xMin, xMax);
-  histo->SetTitle(name);
-  histo->SetName(longName);
-
+  TH1F* histo = new TH1F (name, name , nBinsX, xMin, xMax);
   return histo;
-
 }
 
 //TH2F
 TH2F* plotterTools::bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module){
-  TString longName=group+TString("_")+module+TString("_")+type+TString("_")+name;
-  TH2F* histo = new TH2F (name, longName , nBinsX, xMin, xMax, nBinsY, yMin, yMax);
-  histo->SetTitle(name);
-  histo->SetName(longName);
+  TH2F* histo = new TH2F (name, name, nBinsX, xMin, xMax, nBinsY, yMin, yMax);
   histo->SetXTitle(xTitle);
   histo->SetYTitle(yTitle);
   return histo;
@@ -1549,24 +1550,22 @@ TH2F* plotterTools::bookHisto2D(TString name,int nBinsX,float xMin, float xMax,i
 //combined plots
 TH2F* plotterTools::bookHistoCombined(TString name,TString name1, TString name2){
 
-  int  nBinsX=((TH1F* )outObjects_[plotLongNames_[name1]])->GetNbinsX();
-  float xMin=((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinLowEdge(1);
-  float xMax=((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinLowEdge(nBinsX)+((TH1F* )outObjects_[plotLongNames_[name1]])->GetXaxis()->GetBinWidth(nBinsX);
+  int  nBinsX=((TH1F* )varplots[name1]->GetPlot())->GetNbinsX();
+  float xMin=((TH1F* )varplots[name1]->GetPlot())->GetXaxis()->GetBinLowEdge(1);
+  float xMax=((TH1F* )varplots[name1]->GetPlot())->GetXaxis()->GetBinLowEdge(nBinsX)+((TH1F* )varplots[name1]->GetPlot())->GetXaxis()->GetBinWidth(nBinsX);
                                         
-  int nBinsY=((TH1F* )outObjects_[plotLongNames_[name2]])->GetNbinsX();
-  float yMin=((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinLowEdge(1);
-  float yMax=((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinLowEdge(nBinsY)+((TH1F* )outObjects_[plotLongNames_[name2]])->GetXaxis()->GetBinWidth(nBinsY);
+  int nBinsY=((TH1F* )varplots[name2]->GetPlot())->GetNbinsX();
+  float yMin=((TH1F* )varplots[name2]->GetPlot())->GetXaxis()->GetBinLowEdge(1);
+  float yMax=((TH1F* )varplots[name2]->GetPlot())->GetXaxis()->GetBinLowEdge(nBinsY)+((TH1F* )varplots[name2]->GetPlot())->GetXaxis()->GetBinWidth(nBinsY);
 
-  TH2F* histo = new TH2F (name, plotLongNames_[name] ,nBinsX, xMin,xMax, nBinsY, yMin, yMax);
+  TH2F* histo = new TH2F (name, name ,nBinsX, xMin,xMax, nBinsY, yMin, yMax);
   for(int i =1;i<=nBinsX;i++){
     for(int j =1;j<=nBinsY;j++){
-      float X=((TH1F* )outObjects_[plotLongNames_[name1]])->GetBinContent(i);
-      float Y=((TH1F* )outObjects_[plotLongNames_[name2]])->GetBinContent(j);
+      float X=((TH1F* )varplots[name1]->GetPlot())->GetBinContent(i);
+      float Y=((TH1F* )varplots[name2]->GetPlot())->GetBinContent(j);
       histo->SetBinContent(i,j,X*Y);
     }
   }
-
-
 
   return histo;
 
@@ -1614,8 +1613,9 @@ void plotterTools::saveHistos(){
   if(VERBOSE){  std::cout << "==================== Saving histograms =======================" << std::endl;
     std::cout << "outputFile " << outputFile_->GetName() << " opened" << std::endl;}
   outputFile_->cd();
-  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
-    out->second->Write(out->first);
+  for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
+    out->second->GetPlot()->Write(out->second->name);
+  outputTree->Write();
   outputFile_->Close();
   if(VERBOSE){  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
   std::cout << "==================== DQM analysis is done =======================" << std::endl;
@@ -1663,16 +1663,16 @@ void plotterTools::plotHistos(){
 
 
 
-  for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out){
-    if(out->first.Contains("history"))  {
-      setAxisTitles((TGraph*)out->second,"Event",plotShortNames_[out->first]);
-      plotMe((TGraph*)out->second, out->first);
-    }else if(out->first.Contains("1D"))  {
-      setAxisTitles((TH1F*)out->second,plotShortNames_[out->first],"Events");
-      plotMe((TH1F*)out->second);
-    }else if(out->first.Contains("2D"))  {
-      setAxisTitles((TH2F*)out->second,((TAxis*)((TH2F*)out->second)->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second)->GetYaxis())->GetTitle());
-      plotMe((TH2F*)out->second, makeProfile_[out->first]);
+  for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
+    if(out->second->type==kPlotGraph)  {
+      setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
+      plotMe((TGraph*)out->second->GetPlot(), out->first);
+    }else if(out->second->type==kPlot1D)  {
+      setAxisTitles((TH1F*)out->second->GetPlot(),out->second->name.Data(),"Events");
+      plotMe((TH1F*)out->second->GetPlot());
+    }else if(out->second->type==kPlot2D)  {
+      setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());
+      plotMe((TH2F*)out->second->GetPlot(), out->second->doProfile);
     }
   if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
@@ -1681,8 +1681,8 @@ void plotterTools::plotHistos(){
 void plotterTools::printHistos(){
   if(VERBOSE){
     std::cout << "==================== Booked histograms =======================" << std::endl;
-    for (std::map<TString,TObject*>::const_iterator out=outObjects_.begin();out!=outObjects_.end();++out)
-      std::cout << out->second->GetName() << std::endl;
+    for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
+      std::cout << out->second->GetPlot()->GetName() << std::endl;
     std::cout << "==================== Loop over events =======================" << std::endl;
   }
 }
@@ -1691,6 +1691,8 @@ void plotterTools::fillFiberOrder(){
 
   fiberOrderA.clear();
   fiberOrderB.clear();
+  fiberOrderC.clear();
+  fiberOrderD.clear();
 
   fiberOrderA.push_back(31);
   fiberOrderA.push_back(29);

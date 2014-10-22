@@ -2,6 +2,9 @@
 
 int main (int argc, char ** argv) 
 {
+
+  gROOT->ProcessLine("#include <vector>");
+
   string ROOT_FOLDER ="";
   string OUT_FOLDER  ="";
   string run="";
