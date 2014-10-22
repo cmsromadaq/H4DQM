@@ -2,6 +2,9 @@
 
 int main (int argc, char ** argv) 
 {
+
+  gROOT->ProcessLine("#include <vector>");
+
   char *filename = NULL;
   char *outfname = NULL;
   char *outdname = NULL;
