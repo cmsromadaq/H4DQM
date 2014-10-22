@@ -91,13 +91,32 @@ private:
 
 };
 
+class outTreeBranch {
+
+public:
+
+  outTreeBranch();
+  outTreeBranch(TString name_, std::map<TString,varPlot*> *varplots_);
+  ~outTreeBranch();
+
+  TString name;
+  std::vector<float> data;
+  std::vector<float> *dataptr;
+
+  std::vector<std::pair<TString,int> > members;
+
+  void Fill();
+  void addMember(TString name, int pos = 0);
+
+  std::map<TString,varPlot*> *varplots;
+
+};
+
 class plotterTools{
 
 public:
 
   plotterTools (TString filename, TString outfname, TString outdname);
-
-
 
   TChain* inputTree_;
   TFile* inputFile_;
@@ -130,6 +149,11 @@ public:
   std::map<TString,std::vector<float> > variablesContainer_;
   std::map<TString,TString > variablesContainerTitles_;
   std::map<TString,varPlot*> varplots;
+  std::map<TString,outTreeBranch*> treevars;
+
+  void initTreeVars();
+  void fillTreeVars();
+  void initTreeDQMBranches();
 
   int iThisEntry;
   int iHistEntry;

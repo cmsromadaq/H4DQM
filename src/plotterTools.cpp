@@ -2,6 +2,27 @@
 #include <assert.h>
 #define VERBOSE 0
 
+
+
+void outTreeBranch::addMember(TString name, int pos){
+  if (varplots->find(name)==varplots->end()) {std::cout << "WRONG" << std::endl; return;}
+  members.push_back(std::make_pair<TString,int>(name,pos));
+}
+
+void outTreeBranch::Fill(){
+  data.clear();
+  for (std::vector<std::pair<TString,int> >::const_iterator it = members.begin(); it!=members.end(); it++){
+    if ((*varplots)[it->first]->type!=kPlot1D) {std::cout << "WRONG" << std::endl; continue;}
+    if ((*varplots)[it->first]->Get()->size()<=it->second) {std::cout << "WRONG" << std::endl; continue;}
+    data.push_back(*((*varplots)[it->first]->Get(it->second)));
+  }
+}
+
+outTreeBranch::outTreeBranch(){dataptr = &data;};
+outTreeBranch::outTreeBranch(TString name_, std::map<TString,varPlot*> *varplots_): name(name_), varplots(varplots_) {dataptr = &data;}; // does not take ownership of varplots
+outTreeBranch::~outTreeBranch(){};
+
+
 std::vector<float>* varPlot::Get(){ return &x; }
 std::pair<std::vector<float>*, std::vector<float>*> varPlot::Get2D(){ return std::make_pair<std::vector<float>*, std::vector<float>*>(&x,&y); }
 float* varPlot::Get(uint i){ return &(x.at(i)); }
@@ -59,6 +80,7 @@ varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profil
 
 varPlot::~varPlot(){
   if (plot) delete plot;
+  if (waveform) delete waveform;
 }
 
 
@@ -1260,17 +1282,39 @@ void plotterTools::initOutputTree(){
   outputFile_->cd();
   std::cout << "Creating tree in file " << outputFile_->GetName() << std::endl;
   outputTree = new TTree("outputTree","outputTree");
-      for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
-           iter != varplots.end () ; ++iter)
-        {
-	  if (iter->second->type==kPlot1D){
-	    outputTree->Branch(iter->second->name.Data(),&(iter->second->xptr));
-	  }
-	  else if (iter->second->type==kPlot2D){
-	    outputTree->Branch(Form("%s_X",iter->second->name.Data()),&(iter->second->xptr));
-	    outputTree->Branch(Form("%s_Y",iter->second->name.Data()),&(iter->second->yptr));
-	  }
-	}
+}
+
+void plotterTools::initTreeDQMBranches(){
+  for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
+       iter != varplots.end () ; ++iter)
+    {
+      if (iter->second->type==kPlot1D){
+	outputTree->Branch(iter->second->name.Data(),&(iter->second->xptr));
+      }
+      else if (iter->second->type==kPlot2D){
+	outputTree->Branch(Form("%s_X",iter->second->name.Data()),&(iter->second->xptr));
+	outputTree->Branch(Form("%s_Y",iter->second->name.Data()),&(iter->second->yptr));
+      }
+    }
+}
+
+void plotterTools::initTreeVars(){
+
+  outTreeBranch *br;
+  br = new outTreeBranch("ADCvalues",&varplots);
+  for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i));
+  for (int i=4; i<=7; i++) br->addMember(Form("ADC_board_11301_%d",i));
+  treevars[br->name]=br;
+
+  for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+    outputTree->Branch(it->first.Data(),&(it->second->dataptr));
+  }
+}
+
+void plotterTools::fillTreeVars(){
+  for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+    it->second->Fill();
+  }
 }
 
 void  plotterTools::Loop()
@@ -1295,7 +1339,11 @@ void  plotterTools::Loop()
       }
       if(iEntry==0 && wantADCplots) initAdcChannelNames(nBinsHistory);
       if(iEntry==0 && wantDigiplots) initDigiPlots();
-      if(iEntry==0) initOutputTree();
+      if(iEntry==0) {
+	initOutputTree();
+	//	initTreeDQMBranches();
+	initTreeVars();
+      }
       if(iEntry==(nentries -1)){
 	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeEnd_[i]=treeStruct_.evtTime[i];
@@ -1356,7 +1404,7 @@ void  plotterTools::Loop()
 
       }
       
-
+      fillTreeVars();
       outputTree->Fill();
 
     } // loop over the events
