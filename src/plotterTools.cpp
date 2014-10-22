@@ -1157,6 +1157,14 @@ void plotterTools::initDigiPlots(){
 		   "time", "voltage",
 		   "2D", group_, module_, 1, true) ;
 	  varplots[name]->waveform = new Waveform();
+
+	  addPlot(Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_pedestal_rms",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_max_amplitude",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_max",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_frac30",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(Form("%s_time_at_frac50",name.Data()),4096,0,4096,"1D",group_,module_);
+
         }
     }
   
@@ -1315,17 +1323,14 @@ void  plotterTools::Loop()
 
 	    it->second->waveform->rescale(-1); 
 	    wave_max=it->second->waveform->max_amplitude(50,600,5); //find max amplitude between 50 and 500 samples
-	    
 
-	    // addPlot(....) in book digitizer function
-	    //	    varplots["blabla"]->Fill(value);
-	    //Fill tree Data
-	    // treeData._mcpData.mcp_digi_data[i].pedestal=mcp_pedestals[i].pedestal;
-	    // treeData._mcpData.mcp_digi_data[i].pedestal_rms=mcp_pedestals[i].rms;
-	    // treeData._mcpData.mcp_digi_data[i].max_amplitude=mcp_max[i].max_amplitude;
-	    // treeData._mcpData.mcp_digi_data[i].time_at_max=mcp_max[i].time_at_max*1.e9;
-	    // treeData._mcpData.mcp_digi_data[i].time_at_frac30=(*it).second->time_at_frac(mcp_max[i].time_at_max - 3.e-9, mcp_max[i].time_at_max, 0.3,  mcp_max[i],7)*1.e9; 
-	    // treeData._mcpData.mcp_digi_data[i].time_at_frac50=(*it).second->time_at_frac(mcp_max[i].time_at_max - 3.e-9, mcp_max[i].time_at_max, 0.5,  mcp_max[i],7)*1.e9; 
+
+	    varplots[Form("%s_pedestal",it->second->name.Data())]->Fill(wave_pedestal.pedestal);
+	    varplots[Form("%s_pedestal_rms",it->second->name.Data())]->Fill(wave_pedestal.rms);
+	    varplots[Form("%s_max_amplitude",it->second->name.Data())]->Fill(wave_max.max_amplitude);
+	    varplots[Form("%s_time_at_max",it->second->name.Data())]->Fill(wave_max.time_at_max*1.e9);
+	    varplots[Form("%s_time_at_frac30",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
+	    varplots[Form("%s_time_at_frac50",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
 	  }
 
       }
