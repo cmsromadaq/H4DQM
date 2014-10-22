@@ -1282,6 +1282,9 @@ void plotterTools::initOutputTree(){
   outputFile_->cd();
   std::cout << "Creating tree in file " << outputFile_->GetName() << std::endl;
   outputTree = new TTree("outputTree","outputTree");
+  outputTree->Branch("runNumber",&treeStruct_.runNumber,"runNumber/i");
+  outputTree->Branch("spillNumber",&treeStruct_.spillNumber,"spillNumber/i");
+  outputTree->Branch("evtNumber",&treeStruct_.evtNumber,"evtNumber/i");
 }
 
 void plotterTools::initTreeDQMBranches(){
