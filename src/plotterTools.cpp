@@ -1190,7 +1190,7 @@ void plotterTools::initDigiPlots(){
 }
 
 TString plotterTools::getDigiChannelName(int group, int channel){
-  TString name = "digiPersPlot_gr" ;
+  TString name = "digi_gr" ;
   name += group ;
   name += "_ch" ;
   name += channel ;
