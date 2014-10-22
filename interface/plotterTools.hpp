@@ -189,6 +189,7 @@ public:
 
   void bookPlotsADC();
   bool wantADCplots;
+  void fillMatrixView();
 
   void bookPlotsDigitizer();
   bool wantDigiplots;

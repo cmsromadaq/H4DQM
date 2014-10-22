@@ -604,7 +604,8 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 
   if (!makeProfile)
     {
-       histo->Draw ("colz") ;
+      if (hname==TString("ADC_MatrixView")) histo->Draw ("colz text e1") ;
+      else histo->Draw ("colz") ;
        c1->Print (canvasName, "png") ;
     }
   else
@@ -629,8 +630,6 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
     }
   delete c1 ;
   return ;
-
-  setPlotsFormat();
 
 }
 
@@ -1208,6 +1207,8 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
     addPlot(0,name.Data(), nBinsHistory, "history", group_,module_);
   }
 
+  addPlot(1,"MatrixView",5,-2.5,2.5,5,-2.5,2.5,"X view from back","Y view from back","2D", group_, module_,false,true);
+
 }
 
 
@@ -1266,7 +1267,9 @@ void plotterTools::initDigiPlots(){
 
         }
     }
-  
+
+  addPlot(1,"digi_sum_max_amplitude",4096,0,16384,"1D",group_,module_);
+
 }
 
 TString plotterTools::getDigiChannelName(int group, int channel){
@@ -1477,6 +1480,8 @@ void  plotterTools::Loop()
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
 	  }
 
+	float sum_amplitudes = 0;
+
 	//Add reconstruction of waveforms
 	for (std::map<TString,varPlot*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  {
@@ -1499,16 +1504,22 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_time_at_max",it->second->name.Data())]->Fill(wave_max.time_at_max*1.e9);
 	    varplots[Form("%s_time_at_frac30",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
 	    varplots[Form("%s_time_at_frac50",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
+
+	    sum_amplitudes+=wave_max.max_amplitude;
+
 	  }
+
+	varplots["digi_sum_max_amplitude"]->Fill(sum_amplitudes);
 
       }
       
+
       fillTreeVars();
       outputTree->Fill();
 
     } // loop over the events
 
-
+  fillMatrixView();
 
   std::cout << outputTree->GetEntries() << std::endl;
 
@@ -1769,8 +1780,51 @@ int plotterTools::getStepHistoryPlots(){
   return  historyStep_;
 }
 
+void plotterTools::fillMatrixView(){
 
+  int matr[5][5];
+  matr[0][0]=9;
+  matr[0][1]=10;
+  matr[0][2]=11;
+  matr[0][3]=12;
+  matr[0][4]=13;
+  matr[1][0]=14;
+  matr[1][1]=1;
+  matr[1][2]=2;
+  matr[1][3]=3;
+  matr[1][4]=15;
+  matr[2][0]=16;
+  matr[2][1]=4;
+  matr[2][2]=-1; // CeF3
+  matr[2][3]=9;
+  matr[2][4]=17;
+  matr[3][0]=18;
+  matr[3][1]=6;
+  matr[3][2]=7;
+  matr[3][3]=8;
+  matr[3][4]=19;
+  matr[4][0]=20;
+  matr[4][1]=21;
+  matr[4][2]=22;
+  matr[4][3]=23;
+  matr[4][4]=24;
 
+  TH2F *h = (TH2F*)(varplots["MatrixView"]->GetPlot());
+  for (int i=0; i<5; i++){
+    for (int j=0; j<5; j++){
+      if (i!=2 || j!=2) {
+	TString name = Form("ADC_board_6301_%d",matr[i][j]-1);
+	h->SetBinContent(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetMean());
+	h->SetBinError(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetRMS());
+      }
+      else {
+	h->SetBinContent(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetMean()/4.);
+	h->SetBinError(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetRMS()/4.);
+      }
+    }
+  }
+
+}
 
 void plotterTools::saveHistos(){
   if(VERBOSE){  std::cout << "==================== Saving histograms =======================" << std::endl;
@@ -1833,7 +1887,7 @@ void plotterTools::plotHistos(){
       setAxisTitles((TH1F*)out->second->GetPlot(),out->second->name.Data(),"Events");
       plotMe((TH1F*)out->second->GetPlot(),Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }else if(out->second->type==kPlot2D)  {
-      setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());
+      setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());      
       plotMe((TH2F*)out->second->GetPlot(), out->second->doProfile, Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }
   if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
