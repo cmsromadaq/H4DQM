@@ -1283,6 +1283,8 @@ void  plotterTools::readInputTree ()
   //Instantiate the tree branches
   //  inputTree_->Print();
 
+  inputTree_->SetBranchAddress("runNumber"    ,&treeStruct_.runNumber);
+  inputTree_->SetBranchAddress("spillNumber"    ,&treeStruct_.spillNumber);
   inputTree_->SetBranchAddress("evtNumber"    ,&treeStruct_.evtNumber);
   inputTree_->SetBranchAddress("evtTimeDist"    ,&treeStruct_.evtTimeDist);
   inputTree_->SetBranchAddress("evtTimeStart"    ,&treeStruct_.evtTimeStart);
