@@ -1236,7 +1236,7 @@ void plotterTools::initOutputTree(){
 	  }
 	  else if (iter->second->type==kPlot2D){
 	    outputTree->Branch(Form("%s_X",iter->second->name.Data()),&(iter->second->xptr));
-	    outputTree->Branch(Form("%s_X",iter->second->name.Data()),&(iter->second->yptr));
+	    outputTree->Branch(Form("%s_Y",iter->second->name.Data()),&(iter->second->yptr));
 	  }
 	}
 }
