@@ -29,18 +29,20 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
-/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
+#/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
 cd $output/$run/$spill/$dir/
 mkdir hodo
 mkdir DAQ
 mkdir ADC
 mkdir TDC 
+mkdir digitizer 
 
 mv total/hodo_* hodo/
 mv total/DAQStatus_* DAQ/
 mv total/ADC_* ADC/
 mv total/TDC_* TDC/
+mv total/digitizer_* digitizer/
 mv total/*.root .
 
 rm -r total
