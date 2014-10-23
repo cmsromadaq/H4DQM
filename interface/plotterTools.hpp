@@ -22,7 +22,7 @@
 
 #include "interface/Waveform.hpp"
 
-#define nActiveDigitizerChannels 4
+#define nActiveDigitizerChannels 8
 
 #define nPlanesHodo 4
 #define nFibersHodo 64
