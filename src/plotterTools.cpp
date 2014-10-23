@@ -1193,6 +1193,13 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
 
   adc_channelnames.clear();
 
+  std::map<int,int> physchmap; // map[physical_number]=logical_number
+  for (UInt_t i=0; i<treeStruct_.nAdcChannels && i<MAX_ADC_CHANNELS; i++){
+    physchmap[i]=i;
+  }
+  physchmap[24]=13; // channel BGO 14 is plugged to ADC ch. 25 (_24 in the file)
+  physchmap[13]=24;
+
   for (UInt_t i=0; i<treeStruct_.nAdcChannels && i<MAX_ADC_CHANNELS; i++){
     TString name("ADC_board_");
     for (Int_t j=3; j>=0; j--){
@@ -1200,7 +1207,7 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
       name+=field;
     }
     name+='_';
-    name+=treeStruct_.adcChannel[i];
+    name+=physchmap[treeStruct_.adcChannel[i]];
     adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
     addPlot(1,name.Data(),4096,0,4096,"1D",group_,module_);
     name.Append("_hist");
