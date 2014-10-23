@@ -101,19 +101,19 @@ void run() {
 
   gr0->SetMarkerStyle(20);
   gr0->SetMarkerColor(46);
-  gr0->SetMarkerSize(2.);
+  gr0->SetMarkerSize(1.);
 
   gr1->SetMarkerStyle(21);
   gr1->SetMarkerColor(29);
-  gr1->SetMarkerSize(2.);
+  gr1->SetMarkerSize(1.);
 
   gr2->SetMarkerStyle(22);
   gr2->SetMarkerColor(38);
-  gr2->SetMarkerSize(2.);
+  gr2->SetMarkerSize(1.);
 
   gr3->SetMarkerStyle(23);
   gr3->SetMarkerColor(kGreen+2);
-  gr3->SetMarkerSize(2.);
+  gr3->SetMarkerSize(1.);
 
   gr23->SetMarkerStyle(20);
   gr23->SetMarkerColor(kBlack);
@@ -135,7 +135,7 @@ void run() {
   c1->SaveAs("posScanY.eps");
   c1->SaveAs("posScanY.png");
 
-  TFile* file = TFile::Open("provaY.root", "recreate");
+  TFile* file = TFile::Open("scanY.root", "recreate");
 
   file->cd();
   gr_cef3->Write();

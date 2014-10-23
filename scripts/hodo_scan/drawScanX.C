@@ -151,7 +151,7 @@ void run() {
   c1->SaveAs("posScanX.eps");
   c1->SaveAs("posScanX.png");
 
-  TFile* file = TFile::Open("prova.root", "recreate");
+  TFile* file = TFile::Open("scanX.root", "recreate");
 
   file->cd();
   gr_cef3->Write();
