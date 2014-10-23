@@ -3,48 +3,47 @@
 #define VERBOSE 0
 
 
-
-void outTreeBranch::addMember(TString name, int pos){
+template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
   if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
   members.push_back(std::make_pair<TString,int>(name,pos));
 }
 
-void outTreeBranch::addDummy(int howmany){
+template <class T, class D> void outTreeBranch<T,D>::addDummy(int howmany){
   for (int i=0; i<howmany; i++) members.push_back(std::make_pair<TString,int>("DUMMY",-1));
 }
 
-void outTreeBranch::Fill(){
+template <class T, class D> void outTreeBranch<T,D>::Fill(){
   data.clear();
   for (std::vector<std::pair<TString,int> >::const_iterator it = members.begin(); it!=members.end(); it++){
-    if (it->first=="DUMMY") {data.push_back(-999); continue;}
+    if (it->first=="DUMMY") {data.push_back(T(0)); continue;}
     if ((*varplots)[it->first]->type!=kPlot1D) {std::cout << "WRONG TYPE" << std::endl; continue;}
     if ((*varplots)[it->first]->Get()->size()<=it->second) {std::cout << "WRONG SIZE" << std::endl; continue;}
-    data.push_back(*((*varplots)[it->first]->Get(it->second)));
+    data.push_back( T( *((*varplots)[it->first]->Get(it->second)) ));
   }
 }
 
-outTreeBranch::outTreeBranch(){dataptr = &data;};
-outTreeBranch::outTreeBranch(TString name_, std::map<TString,varPlot*> *varplots_): name(name_), varplots(varplots_) {dataptr = &data;}; // does not take ownership of varplots
-outTreeBranch::~outTreeBranch(){};
+template <class T, class D> outTreeBranch<T,D>::outTreeBranch(){dataptr = &data;};
+template <class T, class D> outTreeBranch<T,D>::outTreeBranch(TString name_, std::map<TString,varPlot<D>*> *varplots_): name(name_), varplots(varplots_) {dataptr = &data;}; // does not take ownership of varplots
+template <class T, class D> outTreeBranch<T,D>::~outTreeBranch(){};
 
 
-std::vector<float>* varPlot::Get(){ return &x; }
-std::pair<std::vector<float>*, std::vector<float>*> varPlot::Get2D(){ return std::make_pair<std::vector<float>*, std::vector<float>*>(&x,&y); }
-float* varPlot::Get(uint i){ return &(x.at(i)); }
-std::pair<float*,float*> varPlot::Get2D(uint i){ return std::make_pair<float*,float*>(&(x.at(i)),&(y.at(i))); }
-uint varPlot::Size() { return x.size(); }
-TObject* varPlot::Plot(){ return plot; }
-void varPlot::SetPlot(TObject* plot_){plot=plot_;}
-TObject* varPlot::GetPlot(){return plot;}
-void varPlot::SetName(TString name_){name=name_;}
-void varPlot::ClearVectors(){x.clear(); y.clear();}
+template <class D> std::vector<D>* varPlot<D>::Get(){ return &x; }
+template <class D> std::pair<std::vector<D>*, std::vector<D>*> varPlot<D>::Get2D(){ return std::make_pair<std::vector<D>*, std::vector<D>*>(&x,&y); }
+template <class D> D* varPlot<D>::Get(uint i){ return &(x.at(i)); }
+template <class D> std::pair<D*,D*> varPlot<D>::Get2D(uint i){ return std::make_pair<D*,D*>(&(x.at(i)),&(y.at(i))); }
+template <class D> uint varPlot<D>::Size() { return x.size(); }
+template <class D> TObject* varPlot<D>::Plot(){ return plot; }
+template <class D> void varPlot<D>::SetPlot(TObject* plot_){plot=plot_;}
+template <class D> TObject* varPlot<D>::GetPlot(){return plot;}
+template <class D> void varPlot<D>::SetName(TString name_){name=name_;}
+template <class D> void varPlot<D>::ClearVectors(){x.clear(); y.clear();}
 
-void varPlot::SetGM(TString group_, TString module_){
+template <class D> void varPlot<D>::SetGM(TString group_, TString module_){
   group = group_;
   module = module_;
 }
 
-void varPlot::Fill(float val, int i) {
+template <class D> void varPlot<D>::Fill(D val, int i) {
   if (type!=kPlot1D && type!=kPlotGraph) {std::cout << "WRONG 1D " << name.Data() << std::endl; return;}
   if (type==kPlot1D){
     if (i<0) x.push_back(val);
@@ -56,7 +55,7 @@ void varPlot::Fill(float val, int i) {
   if (type==kPlot1D) (dynamic_cast<TH1F*>(plot))->Fill(val);
   else if (type==kPlotGraph) (dynamic_cast<TGraph*>(plot))->SetPoint(*iHistEntry,*iThisEntry,val);
 }
-void varPlot::Fill2D(float valX, float valY, int i) {
+template <class D> void varPlot<D>::Fill2D(D valX, D valY, int i) {
   if (type!=kPlot2D) {std::cout << "WRONG 2D " << name.Data() << std::endl; return;}
   if (type==kPlot2D){
     if (i<0) {x.push_back(valX); y.push_back(valY);}
@@ -72,7 +71,7 @@ void varPlot::Fill2D(float valX, float valY, int i) {
   if (type==kPlot2D) (dynamic_cast<TH2F*>(plot))->Fill(valX,valY);
 }
 
-varPlot::varPlot(){
+template <class D> varPlot<D>::varPlot(){
   xptr = &x;
   yptr = &y;
   plot = NULL;
@@ -81,7 +80,7 @@ varPlot::varPlot(){
   doProfile = false;
 }
 
-varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
+template <class D> varPlot<D>::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
   x.resize(size_);
   y.resize(size_);
   xptr = &x;
@@ -92,7 +91,7 @@ varPlot::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profil
   doProfile = false;
 }
 
-varPlot::~varPlot(){
+template <class D> varPlot<D>::~varPlot(){
   if (plot) delete plot;
   if (waveform) delete waveform;
 }
@@ -160,7 +159,7 @@ void plotterTools::initIntegrated(TString nameFile){
     }
   assert(integratedFile_!=NULL);
 
-  map<TString, varPlot*>::iterator it;
+  map<TString, varPlot<float>*>::iterator it;
 
   TH1F* evt_info=NULL;
   TH1F* trg_info=NULL;
@@ -1360,7 +1359,7 @@ void plotterTools::initOutputTree(){
 }
 
 void plotterTools::initTreeDQMBranches(){
-  for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
+  for (std::map<TString,varPlot<float>*>::const_iterator iter = varplots.begin ();
        iter != varplots.end () ; ++iter)
     {
       if (iter->second->type==kPlot1D){
@@ -1375,8 +1374,8 @@ void plotterTools::initTreeDQMBranches(){
 
 void plotterTools::initTreeVars(){
 
-  outTreeBranch *br;
-  br = new outTreeBranch("ADCvalues",&varplots);
+  outTreeBranch<float,float> *br;
+  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
   if (wantADCplots){
     for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
     for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
@@ -1391,42 +1390,78 @@ void plotterTools::initTreeVars(){
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
 
-  br = new outTreeBranch("digi_max_amplitude",&varplots);
+  br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_charge_integrated",&varplots);
+  br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_charge_integrated",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_pedestal",&varplots);
+  br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_pedestal_rms",&varplots);
+  br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_time_at_max",&varplots);
+  br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_time_at_frac30",&varplots);
+  br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-  br = new outTreeBranch("digi_time_at_frac50",&varplots);
+  br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
-    
-  for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+
+
+  br = new outTreeBranch<float,float>("BGOvalues",&varplots);
+  if (wantADCplots) for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+  else br->addDummy(24);
+  treevars[br->name]=br;
+  br = new outTreeBranch<float,float>("SCINTvalues",&varplots);
+  if (wantADCplots) for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  else br->addDummy(4);
+  treevars[br->name]=br;
+  br = new outTreeBranch<float,float>("TDCreco",&varplots);
+  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
+  treevars[br->name]=br;
+
+  outTreeBranch<bool,float> *br2 = NULL;
+  br2 = new outTreeBranch<bool,float>("HODOX1",&varplots);
+  for (int i=0; i<64; i++) br2->addMember("beamProfileX1",i);
+  treevars2[br2->name]=br2;
+  br2 = new outTreeBranch<bool,float>("HODOY1",&varplots);
+  for (int i=0; i<64; i++) br2->addMember("beamProfileY1",i);
+  treevars2[br2->name]=br2;
+  br2 = new outTreeBranch<bool,float>("HODOX2",&varplots);
+  for (int i=0; i<64; i++) br2->addMember("beamProfileX2",i);
+  treevars2[br2->name]=br2;
+  br2 = new outTreeBranch<bool,float>("HODOY2",&varplots);
+  for (int i=0; i<64; i++) br2->addMember("beamProfileY2",i);
+  treevars2[br2->name]=br2;
+
+  for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+    outputTree->Branch(it->first.Data(),&(it->second->dataptr));
+  }
+  for (std::map<TString,outTreeBranch<bool,float>*>::const_iterator it = treevars2.begin(); it!= treevars2.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));
   }
 }
 
+
+
+
 void plotterTools::fillTreeVars(){
-  for (std::map<TString,outTreeBranch*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+  for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
+    it->second->Fill();
+  }
+  for (std::map<TString,outTreeBranch<bool,float>*>::const_iterator it = treevars2.begin(); it!= treevars2.end(); it++){
     it->second->Fill();
   }
 }
@@ -1465,7 +1500,7 @@ void  plotterTools::Loop()
 
       fillObjects();
 
-      for (std::map<TString,varPlot*>::const_iterator iter = varplots.begin ();
+      for (std::map<TString,varPlot<float>*>::const_iterator iter = varplots.begin ();
            iter != varplots.end () ; ++iter)
         {
 
@@ -1482,7 +1517,7 @@ void  plotterTools::Loop()
 
       if (wantDigiplots){
 
-	for (std::map<TString,varPlot*>::iterator it=varplots.begin();it!=varplots.end();++it)
+	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  if (it->second->waveform) it->second->waveform->clear();
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
@@ -1498,7 +1533,7 @@ void  plotterTools::Loop()
 	float sum_amplitudes = 0;
 
 	//Add reconstruction of waveforms
-	for (std::map<TString,varPlot*>::iterator it=varplots.begin();it!=varplots.end();++it)
+	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  {
 
 	    if (!(it->second->waveform)) continue;
@@ -1635,7 +1670,7 @@ void plotterTools::bookCombinedPlots(){
 
 void plotterTools::fitHisto(TString name,TString func){
 
-  map<TString, varPlot*>::iterator it;
+  map<TString, varPlot<float>*>::iterator it;
   it=varplots.find(name);
   if(it!=varplots.end()) ((TH1F*) it->second->GetPlot())->Fit(func);
 
@@ -1643,7 +1678,7 @@ void plotterTools::fitHisto(TString name,TString func){
 
 void plotterTools::addPlotCombined(bool doPlot, TString name, TString name1, TString name2,TString type, TString group , TString module){
 
-  varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D);
+  varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot2D);
   var->SetName(name);
   var->SetPlot((TObject*)  bookHistoCombined(name,name1,name2));
   var->doPlot = doPlot;
@@ -1673,7 +1708,7 @@ plotterTools::addPlot(bool doPlot, TString name,int nPoints,TString type, TStrin
     if (vetoFill) vetoFillObjects[name]=true;
     else vetoFillObjects[name]=false;
 
-    varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlotGraph,false,nPoints);
+    varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlotGraph,false,nPoints);
     var->SetName(name);
     var->SetPlot((TObject*)  bookGraph(name,nPoints,type, group_,module_));
     var->doPlot = doPlot;
@@ -1689,7 +1724,7 @@ TH1F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, f
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
 
-   varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot1D,false,varDim);
+   varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot1D,false,varDim);
    var->SetName(name);
    var->SetPlot((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
    var->doPlot = doPlot;
@@ -1710,7 +1745,7 @@ TH2F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, f
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
 
-   varPlot *var = new varPlot(&iThisEntry,&iHistEntry,kPlot2D,addProfile);
+   varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot2D,addProfile);
    var->SetName(name);
    var->SetPlot((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
    var->doPlot = doPlot;
@@ -1893,7 +1928,7 @@ void plotterTools::saveHistos(){
   if(VERBOSE){  std::cout << "==================== Saving histograms =======================" << std::endl;
     std::cout << "outputFile " << outputFile_->GetName() << " opened" << std::endl;}
   outputFile_->cd();
-  for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
+  for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
     out->second->GetPlot()->Write(out->second->name);
   outputTree->Write();
   outputFile_->Close();
@@ -1941,7 +1976,7 @@ void plotterTools::plotHistos(){
       exit (1) ;
     }
 
-  for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
+  for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
     if(out->second->doPlot==false) continue;
     if(out->second->type==kPlotGraph)  {
       setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
@@ -1960,7 +1995,7 @@ void plotterTools::plotHistos(){
 void plotterTools::printHistos(){
   if(VERBOSE){
     std::cout << "==================== Booked histograms =======================" << std::endl;
-    for (std::map<TString,varPlot*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
+    for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
       std::cout << out->second->GetPlot()->GetName() << std::endl;
     std::cout << "==================== Loop over events =======================" << std::endl;
   }

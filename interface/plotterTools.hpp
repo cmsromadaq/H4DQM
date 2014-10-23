@@ -52,16 +52,17 @@ typedef enum PlotType {
   kPlotHistory
 } PlotType;
 
+template <class D>
 class varPlot{
 
 public:
 
-  float* Get(uint i);
-  std::pair<float*,float*> Get2D(uint i);
+  D* Get(uint i);
+  std::pair<D*,D*> Get2D(uint i);
   uint Size();
   TObject* Plot();
-  void Fill(float val, int i=-1);
-  void Fill2D(float valX, float valY, int i=-1);
+  void Fill(D val, int i=-1);
+  void Fill2D(D valX, D valY, int i=-1);
   void ClearVectors();
   varPlot();
   varPlot(int *iThisEntry, int *iHistEntry_, PlotType type_, bool profile_=false, uint size_=0);
@@ -71,8 +72,8 @@ public:
   int *iThisEntry;
   int *iHistEntry;
 
-  std::vector<float>* Get();
-  std::pair<std::vector<float>*, std::vector<float>*> Get2D();
+  std::vector<D>* Get();
+  std::pair<std::vector<D>*, std::vector<D>*> Get2D();
 
   void SetPlot(TObject* plot_);
   TObject* GetPlot();
@@ -85,30 +86,29 @@ public:
 
   bool doProfile;
   int type;
-  std::vector<float> x;
-  std::vector<float> y;
+  std::vector<D> x;
+  std::vector<D> y;
   TObject *plot;
 
-  std::vector<float> *xptr;
-  std::vector<float> *yptr;
+  std::vector<D> *xptr;
+  std::vector<D> *yptr;
 
   Waveform *waveform;
 
-private:
-
 };
 
+template <class T, class D>
 class outTreeBranch {
 
 public:
 
   outTreeBranch();
-  outTreeBranch(TString name_, std::map<TString,varPlot*> *varplots_);
+  outTreeBranch(TString name_, std::map<TString,varPlot<D>*> *varplots_);
   ~outTreeBranch();
 
   TString name;
-  std::vector<float> data;
-  std::vector<float> *dataptr;
+  std::vector<T> data;
+  std::vector<T> *dataptr;
 
   std::vector<std::pair<TString,int> > members;
 
@@ -116,7 +116,7 @@ public:
   void addMember(TString name, int pos = 0);
   void addDummy(int howmany);
 
-  std::map<TString,varPlot*> *varplots;
+  std::map<TString,varPlot<D>*> *varplots;
 
 };
 
@@ -156,8 +156,9 @@ public:
   std::map<TString,int> variablesIterator_;
   std::map<TString,std::vector<float> > variablesContainer_;
   std::map<TString,TString > variablesContainerTitles_;
-  std::map<TString,varPlot*> varplots;
-  std::map<TString,outTreeBranch*> treevars;
+  std::map<TString,varPlot<float>*> varplots;
+  std::map<TString,outTreeBranch<float,float>*> treevars;
+  std::map<TString,outTreeBranch<bool,float>*> treevars2;
 
   void initTreeVars();
   void fillTreeVars();
