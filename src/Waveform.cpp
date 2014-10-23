@@ -8,6 +8,26 @@
 
 using namespace std;
 
+float Waveform::charge_integrated(const int& x1, const int& x2, float pedestal) const
+{
+
+  float return_value = 0;
+
+  if (x1<0 || x2>(_samples.size()-1))
+    {
+      if (WARNING_ERROR)
+	std::cout << "WARNING::charge_integrated::gate is outside samples range" << std::endl;
+      return return_value;
+    }
+  
+  for (unsigned int i(x1); i<=x2; i++){
+    return_value+=_samples[i]-pedestal;
+  }
+  
+  return return_value;
+
+}
+
 Waveform::max_amplitude_informations Waveform::max_amplitude(const int& x1, const int& x2, int nSamplesAroundMax) const
 {
   max_amplitude_informations return_value;  

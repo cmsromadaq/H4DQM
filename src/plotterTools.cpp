@@ -1182,7 +1182,7 @@ void plotterTools::fillTdc(){
     float TYd = *std::min_element(tdc_readings[wcYd].begin(),tdc_readings[wcYd].begin()+tdc_readings[wcYd].size());
     float TYu = *std::min_element(tdc_readings[wcYu].begin(),tdc_readings[wcYu].begin()+tdc_readings[wcYu].size());
     float Y = (TYu-TYd)*0.005; // = /40./5./10. //position in cm 0.2mm/ns with 25ps LSB TDC
-     tdc_recoy = Y;
+    tdc_recoy = Y;
   }
 
 }
@@ -1269,6 +1269,7 @@ void plotterTools::initDigiPlots(){
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,200,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,200,"1D",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e5,"1D",group_,module_);
 	  addPlot(1,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1394,6 +1395,10 @@ void plotterTools::initTreeVars(){
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
+  br = new outTreeBranch("digi_charge_integrated",&varplots);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_charge_integrated",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
+  treevars[br->name]=br;
   br = new outTreeBranch("digi_pedestal",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
@@ -1511,6 +1516,7 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_pedestal",it->second->name.Data())]->Fill(wave_pedestal.pedestal);
 	    varplots[Form("%s_pedestal_rms",it->second->name.Data())]->Fill(wave_pedestal.rms);
 	    varplots[Form("%s_max_amplitude",it->second->name.Data())]->Fill(wave_max.max_amplitude);
+	    varplots[Form("%s_charge_integrated",it->second->name.Data())]->Fill(it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_time_at_max",it->second->name.Data())]->Fill(wave_max.time_at_max*1.e9);
 	    varplots[Form("%s_time_at_frac30",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
 	    varplots[Form("%s_time_at_frac50",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);

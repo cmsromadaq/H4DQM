@@ -42,8 +42,8 @@
 //schema to be checked: Xleft, Xright, Ydown, Yup
 #define wcXl 0
 #define wcXr 1
-#define wcYd 2
-#define wcYu 3
+#define wcYd 3
+#define wcYu 2
 
 typedef enum PlotType {
   kPlot1D,

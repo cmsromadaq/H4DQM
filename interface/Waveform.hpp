@@ -108,6 +108,9 @@ class Waveform
 
   //get values at crossing a specif threshold */
   std::vector<float> time_at_threshold(const int& x1, const int& x2, const float& threshold, int SampleToInterpolate=5) const; 
+
+  //get value of integrated amplitude between x1 and x2, subtracting pedestal
+  float charge_integrated(const int& x1, const int& x2, float pedestal=0) const;
       
   float integral(const int& x1, const int& x2) const
   {
