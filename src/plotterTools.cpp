@@ -606,6 +606,7 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
     {
       if (hname.Contains("MatrixView")) histo->Draw ("colz text e1") ;
       else histo->Draw ("colz") ;
+      if (hname.Contains("MatrixView")) histo->SetStats(kFALSE);
        c1->Print (canvasName, "png") ;
     }
   else
@@ -1811,12 +1812,39 @@ void plotterTools::fillMatrixView(){
   matr[3][0]=23;
   matr[4][0]=24;
 
+
+  float ped[24];
+  ped[0]=98.73;
+  ped[1]=65.14;
+  ped[2]=134.17;
+  ped[3]=54.17;
+  ped[4]=45.07;
+  ped[5]=66.65;
+  ped[6]=46.78;
+  ped[7]=51.00;
+  ped[8]=114.46;
+  ped[9]=72.22;
+  ped[10]=52.03;
+  ped[11]=58.42;
+  ped[12]=43.20;
+  ped[13]=58.90;
+  ped[14]=38.08;
+  ped[15]=61.99;
+  ped[16]=59.87;
+  ped[17]=203.97;
+  ped[18]=70.34;
+  ped[19]=56.37;
+  ped[20]=40.94;
+  ped[21]=73.61;
+  ped[22]=66.42;
+  ped[23]=90.81;
+
   TH2F *h = (TH2F*)(varplots["MatrixView"]->GetPlot());
   for (int i=0; i<5; i++){
     for (int j=0; j<5; j++){
       if (i!=2 || j!=2) {
 	TString name = Form("ADC_board_6301_%d",matr[i][j]-1);
-	h->SetBinContent(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetMean());
+	h->SetBinContent(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetMean()-ped[matr[i][j]-1]);
 	h->SetBinError(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetRMS());
       }
       else {
