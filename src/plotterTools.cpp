@@ -398,8 +398,8 @@ void  plotterTools::setPlotsFormat ()
 {
     // general root settings
     gROOT->SetStyle ("Plain") ;
-    //    gStyle->SetOptStat ("emruo") ;
-    gStyle->SetOptStat ("emr") ;
+    gStyle->SetOptStat ("emruo") ;
+    //    gStyle->SetOptStat ("emr") ;
     gStyle->SetOptFit (0001) ;
     gStyle->SetCanvasDefH (300) ; //Height of canvas
     gStyle->SetCanvasDefW (300) ; //Width of canvas
