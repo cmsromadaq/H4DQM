@@ -1267,8 +1267,8 @@ void plotterTools::initDigiPlots(){
 	  varplots[name]->waveform = new Waveform();
 
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(1,Form("%s_pedestal_rms",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(1,Form("%s_max_amplitude",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,200,"1D",group_,module_);
+	  addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,200,"1D",group_,module_);
 	  addPlot(1,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
