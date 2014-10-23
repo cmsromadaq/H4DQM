@@ -1785,31 +1785,31 @@ int plotterTools::getStepHistoryPlots(){
 void plotterTools::fillMatrixView(){
 
   int matr[5][5];
-  matr[0][0]=9;
-  matr[0][1]=10;
-  matr[0][2]=11;
-  matr[0][3]=12;
-  matr[0][4]=13;
-  matr[1][0]=14;
-  matr[1][1]=1;
-  matr[1][2]=2;
-  matr[1][3]=3;
-  matr[1][4]=15;
-  matr[2][0]=16;
-  matr[2][1]=4;
+  matr[0][4]=9;
+  matr[1][4]=10;
+  matr[2][4]=11;
+  matr[3][4]=12;
+  matr[4][4]=13;
+  matr[0][3]=14;
+  matr[1][3]=1;
+  matr[2][3]=2;
+  matr[3][3]=3;
+  matr[4][3]=15;
+  matr[0][2]=16;
+  matr[1][2]=4;
   matr[2][2]=-1; // CeF3
-  matr[2][3]=9;
-  matr[2][4]=17;
-  matr[3][0]=18;
-  matr[3][1]=6;
-  matr[3][2]=7;
-  matr[3][3]=8;
-  matr[3][4]=19;
-  matr[4][0]=20;
-  matr[4][1]=21;
-  matr[4][2]=22;
-  matr[4][3]=23;
-  matr[4][4]=24;
+  matr[3][2]=5;
+  matr[4][2]=17;
+  matr[0][1]=18;
+  matr[1][1]=6;
+  matr[2][1]=7;
+  matr[3][1]=8;
+  matr[4][1]=19;
+  matr[0][0]=20;
+  matr[1][0]=21;
+  matr[2][0]=22;
+  matr[3][0]=23;
+  matr[4][0]=24;
 
   TH2F *h = (TH2F*)(varplots["MatrixView"]->GetPlot());
   for (int i=0; i<5; i++){
@@ -1820,17 +1820,21 @@ void plotterTools::fillMatrixView(){
 	h->SetBinError(i+1,j+1,((TH1F*)(varplots[name]->GetPlot()))->GetRMS());
       }
       else {
-	h->SetBinContent(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetMean()/4.);
-	h->SetBinError(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetRMS()/4.);
+	h->SetBinContent(i+1,j+1,0);
+	h->SetBinError(i+1,j+1,0);
+//	h->SetBinContent(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetMean()/4.);
+//	h->SetBinError(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetRMS()/4.);
       }
     }
   }
 
   int matrcef3[2][2];
-  matrcef3[0][0]=1;
-  matrcef3[0][1]=2;
-  matrcef3[1][0]=4; // TO BE CHECKED
-  matrcef3[1][1]=3;
+  // 1 2
+  // 4 3  TO BE CHECKED!!!
+  matrcef3[0][1]=1;
+  matrcef3[1][1]=2;
+  matrcef3[0][0]=4;
+  matrcef3[1][0]=3;
 
   h= (TH2F*)(varplots["MatrixViewCeF3"]->GetPlot());
   for (int i=0; i<2; i++){
