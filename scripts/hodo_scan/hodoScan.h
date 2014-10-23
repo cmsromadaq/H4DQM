@@ -28,6 +28,7 @@ public :
    UInt_t          evtNumber;
    vector<float>   *ADCvalues;
    vector<float>   *digi_max_amplitude;
+   vector<float>   *digi_charge_integrated;
    vector<float>   *digi_pedestal;
    vector<float>   *digi_pedestal_rms;
    vector<float>   *digi_time_at_frac30;
@@ -39,6 +40,7 @@ public :
    TBranch        *b_spillNumber;   //!
    TBranch        *b_evtNumber;   //!
    TBranch        *b_ADCvalues;   //!
+   TBranch        *b_digi_charge_integrated;   //!
    TBranch        *b_digi_max_amplitude;   //!
    TBranch        *b_digi_pedestal;   //!
    TBranch        *b_digi_pedestal_rms;   //!
@@ -112,6 +114,7 @@ void hodoScan::Init(TTree *tree)
 
    // Set object pointer
    ADCvalues = 0;
+   digi_charge_integrated = 0;
    digi_max_amplitude = 0;
    digi_pedestal = 0;
    digi_pedestal_rms = 0;
@@ -128,6 +131,7 @@ void hodoScan::Init(TTree *tree)
    fChain->SetBranchAddress("spillNumber", &spillNumber, &b_spillNumber);
    fChain->SetBranchAddress("evtNumber", &evtNumber, &b_evtNumber);
    fChain->SetBranchAddress("ADCvalues", &ADCvalues, &b_ADCvalues);
+   fChain->SetBranchAddress("digi_charge_integrated", &digi_charge_integrated, &b_digi_charge_integrated);
    fChain->SetBranchAddress("digi_max_amplitude", &digi_max_amplitude, &b_digi_max_amplitude);
    fChain->SetBranchAddress("digi_pedestal", &digi_pedestal, &b_digi_pedestal);
    fChain->SetBranchAddress("digi_pedestal_rms", &digi_pedestal_rms, &b_digi_pedestal_rms);

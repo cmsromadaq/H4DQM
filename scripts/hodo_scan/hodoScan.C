@@ -36,7 +36,7 @@ void hodoScan::Loop()
    for (int i=0; i<4; i++) frac[i]=0;
 
    const int offset = 4;
-   const float threshold = 25.;
+   const float threshold = 500.;
 
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -47,7 +47,7 @@ void hodoScan::Loop()
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
       for (int i=0; i<4; i++) {
-	if (digi_max_amplitude->at(offset+i)>threshold) frac[i]+=1.0/float(nentries);
+	if (digi_charge_integrated->at(offset+i)>threshold) frac[i]+=1.0/float(nentries);
       }
       // if (Cut(ientry) < 0) continue;
    }
