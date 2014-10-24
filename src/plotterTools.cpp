@@ -378,6 +378,26 @@ void plotterTools::set_palette_fancy (){
 
 }
 
+void plotterTools::set_palette_twocolor (int col1, int col2){
+  const Int_t NRGBs = 2;
+  const Int_t NCont = 255;
+  Float_t r[NRGBs];
+  Float_t g[NRGBs];
+  Float_t b[NRGBs];
+  TColor* c[NRGBs];
+  int Colors[NRGBs]={col1,col2};
+  for(int i=0;i<NRGBs;++i){
+    c[i]=gROOT->GetColor(Colors[i]);
+    c[i]->GetRGB(r[i],g[i],b[i]);
+  }
+  Double_t stops[NRGBs] = { 0.00, 1.00};
+  Double_t red[NRGBs] = {r[0],r[1]};
+  Double_t green[NRGBs] = {g[0],g[1]};
+  Double_t blue[NRGBs] = {b[0],b[1]};
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+
+}
 
 void plotterTools::set_plot_blue ()
 {
@@ -604,12 +624,14 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
   if (!makeProfile)
     {
       if (hname.Contains("MatrixView")){
-	histo->Draw ("colz text e1") ;
-	histo->SetMarkerColor(kRed);
+	set_palette_twocolor(kWhite,kCyan);
+	histo->SetMarkerColor(kBlack);
 	histo->SetStats(kFALSE);
+	histo->Draw ("colz text e1") ;
       }
       else histo->Draw ("colz") ;
-       c1->Print (canvasName, "png") ;
+      c1->Print (canvasName, "png") ;
+      set_palette_fancy();
     }
   else
     {
@@ -1389,7 +1411,7 @@ void plotterTools::initTreeVars(){
   for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
   for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
   for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
-  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);
+  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
@@ -1867,31 +1889,32 @@ void plotterTools::fillMatrixView(){
   matr[4][0]=24;
 
 
+  // from pedestal run 343
   float ped[24];
-  ped[0]=98.73;
-  ped[1]=65.14;
-  ped[2]=134.17;
-  ped[3]=54.17;
-  ped[4]=45.07;
-  ped[5]=66.65;
-  ped[6]=46.78;
-  ped[7]=51.00;
-  ped[8]=114.46;
-  ped[9]=72.22;
-  ped[10]=52.03;
+  ped[0]=94.64;
+  ped[1]=65.13;
+  ped[2]=131.10;
+  ped[3]=50.91;
+  ped[4]=45.02;
+  ped[5]=66.62;
+  ped[6]=46.75;
+  ped[7]=50.98;
+  ped[8]=120.98;
+  ped[9]=72.16;
+  ped[10]=52.02;
   ped[11]=58.42;
-  ped[12]=43.20;
-  ped[13]=58.90;
+  ped[12]=43.21;
+  ped[13]=54.03;
   ped[14]=38.08;
-  ped[15]=61.99;
-  ped[16]=59.87;
-  ped[17]=203.97;
-  ped[18]=70.34;
-  ped[19]=56.37;
-  ped[20]=40.94;
-  ped[21]=73.61;
-  ped[22]=66.42;
-  ped[23]=90.81;
+  ped[15]=61.98;
+  ped[16]=59.89;
+  ped[17]=202.01;
+  ped[18]=70.39;
+  ped[19]=56.39;
+  ped[20]=40.91;
+  ped[21]=73.60;
+  ped[22]=66.37;
+  ped[23]=90.84;
 
   TH2F *h = (TH2F*)(varplots["MatrixView"]->GetPlot());
   for (int i=0; i<5; i++){
@@ -1984,6 +2007,8 @@ void plotterTools::plotHistos(){
 
   for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
     if(out->second->doPlot==false) continue;
+    if(out->first=="MatrixView") setPlotAxisRange(out->first,"Z",0,2000);
+    if(out->first=="MatrixViewCeF3") setPlotAxisRange(out->first,"Z",0,2000);
     if(out->second->type==kPlotGraph)  {
       setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
       plotMe((TGraph*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));

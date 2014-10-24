@@ -216,6 +216,7 @@ public:
   void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
+  void set_palette_twocolor (int col1, int col2);
   void setPlotsFormat ();
   void plotMe (TH1F * histo, TString name="");
   void plotMe (TH2F * histo, bool makeProfile = false, TString name="");
