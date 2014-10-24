@@ -48,13 +48,13 @@ public :
    TBranch        *b_digi_time_at_frac50;   //!
    TBranch        *b_digi_time_at_max;   //!
 
-   hodoScan(TTree *tree=0);
+   hodoScan(int runNum);
    virtual ~hodoScan();
    virtual Int_t    Cut(Long64_t entry);
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
+   virtual std::vector<float>     Loop();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -62,18 +62,16 @@ public :
 #endif
 
 #ifdef hodoScan_cxx
-hodoScan::hodoScan(TTree *tree) : fChain(0) 
+hodoScan::hodoScan(int runNum)
 {
-// if parameter tree is not specified (or zero), connect the file
-// used to generate this class and read the Tree.
-   if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("dqmPlotstotal.root");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("dqmPlotstotal.root");
-      }
-      f->GetObject("outputTree",tree);
 
+   TFile *f = TFile::Open(Form("/data/public_DQM_plots/%d/dqmPlotstotal.root", runNum) );
+   if (!f || !f->IsOpen()) {
+      f = new TFile("dqmPlotstotal.root");
    }
+   TTree* tree;
+   f->GetObject("outputTree",tree);
+
    Init(tree);
 }
 

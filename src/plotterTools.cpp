@@ -1385,7 +1385,7 @@ void plotterTools::initTreeVars(){
   for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
   for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
   for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
-  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);
+  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
   for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
