@@ -603,9 +603,12 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 
   if (!makeProfile)
     {
-      if (hname.Contains("MatrixView")) histo->Draw ("colz text e1") ;
+      if (hname.Contains("MatrixView")){
+	histo->Draw ("colz text e1") ;
+	histo->SetMarkerColor(kRed);
+	histo->SetStats(kFALSE);
+      }
       else histo->Draw ("colz") ;
-      if (hname.Contains("MatrixView")) histo->SetStats(kFALSE);
        c1->Print (canvasName, "png") ;
     }
   else
