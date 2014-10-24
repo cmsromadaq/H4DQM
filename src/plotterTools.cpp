@@ -200,10 +200,10 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["hodo_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSY_spill");//add controls
      
       if(integratedPlots_["hodo_meanX_spill"]==NULL){
-	integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",2000,0,2000);
-	integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",2000,0,2000);
-	integratedPlots_["hodo_RMSX_spill"]=new TH1F("hodo_RMSX_spill","hodo_RMSX_spill",2000,0,2000);
-	integratedPlots_["hodo_RMSY_spill"]=new TH1F("hodo_RMSY_spill","hodo_RMSY_spill",2000,0,2000);
+	integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",200,0,200);
+	integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",200,0,200);
+	integratedPlots_["hodo_RMSX_spill"]=new TH1F("hodo_RMSX_spill","hodo_RMSX_spill",200,0,200);
+	integratedPlots_["hodo_RMSY_spill"]=new TH1F("hodo_RMSY_spill","hodo_RMSY_spill",200,0,200);
 
 
       }
@@ -217,9 +217,9 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["DAQStatus_triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRatePerSpill");
       integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
       if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
-	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",200,0,200);
 	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
-	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",2000,0,2000);
+	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",200,0,200);
 	integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
 	integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
 	integratedPlots_["DAQStatus_growingEventPlot"]=new TH1F("DAQStatus_growingEventPlot","DAQStatus_growingEventPlot",2000,0,1000);
@@ -235,10 +235,10 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["hodoSmall_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_RMSY_spill");//add controls
 
       if(integratedPlots_["hodoSmall_meanX_spill"]==NULL){
-	integratedPlots_["hodoSmall_meanX_spill"]=new TH1F("hodoSmall_meanX_spill","hodoSmall_meanX_spill",2000,0,2000);
-	integratedPlots_["hodoSmall_meanY_spill"]=new TH1F("hodoSmall_meanY_spill","hodoSmall_meanY_spill",2000,0,2000);
-	integratedPlots_["hodoSmall_RMSX_spill"]=new TH1F("hodoSmall_RMSX_spill","hodoSmall_RMSX_spill",2000,0,2000);
-	integratedPlots_["hodoSmall_RMSY_spill"]=new TH1F("hodoSmall_RMSY_spill","hodoSmall_RMSY_spill",2000,0,2000);
+	integratedPlots_["hodoSmall_meanX_spill"]=new TH1F("hodoSmall_meanX_spill","hodoSmall_meanX_spill",200,0,200);
+	integratedPlots_["hodoSmall_meanY_spill"]=new TH1F("hodoSmall_meanY_spill","hodoSmall_meanY_spill",200,0,200);
+	integratedPlots_["hodoSmall_RMSX_spill"]=new TH1F("hodoSmall_RMSX_spill","hodoSmall_RMSX_spill",200,0,200);
+	integratedPlots_["hodoSmall_RMSY_spill"]=new TH1F("hodoSmall_RMSY_spill","hodoSmall_RMSY_spill",200,0,200);
 
       }
 
@@ -603,9 +603,12 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 
   if (!makeProfile)
     {
-      if (hname.Contains("MatrixView")) histo->Draw ("colz text e1") ;
+      if (hname.Contains("MatrixView")){
+	histo->Draw ("colz text e1") ;
+	histo->SetMarkerColor(kRed);
+	histo->SetStats(kFALSE);
+      }
       else histo->Draw ("colz") ;
-      if (hname.Contains("MatrixView")) histo->SetStats(kFALSE);
        c1->Print (canvasName, "png") ;
     }
   else
@@ -1014,8 +1017,9 @@ void plotterTools::computeVariable(TString name){
  }
  else if(name=="TDCrecoY"){
    varplots[name]->Fill(tdc_recoy);
- }
- else if(name=="TDCrecoPos"){
+ }else if(name=="nTdcChannels"){
+   varplots[name]->Fill(treeStruct_.nTdcChannels);
+ } else if(name=="TDCrecoPos"){
    varplots[name]->Fill2D(tdc_recox,tdc_recoy);
  }
 
@@ -1656,9 +1660,11 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot(0,"TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot(0,"TDCrecoX",100,-50,50,"1D",group_,module_);
   addPlot(0,"TDCrecoY",100,-50,50,"1D",group_,module_);
+  addPlot(1,"nTdcChannels",8,-0.5,8.5,"1D",group_,module_);
   addPlot(0,"TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot(0,"TDChistoryRecoY",nBinsHistory,"history",group_,module_);
   addPlot(1,"TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+
 }
 
 void plotterTools::bookCombinedPlots(){
