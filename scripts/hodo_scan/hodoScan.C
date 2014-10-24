@@ -5,7 +5,7 @@
 #include <TCanvas.h>
 #include <iostream>
 
-void hodoScan::Loop()
+std::vector<float> hodoScan::Loop()
 {
 //   In a ROOT session, you can do:
 //      Root > .L hodoScan.C
@@ -30,15 +30,14 @@ void hodoScan::Loop()
 // METHOD2: replace line
 //    fChain->GetEntry(jentry);       //read all branches
 //by  b_branchname->GetEntry(ientry); //read only this branch
-   if (fChain == 0) return;
 
-   float frac[4];
-   for (int i=0; i<4; i++) frac[i]=0;
+   std::vector<float> frac(4,0.);
+   if (fChain == 0) return frac;
 
    const int offset = 4;
-   const float threshold = 500.;
+   const float threshold = 25.;
 
-   Long64_t nentries = fChain->GetEntriesFast();
+   Long64_t nentries = fChain->GetEntries();
 
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -46,8 +45,9 @@ void hodoScan::Loop()
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-      for (int i=0; i<4; i++) {
-	if (digi_charge_integrated->at(offset+i)>threshold) frac[i]+=1.0/float(nentries);
+      for (int i=0; i<frac.size(); i++) {
+	if (digi_max_amplitude->at(offset+i)>threshold) frac[i]+=1.0/float(nentries);
+	//if (digi_charge_integrated->at(offset+i)>threshold) frac[i]+=1.0/float(nentries);
       }
       // if (Cut(ientry) < 0) continue;
    }
@@ -55,5 +55,7 @@ void hodoScan::Loop()
    std::cout << "RUN " << runNumber << " SPILL " << spillNumber << std::endl; 
    for (int i=0; i<4; i++) std::cout << frac[i] << " ";
    std::cout << endl;
+
+   return frac;
 
 }

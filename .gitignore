@@ -1,0 +1,10 @@
+*.o
+*.so
+*.d
+*.a
+*.so
+bin/*
+*pdf
+*png
+*eps
+*root
