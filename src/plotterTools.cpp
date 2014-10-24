@@ -1292,9 +1292,9 @@ void plotterTools::initDigiPlots(){
 	  varplots[name]->waveform = new Waveform();
 
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,200,"1D",group_,module_);
-	  addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,2500,"1D",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e5,"1D",group_,module_);
+	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
+	  addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,1000,"1D",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
 	  addPlot(1,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1302,7 +1302,7 @@ void plotterTools::initDigiPlots(){
         }
     }
 
-  addPlot(1,"digi_sum_max_amplitude",4096,0,16384,"1D",group_,module_);
+  addPlot(1,"digi_sum_max_amplitude",4096,0,4000,"1D",group_,module_);
 
   addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
 
@@ -2008,7 +2008,7 @@ void plotterTools::plotHistos(){
   for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out){
     if(out->second->doPlot==false) continue;
     if(out->first=="MatrixView") setPlotAxisRange(out->first,"Z",0,2000);
-    if(out->first=="MatrixViewCeF3") setPlotAxisRange(out->first,"Z",0,2000);
+    if(out->first=="MatrixViewCeF3") setPlotAxisRange(out->first,"Z",0,1000);
     if(out->second->type==kPlotGraph)  {
       setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
       plotMe((TGraph*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));
