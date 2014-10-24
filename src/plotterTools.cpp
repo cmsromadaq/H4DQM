@@ -1017,8 +1017,9 @@ void plotterTools::computeVariable(TString name){
  }
  else if(name=="TDCrecoY"){
    varplots[name]->Fill(tdc_recoy);
- }
- else if(name=="TDCrecoPos"){
+ }else if(name=="nTdcChannels"){
+   varplots[name]->Fill(treeStruct_.nTdcChannels);
+ } else if(name=="TDCrecoPos"){
    varplots[name]->Fill2D(tdc_recox,tdc_recoy);
  }
 
@@ -1659,9 +1660,11 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot(0,"TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot(0,"TDCrecoX",100,-50,50,"1D",group_,module_);
   addPlot(0,"TDCrecoY",100,-50,50,"1D",group_,module_);
+  addPlot(1,"nTdcChannels",8,-0.5,8.5,"1D",group_,module_);
   addPlot(0,"TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot(0,"TDChistoryRecoY",nBinsHistory,"history",group_,module_);
   addPlot(1,"TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+
 }
 
 void plotterTools::bookCombinedPlots(){
