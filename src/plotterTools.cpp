@@ -1293,7 +1293,9 @@ void plotterTools::initDigiPlots(){
 
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
-	  addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,400,"1D",group_,module_);
+	  if (*iGroup==0 && *iChannel<4) addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,400,"1D",group_,module_);
+	  else if (*iGroup==0 && *iChannel==4) addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,500,"1D",group_,module_);
+	  else addPlot(1,Form("%s_max_amplitude",name.Data()),200,0,300,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
 	  addPlot(1,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1301,8 +1303,6 @@ void plotterTools::initDigiPlots(){
 
         }
     }
-
-  addPlot(1,"digi_sum_max_amplitude",4096,0,4000,"1D",group_,module_);
 
   addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
 
@@ -1585,7 +1585,7 @@ void  plotterTools::Loop()
 	    it->second->waveform->offset(wave_pedestal.pedestal);
 
 	    it->second->waveform->rescale(-1); 
-	    wave_max=it->second->waveform->max_amplitude(50,600,5); //find max amplitude between 50 and 500 samples
+	    wave_max=it->second->waveform->max_amplitude(50,300,5); //find max amplitude between 50 and 500 samples
 
 
 	    varplots[Form("%s_pedestal",it->second->name.Data())]->Fill(wave_pedestal.pedestal);
@@ -1599,8 +1599,6 @@ void  plotterTools::Loop()
 	    sum_amplitudes+=wave_max.max_amplitude;
 
 	  }
-
-	varplots["digi_sum_max_amplitude"]->Fill(sum_amplitudes);
 
       }
       
@@ -1941,8 +1939,6 @@ void plotterTools::fillMatrixView(){
       else {
 	h->SetBinContent(i+1,j+1,0);
 	h->SetBinError(i+1,j+1,0);
-//	h->SetBinContent(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetMean()/4.);
-//	h->SetBinError(i+1,j+1,((TH1F*)(varplots["digi_sum_max_amplitude"]->GetPlot()))->GetRMS()/4.);
       }
     }
   }
