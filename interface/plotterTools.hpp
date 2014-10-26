@@ -219,7 +219,8 @@ public:
   void set_palette_twocolor (int col1, int col2);
   void setPlotsFormat ();
   void plotMe (TH1F * histo, TString name="");
-  void plotMe (TH2F * histo, bool makeProfile = false, TString name="");
+  void plotMeOld (TH2F * histo, bool makeProfile = false, TString name="");
+  void plotMe (TH2F * histo, TString name="");
   void plotMe (TGraph * graph, const TString & name);
   void setAxisTitles (TH1 * histo, const TString  xTitle, const TString  yTitle);
   void setAxisTitles (TH2 * histo, const TString  xTitle, const TString  yTitle);

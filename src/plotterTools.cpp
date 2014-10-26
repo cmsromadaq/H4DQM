@@ -604,7 +604,7 @@ void  plotterTools::plotMe (TH1F * histo, TString name)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
+void  plotterTools::plotMeOld (TH2F * histo, bool makeProfile, TString name)
 {
 
   gStyle->SetPadTopMargin(0.05);
@@ -630,6 +630,7 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
 	histo->Draw ("colz text e1") ;
       }
       else histo->Draw ("colz") ;
+      c1->Update();
       c1->Print (canvasName, "png") ;
       set_palette_fancy();
     }
@@ -653,6 +654,31 @@ void  plotterTools::plotMe (TH2F * histo, bool makeProfile, TString name)
       c1->Print (canvasName, "png") ;
       delete hdummy ;
     }
+  delete c1 ;
+  return ;
+
+}
+
+void  plotterTools::plotMe (TH2F * histo, TString name)
+{
+
+  TString hname = (name==TString("")) ? histo->GetName () : name.Data();
+  TString  canvasName = outputDir_+ "/"+hname + ".png" ;
+  TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
+
+  if (hname.Contains("MatrixView")){
+    set_palette_twocolor(kWhite,kCyan);
+    histo->SetMarkerColor(kBlack);
+    histo->SetStats(kFALSE);
+    histo->Draw ("colz text e1") ;
+  }
+  else histo->Draw ("colz") ;
+
+  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(2500,3700);
+
+  c1->Print (canvasName, "png") ;
+  set_palette_fancy();
+  
   delete c1 ;
   return ;
 
@@ -1286,10 +1312,12 @@ void plotterTools::initDigiPlots(){
 	  if (*iChannel>=nActiveDigitizerChannels) continue;
 
           TString name = getDigiChannelName(*iGroup,*iChannel);
-          addPlot(1,name, xNbins, xmin, xmax, yNbins, ymin, ymax, 
+	  TString thisname = Form("%s_%s",name.Data(),"pulse");
+          addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, 
 		  "time", "voltage",
 		  "2D", group_, module_, 1, true) ;
-	  varplots[name]->waveform = new Waveform();
+	  varplots[thisname]->waveform = new Waveform();
+	  std::cout << "ADDED " << thisname.Data() << " " << varplots[thisname]->name.Data() << std::endl;
 
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
@@ -1566,6 +1594,7 @@ void  plotterTools::Loop()
 	    if (treeStruct_.digiChannel[iSample]>=nActiveDigitizerChannels) continue;
 
 	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
+	    thisname=Form("%s_%s",thisname.Data(),"pulse");
 	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
 	  }
@@ -1587,14 +1616,14 @@ void  plotterTools::Loop()
 	    it->second->waveform->rescale(-1); 
 	    wave_max=it->second->waveform->max_amplitude(50,300,5); //find max amplitude between 50 and 500 samples
 
-
-	    varplots[Form("%s_pedestal",it->second->name.Data())]->Fill(wave_pedestal.pedestal);
-	    varplots[Form("%s_pedestal_rms",it->second->name.Data())]->Fill(wave_pedestal.rms);
-	    varplots[Form("%s_max_amplitude",it->second->name.Data())]->Fill(wave_max.max_amplitude);
-	    varplots[Form("%s_charge_integrated",it->second->name.Data())]->Fill(it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    varplots[Form("%s_time_at_max",it->second->name.Data())]->Fill(wave_max.time_at_max*1.e9);
-	    varplots[Form("%s_time_at_frac30",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
-	    varplots[Form("%s_time_at_frac50",it->second->name.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
+	    TString thisname = it->second->name.ReplaceAll("_pulse","");
+	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal);
+	    varplots[Form("%s_pedestal_rms",thisname.Data())]->Fill(wave_pedestal.rms);
+	    varplots[Form("%s_max_amplitude",thisname.Data())]->Fill(wave_max.max_amplitude);
+	    varplots[Form("%s_charge_integrated",thisname.Data())]->Fill(it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9);
+	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
+	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
 
 	    sum_amplitudes+=wave_max.max_amplitude;
 
@@ -1733,6 +1762,11 @@ void plotterTools::addPlotCombined(bool doPlot, TString name, TString name1, TSt
 }
 
 void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float max){
+  if (varplots.find(name)==varplots.end()) {
+    std::cout << "NOT FOUND " << name.Data() << std::endl;
+    for (std::map<TString,varPlot<float>*>::const_iterator it = varplots.begin(); it!=varplots.end(); it++) std::cout << it->second->name.Data() << std::endl;
+    return;
+  }
   if (varplots[name]->type==kPlot1D) ((TH1F*)(varplots[name]->GetPlot()))->SetAxisRange(min,max,axis);
   else if (varplots[name]->type==kPlotGraph) {
     if (axis=="X") ((TGraph*)(varplots[name]->GetPlot()))->GetXaxis()->SetRangeUser(min,max);
@@ -1791,6 +1825,7 @@ TH2F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, f
    var->doPlot = doPlot;
    var->SetGM(group,module);
    varplots[name]=var;
+   std::cout << "ADDED REALLY " << name.Data() << " " << var->name.Data() << std::endl;
 
    return dynamic_cast<TH2F *> (var->GetPlot());
 
@@ -2027,7 +2062,7 @@ void plotterTools::plotHistos(){
       plotMe((TH1F*)out->second->GetPlot(),Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }else if(out->second->type==kPlot2D)  {
       setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());      
-      plotMe((TH2F*)out->second->GetPlot(), out->second->doProfile, Form("%s_%s",out->second->group.Data(),out->first.Data()));
+      plotMe((TH2F*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }
   if(VERBOSE)   std::cout << "==================== Canvas saved in \" "<< outputDir_<<"\" =======================" << std::endl;
 }
