@@ -1296,11 +1296,9 @@ void plotterTools::initDigiPlots(){
   float xmin = 0 ;
   float xmax = 1024 ;
 
-  int yNbins = 100 ;
-  float ymin = (*std::min_element(treeStruct_.digiSampleValue,treeStruct_.digiSampleValue+treeStruct_.nDigiSamples));
-  float ymax = (*std::max_element(treeStruct_.digiSampleValue,treeStruct_.digiSampleValue+treeStruct_.nDigiSamples));
-  ymin -= 0.1*fabs(ymin);
-  ymax += 0.1*fabs(ymax);
+  int yNbins = 4096;
+  float ymin = 0;
+  float ymax = 4096;
 
   for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
