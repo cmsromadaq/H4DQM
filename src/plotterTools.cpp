@@ -1419,29 +1419,43 @@ void plotterTools::initTreeVars(){
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_max_amplitude",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_charge_integrated",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_charge_integrated",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal_rms",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_max",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac30",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
   if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
+  else br->addDummy(nActiveDigitizerChannels);
+  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac50",i)); // CEF3
   else br->addDummy(nActiveDigitizerChannels);
   treevars[br->name]=br;
 
