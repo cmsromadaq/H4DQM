@@ -674,7 +674,7 @@ void  plotterTools::plotMe (TH2F * histo, TString name)
   }
   else histo->Draw ("colz") ;
 
-  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(2500,3700);
+  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(3000,3700);
 
   c1->Print (canvasName, "png") ;
   set_palette_fancy();
