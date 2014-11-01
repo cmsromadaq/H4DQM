@@ -1,15 +1,15 @@
 #include <plotterTools.hpp>
 #include <assert.h>
-#define VERBOSE 0
 
+#define VERBOSE 0
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
   if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
-  members.push_back(std::make_pair<TString,int>(name,pos));
+  members.push_back(make_pair(name,pos));
 }
 
 template <class T, class D> void outTreeBranch<T,D>::addDummy(int howmany){
-  for (int i=0; i<howmany; i++) members.push_back(std::make_pair<TString,int>("DUMMY",-1));
+  for (int i=0; i<howmany; i++) members.push_back(make_pair(TString("DUMMY"),int(-1)));
 }
 
 template <class T, class D> void outTreeBranch<T,D>::Fill(){
@@ -1259,10 +1259,10 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
     }
     name+='_';
     name+=physchmap[treeStruct_.adcChannel[i]];
-    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
+    adc_channelnames.insert(make_pair(name,&(treeStruct_.adcData[i])));
     addPlot(1,name.Data(),4096,0,4096,"1D",group_,module_);
     name.Append("_hist");
-    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
+    adc_channelnames.insert(make_pair(name,&(treeStruct_.adcData[i])));
     addPlot(0,name.Data(), nBinsHistory, "history", group_,module_);
   }
 
