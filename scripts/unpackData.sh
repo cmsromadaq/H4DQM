@@ -13,6 +13,7 @@ merge=0
 batch=0
 clean=0
 
+
 waitForBatchJobs() {
     jobList=( ${jobList} )
     nJobs=${#jobList[@]}
@@ -32,6 +33,42 @@ waitForBatchJobs() {
 	nJobsDone=${#jobsDone[@]}
 #	echo "nJobsDone ${nJobsDone}"
 	sleep 1
+    done
+}
+
+mergeSpills()
+{
+    unpackedSpills=`find ${output}/${run}/ -regextype 'posix-basic' -regex ".*\.root" -type f | xargs -I {} basename {} .root | sort -n`
+    unpackedSpills=( $unpackedSpills )
+
+    maxsize=2000000
+
+    mergeIndex=1
+    mergedSize=0
+
+    spillsToMerge=""
+    nSpills=${#unpackedSpills[@]}
+
+    spillIndex=0
+
+    mkdir -p ${output}/MERGED/${run}/
+
+    for aSpill in ${unpackedSpills[@]}; do
+
+	let spillIndex+=1
+
+	spillSize=`ls -la ${output}/${run}/${aSpill}.root | awk '{print $5}'`
+	let spillSize=spillSize/1024
+	let mergedSize+=spillSize
+#	echo "Merged Size ${mergedSize} maxSize ${maxsize} nSpills ${nSpills} spillIndex ${spillIndex}"
+	spillsToMerge="${output}/${run}/${aSpill}.root ${spillsToMerge}"
+	if [[ ${mergedSize} -ge ${maxsize} || ${spillIndex} -ge ${nSpills} ]]; then 
+	    echo "${spillsToMerge}" > ${output}/MERGED/${run}/RAW_MERGED_${mergeIndex}.list
+	    hadd -f ${output}/MERGED/${run}/RAW_MERGED_${mergeIndex}.root ${spillsToMerge} 
+	    spillsToMerge=""
+	    mergedSize=0
+	    let mergeIndex+=1
+	fi
     done
 }
 
@@ -83,7 +120,6 @@ done
 [ ${merge} == 1 ] || exit 0
 [ ${batch} == 0 ] || echo "Waiting for batch jobs to finish..."; waitForBatchJobs
 echo "Batch jobs completed successfully. Now merging all output root files"
-hadd -f ${output}/${run}_RAW_MERGED.root `find ${output}/${run}/ -regextype 'posix-basic' -regex ".*\.root" -type f`
-#need to check if we need some more intelligent merging to avoid too big files. In base some bookeping is required
+mergeSpills
 [ ${clean} == 0 ] || echo "Cleaning directory ${output}/${run}"; rm -rf ${output}/${run} #cleaning the output dir if requested after merging
 echo "Unpacking of run ${run} completed"
