@@ -735,15 +735,15 @@ void  plotterTools::setAxisTitles (TGraph * histo, const TString  xTitle, const 
 void plotterTools::computeVariable(TString name){
  
  if(name=="triggerEff"){
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="nEvts"){
    varplots[name]->Fill(((float)treeStruct_.evtNumber));
   }else if(name=="nTrigSPS"){
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[1]));
   }else if(name=="nTrigSPSVsnTrig"){
-   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]));
+   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]));
   }else if(name=="nTrigSPSVsnTrig3D"){
-   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2])); // FIX
+   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2])); // FIX
 //    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
 //    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
 //    variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
@@ -1024,9 +1024,9 @@ void plotterTools::computeVariable(TString name){
    varplots[name]->Fill(pos);
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
  }else if(name=="deltaTime10"){
    varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]));
 
