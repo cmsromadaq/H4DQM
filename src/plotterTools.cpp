@@ -1,15 +1,15 @@
 #include <plotterTools.hpp>
 #include <assert.h>
-#define VERBOSE 0
 
+#define VERBOSE 0
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
   if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
-  members.push_back(std::make_pair<TString,int>(name,pos));
+  members.push_back(make_pair(name,pos));
 }
 
 template <class T, class D> void outTreeBranch<T,D>::addDummy(int howmany){
-  for (int i=0; i<howmany; i++) members.push_back(std::make_pair<TString,int>("DUMMY",-1));
+  for (int i=0; i<howmany; i++) members.push_back(make_pair(TString("DUMMY"),int(-1)));
 }
 
 template <class T, class D> void outTreeBranch<T,D>::Fill(){
@@ -674,7 +674,7 @@ void  plotterTools::plotMe (TH2F * histo, TString name)
   }
   else histo->Draw ("colz") ;
 
-  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(2500,3700);
+  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(3000,3700);
 
   c1->Print (canvasName, "png") ;
   set_palette_fancy();
@@ -1259,14 +1259,14 @@ void plotterTools::initAdcChannelNames(int nBinsHistory){
     }
     name+='_';
     name+=physchmap[treeStruct_.adcChannel[i]];
-    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
+    adc_channelnames.insert(make_pair(name,&(treeStruct_.adcData[i])));
     addPlot(1,name.Data(),4096,0,4096,"1D",group_,module_);
     name.Append("_hist");
-    adc_channelnames.insert(std::make_pair<TString,UInt_t*>(name,&(treeStruct_.adcData[i])));
+    adc_channelnames.insert(make_pair(name,&(treeStruct_.adcData[i])));
     addPlot(0,name.Data(), nBinsHistory, "history", group_,module_);
   }
 
-  addPlot(1,"MatrixView",5,-2.5,2.5,5,-2.5,2.5,"X view from back","Y view from back","2D", group_, module_,false,true);
+  //  addPlot(1,"MatrixView",5,-2.5,2.5,5,-2.5,2.5,"X view from back","Y view from back","2D", group_, module_,false,true);
 
 }
 
@@ -1330,7 +1330,7 @@ void plotterTools::initDigiPlots(){
         }
     }
 
-  addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
+  //  addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
 
 }
 
@@ -1429,7 +1429,7 @@ void plotterTools::initTreeVars(){
   outTreeBranch<float,float> *br;
   br = new outTreeBranch<float,float>("ADCvalues",&varplots);
   if (wantADCplots){
-    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
     for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
   }
   else br->addDummy(28);
@@ -1438,58 +1438,58 @@ void plotterTools::initTreeVars(){
   for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
   for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
   for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
-  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
-  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
   treevars[br->name]=br;
 
-  br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_max_amplitude",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_charge_integrated",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_charge_integrated",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal_rms",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_max",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac30",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac50",i)); // CEF3
-  else br->addDummy(nActiveDigitizerChannels);
-  treevars[br->name]=br;
-
-
-  br = new outTreeBranch<float,float>("BGOvalues",&varplots);
-  if (wantADCplots) for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
-  else br->addDummy(24);
-  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_max_amplitude",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_max_amplitude",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_charge_integrated",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_charge_integrated",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_pedestal_rms",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_pedestal_rms",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_max",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_max",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac30",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac30",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr0_ch%d_time_at_frac50",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr1_ch%d_time_at_frac50",i)); // CEF3
+//  else br->addDummy(nActiveDigitizerChannels);
+//  treevars[br->name]=br;
+//
+//
+//  br = new outTreeBranch<float,float>("BGOvalues",&varplots);
+//  if (wantADCplots) for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+//  else br->addDummy(24);
+//  treevars[br->name]=br;
   br = new outTreeBranch<float,float>("SCINTvalues",&varplots);
   if (wantADCplots) for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
   else br->addDummy(4);
@@ -1635,7 +1635,7 @@ void  plotterTools::Loop()
 
     } // loop over the events
 
-  fillMatrixView();
+  //  fillMatrixView();
 
   std::cout << outputTree->GetEntries() << std::endl;
 
