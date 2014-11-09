@@ -64,13 +64,13 @@ int main (int argc, char ** argv)
   plotter.setModule("beam");
   plotter.setGroup("hodo");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
-  //  plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
+  //plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
   plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("TDC"); 
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
-  plotter.setGroup("ADC");
-  plotter.bookPlotsADC();
+  //plotter.setGroup("ADC");
+  //plotter.bookPlotsADC();
   plotter.setGroup("digitizer");
   plotter.bookPlotsDigitizer();
 
@@ -104,6 +104,4 @@ int main (int argc, char ** argv)
 
 
   return 0 ;
-
-
 }

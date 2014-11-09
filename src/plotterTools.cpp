@@ -1318,10 +1318,10 @@ void plotterTools::initDigiPlots(){
 	  std::cout << "ADDED " << thisname.Data() << " " << varplots[thisname]->name.Data() << std::endl;
 
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
+	  addPlot(0,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
-	  addPlot(1,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
+	  addPlot(0,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
+	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 
@@ -1333,10 +1333,12 @@ void plotterTools::initDigiPlots(){
 }
 
 TString plotterTools::getDigiChannelName(int group, int channel){
-  TString name = "digi_gr" ;
-  name += group ;
-  name += "_ch" ;
-  name += channel ;
+  //TString name = "digi_gr" ;
+  //name += group ;
+  //name += "_ch" ;
+  //name += channel ;
+  TString name = "digi_ch" ;
+  name += group*8 + channel ;
   return name;
 }
 
@@ -1425,20 +1427,20 @@ void plotterTools::initTreeDQMBranches(){
 void plotterTools::initTreeVars(){
 
   outTreeBranch<float,float> *br;
-  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
-  if (wantADCplots){
-    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
-    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
-  }
-  else br->addDummy(28);
-  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
-  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
-  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
-  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
-  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
-  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
-  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
-  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
+//  if (wantADCplots){
+//    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+//    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+//  }
+//  else br->addDummy(28);
+//  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
+//  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
+//  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
+//  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
+//  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
+//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
+//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
+//  treevars[br->name]=br;
 
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   for (int j=0; j<4; j++){

@@ -34,13 +34,13 @@ done
 cd $output/$run/$spill/$dir/
 mkdir hodo
 mkdir DAQ
-mkdir ADC
+#mkdir ADC
 mkdir TDC 
 mkdir digitizer 
 
 mv total/hodo_* hodo/
 mv total/DAQStatus_* DAQ/
-mv total/ADC_* ADC/
+#mv total/ADC_* ADC/
 mv total/TDC_* TDC/
 mv total/digitizer_* digitizer/
 mv total/*.root .
@@ -53,7 +53,8 @@ rm -r total
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 #for dir in hodo TDC DAQ digitizer total
-for dir in digitizer hodo DAQ ADC TDC
+#for dir in digitizer hodo DAQ ADC TDC
+for dir in digitizer hodo DAQ TDC
 #for dir in hodo DAQ ADC TDC
 do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
