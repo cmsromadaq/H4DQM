@@ -1311,6 +1311,7 @@ void plotterTools::initDigiPlots(){
 	  
           TString name = getDigiChannelName(*iGroup,*iChannel);
           addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+          addPlot(1,Form("%s_map",name.Data()), 8, 0, 8, 8, 0, 8, "x", "y", "2D", group_, module_, 1, true) ;
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(0,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
@@ -1334,8 +1335,7 @@ TString plotterTools::getDigiChannelName(int group, int channel){
   //name += group ;
   //name += "_ch" ;
   //name += channel ;
-  TString name = "digi_ch" ;
-  name += group*8 + channel ;
+  TString name = Form("digi_ch%02d",group*8+channel) ;
   return name;
 }
 
