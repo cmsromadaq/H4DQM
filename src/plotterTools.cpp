@@ -1308,23 +1308,20 @@ void plotterTools::initDigiPlots(){
         {
 
 	  if (*iChannel>=nActiveDigitizerChannels) continue;
-
+	  
           TString name = getDigiChannelName(*iGroup,*iChannel);
-	  TString thisname = Form("%s_%s",name.Data(),"pulse");
-          addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, 
-		  "time", "voltage",
-		  "2D", group_, module_, 1, true) ;
-	  varplots[thisname]->waveform = new Waveform();
-	  std::cout << "ADDED " << thisname.Data() << " " << varplots[thisname]->name.Data() << std::endl;
-
+          addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
 	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(0,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
-	  addPlot(0,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
-
+	  
+	  TString thisname = Form("%s_%s",name.Data(),"pulse");
+ 	  varplots[thisname]->waveform = new Waveform();
+	  std::cout << "ADDED " << thisname.Data() << " " << varplots[thisname]->name.Data() << std::endl;
         }
     }
 
