@@ -43,35 +43,71 @@ template <class D> void varPlot<D>::SetGM(TString group_, TString module_){
   module = module_;
 }
 
-template <class D> void varPlot<D>::Fill(D val, int i) {
-  if (type!=kPlot1D && type!=kPlotGraph) {std::cout << "WRONG 1D " << name.Data() << std::endl; return;}
-  if (type==kPlot1D){
-    if (i<0) x.push_back(val);
-    else {
-      if (x.size()<=i) x.resize(i+1);
-      x.at(i)=val;
-    }
-  }
-  if (type==kPlot1D) (dynamic_cast<TH1F*>(plot))->Fill(val);
-  else if (type==kPlotGraph) (dynamic_cast<TGraph*>(plot))->SetPoint(*iHistEntry,*iThisEntry,val);
-}
-template <class D> void varPlot<D>::Fill2D(D valX, D valY, int i) {
-  if (type!=kPlot2D) {std::cout << "WRONG 2D " << name.Data() << std::endl; return;}
-  if (type==kPlot2D){
-    if (i<0) {x.push_back(valX); y.push_back(valY);}
-    else {
-      if (x.size()<=i) {
-	x.resize(i+1);
-	y.resize(i+1);
+template <class D> void varPlot<D>::Fill(D valX, D valY, int i) {
+  if (type!=kPlot1D && type!=kPlotGraph && type!=kPlot1DProf) {std::cout << "WRONG 1D " << name.Data() << std::endl; return;}
+  if (type==kPlot1D)
+    {
+      if (i<0) x.push_back(valX);
+      else {
+	if (x.size()<=i) x.resize(i+1);
+	x.at(i)=valX;
       }
-      x.at(i)=valX;
-      y.at(i)=valY;
+      (dynamic_cast<TH1F*>(plot))->Fill(valX);
     }
-  }
-  if (type==kPlot2D) (dynamic_cast<TH2F*>(plot))->Fill(valX,valY);
+  if (type==kPlot1DProf)
+    {
+      if (i<0) {x.push_back(valX); y.push_back(valY);}
+      else
+	{
+	  if (x.size()<=i){
+	    x.resize(i+1);
+	    y.resize(i+1);
+	  }
+	  x.at(i)=valX;
+	  y.at(i)=valY;
+	}
+      (dynamic_cast<TProfile*>(plot))->Fill(valX,valY);
+    }
+  if (type==kPlotGraph)
+    {
+      (dynamic_cast<TGraph*>(plot))->SetPoint(*iHistEntry,*iThisEntry,valX);
+    }
+}
+template <class D> void varPlot<D>::Fill2D(D valX, D valY, D valZ, int i) {
+  if (type!=kPlot2D && type!=kPlot2DProf) {std::cout << "WRONG 2D " << name.Data() << std::endl; return;}
+  if (type==kPlot2D)
+    {
+      if (i<0) {x.push_back(valX); y.push_back(valY);}
+      else
+	{
+	  if (x.size()<=i) {
+	    x.resize(i+1);
+	    y.resize(i+1);
+	  }
+	  x.at(i)=valX;
+	  y.at(i)=valY;
+	}
+      (dynamic_cast<TH2F*>(plot))->Fill(valX,valY);
+    }
+  if (type==kPlot2DProf)
+    {
+      if (i<0) {x.push_back(valX); y.push_back(valY); z.push_back(valZ);}
+      else {
+	if (x.size()<=i) {
+	  x.resize(i+1);
+	  y.resize(i+1);
+	  z.resize(i+1);
+	}
+	x.at(i)=valX;
+	y.at(i)=valY;
+	z.at(i)=valZ;
+      }
+      (dynamic_cast<TProfile2D*>(plot))->Fill(valX,valY,valZ);
+    }
 }
 
-template <class D> varPlot<D>::varPlot(){
+template <class D> varPlot<D>::varPlot()
+{
   xptr = &x;
   yptr = &y;
   plot = NULL;
@@ -80,7 +116,12 @@ template <class D> varPlot<D>::varPlot(){
   doProfile = false;
 }
 
-template <class D> varPlot<D>::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_): iThisEntry(iThisEntry_), iHistEntry(iHistEntry_), type(type_), doProfile(profile_){
+template <class D> varPlot<D>::varPlot(int *iThisEntry_, int *iHistEntry_, PlotType type_, bool profile_, uint size_):
+  iThisEntry(iThisEntry_),
+  iHistEntry(iHistEntry_),
+  type(type_),
+  doProfile(profile_)
+{
   x.resize(size_);
   y.resize(size_);
   xptr = &x;
@@ -373,9 +414,18 @@ void plotterTools::set_palette_fancy (){
   Double_t blue[NRGBs] = {b[4],b[3],b[2],b[1],b[0] };
   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   gStyle->SetNumberContours(NCont);
+}
 
+void plotterTools::set_palette_fancy2 (){
+  const Int_t NRGBs = 5;
+  const Int_t NCont = 255;
 
-
+  Double_t stops[NRGBs] = { 0.00, 0.34, 0.61, 0.84, 1.00 };
+  Double_t red[NRGBs]   = { 0.00, 0.00, 0.87, 1.00, 0.51 };
+  Double_t green[NRGBs] = { 0.00, 0.81, 1.00, 0.20, 0.00 };
+  Double_t blue[NRGBs]  = { 0.51, 1.00, 0.12, 0.00, 0.00 };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
 }
 
 void plotterTools::set_palette_twocolor (int col1, int col2){
@@ -604,64 +654,13 @@ void  plotterTools::plotMe (TH1F * histo, TString name)
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-void  plotterTools::plotMeOld (TH2F * histo, bool makeProfile, TString name)
-{
-
-  gStyle->SetPadTopMargin(0.05);
-  gStyle->SetPadBottomMargin(0.13);//0.13);
-  gStyle->SetPadLeftMargin(0.17);//0.16);
-  gStyle->SetPadRightMargin(0.13);//0.02);
-  
-  gStyle->SetStatX (0.85) ;
-  gStyle->SetStatY (0.45) ;
-  gStyle->SetStatW (0.2) ;
-  gStyle->SetStatH (0.15) ;
-
-  TString hname = (name==TString("")) ? histo->GetName () : name.Data();
-  TString  canvasName = outputDir_+ "/"+hname + ".png" ;
-  TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
-
-  if (!makeProfile)
-    {
-      if (hname.Contains("MatrixView")){
-	set_palette_twocolor(kWhite,kCyan);
-	histo->SetMarkerColor(kBlack);
-	histo->SetStats(kFALSE);
-	histo->Draw ("colz text e1") ;
-      }
-      else histo->Draw ("colz") ;
-      c1->Update();
-      c1->Print (canvasName, "png") ;
-      set_palette_fancy();
-    }
-  else
-    {
-
-      TProfile * dummy = histo->ProfileX () ;
-      dummy->SetMarkerColor (2) ;
-      dummy->SetMarkerStyle (5) ;
-      float Xmin = dummy->GetBinLowEdge (1) ;
-      float Xmax = dummy->GetBinLowEdge (dummy->GetNbinsX ()) + dummy->GetBinWidth (1) ;
-      float Ymin = getMinimumP (dummy) ; 
-      float Ymax = getMaximumP (dummy) ; 
-      float delta = Ymax - Ymin ;
-      Ymin -= 0.1 * delta ;
-      Ymax += 0.1 * delta ;
-      
-      TH1F * hdummy = c1->DrawFrame (Xmin, Ymin, Xmax, Ymax) ;
-      histo->Draw ("colz same") ;
-      dummy->Draw ("same") ;
-      c1->Print (canvasName, "png") ;
-      delete hdummy ;
-    }
-  delete c1 ;
-  return ;
-
-}
-
 void  plotterTools::plotMe (TH2F * histo, TString name)
 {
-
+  gStyle->SetPadTopMargin(0.10);
+  gStyle->SetPadBottomMargin(0.10);
+  gStyle->SetPadLeftMargin(0.10);
+  gStyle->SetPadRightMargin(0.15);
+  
   TString hname = (name==TString("")) ? histo->GetName () : name.Data();
   TString  canvasName = outputDir_+ "/"+hname + ".png" ;
   TCanvas*  c1 = new TCanvas ("c1", "c1", 800, 800) ;
@@ -672,10 +671,20 @@ void  plotterTools::plotMe (TH2F * histo, TString name)
     histo->SetStats(kFALSE);
     histo->Draw ("colz text e1") ;
   }
+  else if (hname.Contains("map")){
+    set_palette_fancy2();
+    histo->SetMarkerColor(kBlack);
+    histo->SetStats(kFALSE);
+    histo->Draw ("colz text") ;
+  }
+  else if (hname.Contains("_pulse")){
+    histo->GetYaxis()->SetRangeUser(2000,3700);
+    histo->SetStats(kFALSE);
+    histo->Draw ("colz") ;
+  }
   else histo->Draw ("colz") ;
-
-  if (hname.Contains("_pulse")) histo->GetYaxis()->SetRangeUser(3000,3700);
-
+  
+  std::cout << "plotting " << name << std::endl;
   c1->Print (canvasName, "png") ;
   set_palette_fancy();
   
@@ -735,15 +744,15 @@ void  plotterTools::setAxisTitles (TGraph * histo, const TString  xTitle, const 
 void plotterTools::computeVariable(TString name){
  
  if(name=="triggerEff"){
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
  }else if(name=="nEvts"){
-   varplots[name]->Fill(((float)treeStruct_.evtNumber));
+   varplots[name]->Fill(((float)treeStruct_.evtNumber),1.);
   }else if(name=="nTrigSPS"){
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[1]),1.);
   }else if(name=="nTrigSPSVsnTrig"){
-   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]));
+   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]),1.);
   }else if(name=="nTrigSPSVsnTrig3D"){
-   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2])); // FIX
+   //   varplots[name]->Fill2D(((float)treeStruct_.scalerWord[1]),((float)treeStruct_.scalerWord[2]),1.); // FIX
 //    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
 //    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
 //    variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
@@ -753,7 +762,7 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX1][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="nFibersOnY1"){
 
@@ -761,7 +770,7 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY1][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="nFibersOnX2"){
 
@@ -769,7 +778,7 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX2][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="nFibersOnY2"){
 
@@ -777,58 +786,58 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY2][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="beamProfileX1"){
 
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,i);
+     else varplots[name]->Fill(0,1.,i);
    }
 
  }else if(name=="beamProfileY1"){
 
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,i);
+     else varplots[name]->Fill(0,1.,i);
    }
 
  }else if(name=="beamProfileX2"){
 
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,i);
+     else varplots[name]->Fill(0,1.,i);
    }
 
  }else if(name=="beamProfileY2"){
 
    for(int i=0;i<64;i++){
      if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,i);
+     else varplots[name]->Fill(0,1.,i);
    }
 
  }else if(name=="beamProfileDrawX1"){
 
    for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(i);
+     if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(i,1.);
    }
 
  }else if(name=="beamProfileDrawY1"){
 
    for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(i);
+     if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(i,1.);
    }
 
  }else if(name=="beamProfileDrawX2"){
 
    for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(i);
+     if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(i,1.);
    }
 
  }else if(name=="beamProfileDrawY2"){
 
    for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(i);
+     if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(i,1.);
    }
 
  }else if(name=="beamPositionX1"){
@@ -846,7 +855,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
 
  }else if(name=="beamPositionY1"){
@@ -864,7 +873,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
 
  }else if(name=="beamPositionX2"){
@@ -882,7 +891,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
 
  }else if(name=="beamPositionY2"){
@@ -900,30 +909,30 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
 
  }else if(name == "beamProfileSmallX"){//small hodo
    
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(1,i);
+     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(1,1.,i);
      else varplots[name]->Fill(0,i);
    }
  }else if(name == "beamProfileSmallY"){
 
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(1,i);
+     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(1,1.,i);
      else varplots[name]->Fill(0,i);
    }
  }else if(name == "beamProfileDrawSmallX"){//small hodo
    
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(i);
+     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(i,1.);
    }
  }else if(name == "beamProfileDrawSmallY"){
 
    for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(i);
+     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(i,1.);
    }
  }else if(name=="nFibersOnSmallX"){
 
@@ -931,7 +940,7 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<nFibersSmallHodo;i++){
      if(fibersOnSmall_[hodoSmallX][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="nFibersOnSmallY"){
 
@@ -939,7 +948,7 @@ void plotterTools::computeVariable(TString name){
    for(int i=0;i<nFibersSmallHodo;i++){
      if(fibersOnSmall_[hodoSmallY][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn);
+   varplots[name]->Fill(fibersOn,1.);
 
  }else if(name=="beamPositionSmallX"){
 
@@ -959,7 +968,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
  }else if(name=="beamPositionSmallY"){
 
@@ -979,7 +988,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
  }else if(name=="beamPositionX"){
 
@@ -1000,7 +1009,7 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
  }else if(name=="beamPositionY"){
 
@@ -1021,60 +1030,60 @@ void plotterTools::computeVariable(TString name){
    }else{
      pos=-1;
    }
-   varplots[name]->Fill(pos);
+   varplots[name]->Fill(pos,1.);
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]));
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
  }else if(name=="deltaTime10"){
-   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]));
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]),1.);
 
  }else if(name=="deltaTime20"){
-   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[2]-(int64_t)timeStart_[0]));
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[2]-(int64_t)timeStart_[0]),1.);
 
  }else if(name=="deltaTime21"){
-   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[1])-((int64_t)timeStart_[2]-(int64_t)timeStart_[1]));
+   varplots[name]->Fill(((int64_t)treeStruct_.evtTime[2]-(int64_t)treeStruct_.evtTime[1])-((int64_t)timeStart_[2]-(int64_t)timeStart_[1]),1.);
 
  }else if(name=="nTotalEvts"){
-   varplots[name]->Fill(((float)1.));
+   varplots[name]->Fill(((float)1.),1.);
   
  }else if(name=="MULTILINE_time0"){
-   varplots[name]->Fill((int64_t)treeStruct_.evtTime[0]-(int64_t)timeStart_[0]);
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[0]-(int64_t)timeStart_[0],1.);
   
  }else if(name=="MULTILINE_time1"){
-   varplots[name]->Fill((int64_t)treeStruct_.evtTime[1]-(int64_t)timeStart_[1]);
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[1]-(int64_t)timeStart_[1],1.);
   
  }else if(name=="MULTILINE_time2"){
-   varplots[name]->Fill((int64_t)treeStruct_.evtTime[2]-(int64_t)timeStart_[2]);
+   varplots[name]->Fill((int64_t)treeStruct_.evtTime[2]-(int64_t)timeStart_[2],1.);
   }
  else if(name=="TDCinputTime1"){//TDC
-   for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[0].at(j));
+   for (uint j=0; j<tdc_readings[0].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[0].at(j),1.);
  }
  else if(name=="TDCinputTime2"){
-   for (uint j=0; j<tdc_readings[1].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[1].at(j));
+   for (uint j=0; j<tdc_readings[1].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[1].at(j),1.);
  }
  else if(name=="TDCinputTime3"){
-   for (uint j=0; j<tdc_readings[2].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[2].at(j));
+   for (uint j=0; j<tdc_readings[2].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[2].at(j),1.);
  }
  else if(name=="TDCinputTime4"){
-   for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[3].at(j));
+   for (uint j=0; j<tdc_readings[3].size() && j<MaxTdcReadings; j++) varplots[name]->Fill(tdc_readings[3].at(j),1.);
  }
  else if(name=="TDCrecoX"){
-   varplots[name]->Fill(tdc_recox);
+   varplots[name]->Fill(tdc_recox,1.);
  }
  else if(name=="TDCrecoY"){
-   varplots[name]->Fill(tdc_recoy);
+   varplots[name]->Fill(tdc_recoy,1.);
  }else if(name=="nTdcChannels"){
-   varplots[name]->Fill(treeStruct_.nTdcChannels);
+   varplots[name]->Fill(treeStruct_.nTdcChannels,1.);
  } else if(name=="TDCrecoPos"){
-   varplots[name]->Fill2D(tdc_recox,tdc_recoy);
+   varplots[name]->Fill2D(tdc_recox,tdc_recoy,1.);
  }
 
  {
    std::map<TString,UInt_t*>::const_iterator it = adc_channelnames.find(name);
    if (it!=adc_channelnames.end()){
-     varplots[name]->Fill(*(it->second));
+     varplots[name]->Fill(*(it->second),1.);
    }
  }
 
@@ -1286,7 +1295,6 @@ plotterTools::listElements (T * array, int Nmax)
 
 
 void plotterTools::initDigiPlots(){
-
   group_ = "digitizer";
 
   std::set<int> channels = listElements (treeStruct_.digiChannel,  treeStruct_.nDigiSamples) ;
@@ -1299,35 +1307,39 @@ void plotterTools::initDigiPlots(){
   int yNbins = 4096;
   float ymin = 0;
   float ymax = 4096;
-
+  
   for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
     {
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
         {
-
 	  if (*iChannel>=nActiveDigitizerChannels) continue;
 	  
           TString name = getDigiChannelName(*iGroup,*iChannel);
           addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
-          addPlot(1,Form("%s_map",name.Data()), 8, 0, 8, 8, 0, 8, "x", "y", "2D", group_, module_, 1, true) ;
-	  addPlot(0,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
-	  addPlot(0,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
+	  addPlot(1,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
+	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoX2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoY2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  
 	  TString thisname = Form("%s_%s",name.Data(),"pulse");
  	  varplots[thisname]->waveform = new Waveform();
-	  std::cout << "ADDED " << thisname.Data() << " " << varplots[thisname]->name.Data() << std::endl;
         }
     }
-
-  //  addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
-
+  
+  addPlot(1,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(1,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(1,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(1,Form("allCh_pedestal_rms_map"), 8, 0, 8, 8, 0, 8, 2.0, 4.0, "x", "y", "2DProf", group_, module_, 1, true) ;
+  //addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
 }
 
 TString plotterTools::getDigiChannelName(int group, int channel){
@@ -1337,6 +1349,88 @@ TString plotterTools::getDigiChannelName(int group, int channel){
   //name += channel ;
   TString name = Form("digi_ch%02d",group*8+channel) ;
   return name;
+}
+
+
+int plotterTools::getDigiChannelX(TString name){
+  std::string nameStr = std::string(name);
+  std::size_t pos = nameStr.find("ch");
+  std::string chStr = nameStr.substr(pos+2,2);
+  int chId = atoi(chStr.c_str());
+  if( chId ==  0 ) return 0;
+  if( chId ==  1 ) return 1;
+  if( chId ==  2 ) return 3;
+  if( chId ==  3 ) return 4;
+  if( chId ==  4 ) return 6;
+  if( chId ==  5 ) return 7;
+  if( chId ==  6 ) return 2;
+  if( chId ==  7 ) return 3;
+  if( chId ==  8 ) return 4;
+  if( chId ==  9 ) return 5;
+  if( chId == 10 ) return 0;
+  if( chId == 11 ) return 2;
+  if( chId == 12 ) return 3;
+  if( chId == 13 ) return 4;
+  if( chId == 14 ) return 5;
+  if( chId == 15 ) return 7;
+  if( chId == 16 ) return 0;
+  if( chId == 17 ) return 2;
+  if( chId == 18 ) return 3;
+  if( chId == 19 ) return 4;
+  if( chId == 20 ) return 5;
+  if( chId == 21 ) return 7;
+  if( chId == 22 ) return 2;
+  if( chId == 23 ) return 3;
+  if( chId == 24 ) return 4;
+  if( chId == 25 ) return 5;
+  if( chId == 26 ) return 0;
+  if( chId == 27 ) return 1;
+  if( chId == 28 ) return 3;
+  if( chId == 29 ) return 4;
+  if( chId == 30 ) return 6;
+  if( chId == 31 ) return 7;
+  return -1;
+}
+
+
+int plotterTools::getDigiChannelY(TString name){
+  std::string nameStr = std::string(name);
+  std::size_t pos = nameStr.find("ch");
+  std::string chStr = nameStr.substr(pos+2,2);
+  int chId = atoi(chStr.c_str());
+  if( chId ==  0 ) return 7;
+  if( chId ==  1 ) return 7;
+  if( chId ==  2 ) return 7;
+  if( chId ==  3 ) return 7;
+  if( chId ==  4 ) return 7;
+  if( chId ==  5 ) return 7;
+  if( chId ==  6 ) return 5;
+  if( chId ==  7 ) return 5;
+  if( chId ==  8 ) return 5;
+  if( chId ==  9 ) return 5;
+  if( chId == 10 ) return 4;
+  if( chId == 11 ) return 4;
+  if( chId == 12 ) return 4;
+  if( chId == 13 ) return 4;
+  if( chId == 14 ) return 4;
+  if( chId == 15 ) return 4;
+  if( chId == 16 ) return 3;
+  if( chId == 17 ) return 3;
+  if( chId == 18 ) return 3;
+  if( chId == 19 ) return 3;
+  if( chId == 20 ) return 3;
+  if( chId == 21 ) return 3;
+  if( chId == 22 ) return 2;
+  if( chId == 23 ) return 2;
+  if( chId == 24 ) return 2;
+  if( chId == 25 ) return 2;
+  if( chId == 26 ) return 0;
+  if( chId == 27 ) return 0;
+  if( chId == 28 ) return 0;
+  if( chId == 29 ) return 0;
+  if( chId == 30 ) return 0;
+  if( chId == 31 ) return 0;
+  return -1;
 }
 
 
@@ -1438,40 +1532,40 @@ void plotterTools::initTreeVars(){
 //  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
 //  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
 //  treevars[br->name]=br;
-
+  
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_max_amplitude",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_max_amplitude",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_charge_integrated",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_charge_integrated",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_pedestal",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_pedestal",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_pedestal_rms",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_pedestal_rms",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_time_at_max",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_max",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_time_at_frac30",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_frac30",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
   for (int j=0; j<4; j++){
-    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_gr%d_ch%d_time_at_frac50",j,i));
+    if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_frac50",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
 
@@ -1536,8 +1630,9 @@ void  plotterTools::Loop()
     {
       inputTree_->GetEntry(iEntry);
 
-      if (iEntry%1000==0) std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
-
+      if (iEntry%1000==0)
+	std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
+      
       if(iEntry==0){
 	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeStart_[i]=treeStruct_.evtTime[i];
@@ -1575,7 +1670,7 @@ void  plotterTools::Loop()
 
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  if (it->second->waveform) it->second->waveform->clear();
-
+	
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
 
@@ -1583,7 +1678,7 @@ void  plotterTools::Loop()
 
 	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
 	    thisname=Form("%s_%s",thisname.Data(),"pulse");
-	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample]);
+	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
 	  }
 
@@ -1592,31 +1687,61 @@ void  plotterTools::Loop()
 	//Add reconstruction of waveforms
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  {
-
 	    if (!(it->second->waveform)) continue;
-
+	    
 	    Waveform::baseline_informations wave_pedestal;
 	    Waveform::max_amplitude_informations wave_max;
-
+	    
 	    wave_pedestal=it->second->waveform->baseline(5,44); //use 40 samples between 5-44 to get pedestal and RMS
 	    it->second->waveform->offset(wave_pedestal.pedestal);
-
+	    
 	    it->second->waveform->rescale(-1); 
-	    wave_max=it->second->waveform->max_amplitude(50,300,5); //find max amplitude between 50 and 500 samples
-
+	    wave_max=it->second->waveform->max_amplitude(50,900,5); //find max amplitude between 50 and 900 samples
+	    
 	    TString thisname = it->second->name.ReplaceAll("_pulse","");
-	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal);
-	    varplots[Form("%s_pedestal_rms",thisname.Data())]->Fill(wave_pedestal.rms);
-	    varplots[Form("%s_max_amplitude",thisname.Data())]->Fill(wave_max.max_amplitude);
-	    varplots[Form("%s_charge_integrated",thisname.Data())]->Fill(it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9);
-	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9);
-	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9);
-
+	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal,1.);
+	    varplots[Form("%s_pedestal_rms",thisname.Data())]->Fill(wave_pedestal.rms,1.);
+	    varplots[Form("%s_max_amplitude",thisname.Data())]->Fill(wave_max.max_amplitude,1.);
+	    varplots[Form("%s_charge_integrated",thisname.Data())]->Fill(it->second->waveform->charge_integrated(0,900),1.); // pedestal already subtracted
+	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9,1.);
+	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
+	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
+	    
+	    int x1 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
+	      if(fibersOn_[hodoX1][i]==1 && x1!=-1) { x1 = -1; break; }
+	    }
+	    int y1 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoY1][i]==1 && y1==-1) y1 = i;
+	      if(fibersOn_[hodoY1][i]==1 && y1!=-1) { y1 = -1; break; }
+	    }
+	    int x2 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoX2][i]==1 && x2==-1) x2 = i;
+	      if(fibersOn_[hodoX2][i]==1 && x2!=-1) { x2 = -1; break; }
+	    }
+	    int y2 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
+	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
+	    }
+	    
+	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_charge_integrated_vs_hodoY2",thisname.Data())]->Fill(y2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    
+	    
+	    int x = getDigiChannelX(it->second->name);
+	    int y = getDigiChannelY(it->second->name);
+	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted	
+	    varplots["allCh_max_amplitude_map"]->Fill2D(x,y,wave_max.max_amplitude); // pedestal already subtracted
+	    varplots["allCh_pedestal_map"]->Fill2D(x,y,wave_pedestal.pedestal); // pedestal already subtracted
+	    varplots["allCh_pedestal_rms_map"]->Fill2D(x,y,wave_pedestal.rms); // pedestal already subtracted
 	    sum_amplitudes+=wave_max.max_amplitude;
-
 	  }
-
       }
       
 
@@ -1715,7 +1840,6 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot(0,"TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot(0,"TDChistoryRecoY",nBinsHistory,"history",group_,module_);
   addPlot(1,"TDCrecoPos",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-
 }
 
 void plotterTools::bookCombinedPlots(){
@@ -1765,8 +1889,8 @@ void plotterTools::setPlotAxisRange(TString name, TString axis,float min, float 
 
 //for TGraph
 TGraph *
-plotterTools::addPlot(bool doPlot, TString name,int nPoints,TString type, TString group, TString module, bool vetoFill){
-
+plotterTools::addPlot(bool doPlot, TString name,int nPoints,TString type, TString group, TString module, bool vetoFill)
+{
     if (vetoFill) vetoFillObjects[name]=true;
     else vetoFillObjects[name]=false;
 
@@ -1776,53 +1900,91 @@ plotterTools::addPlot(bool doPlot, TString name,int nPoints,TString type, TStrin
     var->doPlot = doPlot;
     var->SetGM(group,module);
     varplots[name]=var;
-
+    
     return dynamic_cast<TGraph *> (var->GetPlot()) ;
 }
 
 //for TH1F
-TH1F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill){
-
+TH1F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim, bool vetoFill)
+{
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
-
+   
    varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot1D,false,varDim);
    var->SetName(name);
-   var->SetPlot((TObject*) bookHisto(name,nBinsX, xMin, xMax, type, group_,module_));
+   var->SetPlot((TObject*) bookHisto(name, nBinsX, xMin, xMax, type, group_,module_));
    var->doPlot = doPlot;
    var->SetGM(group,module);
    varplots[name]=var;
-
+   
    return dynamic_cast<TH1F *> (var->GetPlot());
+}
 
-
+//for TProfile
+TProfile * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, float yMin, float yMax, TString type, TString group, TString module, int varDim, bool vetoFill)
+{
+   if (vetoFill) vetoFillObjects[name]=true;
+   else vetoFillObjects[name]=false;
+   
+   varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot1DProf,false,varDim);
+   var->SetName(name);
+   var->SetPlot((TObject*) bookHistoProf(name, nBinsX, xMin, xMax, yMin, yMax, type, group_,module_));
+   var->doPlot = doPlot;
+   var->SetGM(group,module);
+   varplots[name]=var;
+   
+   return dynamic_cast<TProfile *> (var->GetPlot());
 }
 
 //for TH2F
 TH2F * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
                              TString xTitle, TString yTitle,TString type, TString group, TString module, bool addProfile, bool vetoFill)
 {
-
-
    if (vetoFill) vetoFillObjects[name]=true;
    else vetoFillObjects[name]=false;
 
    varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot2D,addProfile);
    var->SetName(name);
-   var->SetPlot((TObject*) bookHisto2D(name,nBinsX, xMin, xMax,nBinsY,yMin, yMax,xTitle,yTitle, type, group_,module_));
+   var->SetPlot((TObject*) bookHisto2D(name, nBinsX, xMin, xMax, nBinsY, yMin, yMax, xTitle, yTitle, type, group_,module_));
    var->doPlot = doPlot;
    var->SetGM(group,module);
    varplots[name]=var;
-   std::cout << "ADDED REALLY " << name.Data() << " " << var->name.Data() << std::endl;
-
+   
    return dynamic_cast<TH2F *> (var->GetPlot());
-
 }
 
+
+//for TProfile2D
+TProfile2D * plotterTools::addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, float zMin, float zMax,
+				   TString xTitle, TString yTitle,TString type, TString group, TString module, bool addProfile, bool vetoFill)
+{
+   if (vetoFill) vetoFillObjects[name]=true;
+   else vetoFillObjects[name]=false;
+
+   varPlot<float> *var = new varPlot<float>(&iThisEntry,&iHistEntry,kPlot2DProf,addProfile);
+   var->SetName(name);
+   var->SetPlot((TObject*) bookHisto2DProf(name,nBinsX, xMin, xMax, nBinsY, yMin, yMax, zMin, zMax, xTitle,yTitle, type, group_,module_));
+   var->doPlot = doPlot;
+   var->SetGM(group,module);
+   varplots[name]=var;
+   
+   return dynamic_cast<TProfile2D *> (var->GetPlot());
+}
 
 //TH1F
 TH1F* plotterTools::bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module){
   TH1F* histo = new TH1F (name, name , nBinsX, xMin, xMax);
+  return histo;
+}
+
+//TProfile
+TProfile* plotterTools::bookHistoProf(TString name,int nBinsX,float xMin, float xMax, float yMin, float yMax, TString type, TString group, TString module){
+  TProfile* histo = new TProfile (name, name , nBinsX, xMin, xMax);
+  if(yMin!=-999999 && yMax!=999999)
+    {
+      histo -> SetMinimum(yMin);
+      histo -> SetMaximum(yMax);
+    }
   return histo;
 }
 
@@ -1832,7 +1994,19 @@ TH2F* plotterTools::bookHisto2D(TString name,int nBinsX,float xMin, float xMax,i
   histo->SetXTitle(xTitle);
   histo->SetYTitle(yTitle);
   return histo;
+}
 
+//TProfile2D
+TProfile2D* plotterTools::bookHisto2DProf(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax, float zMin, float zMax, TString xTitle, TString yTitle, TString type, TString group, TString module){
+  TProfile2D* histo = new TProfile2D (name, name, nBinsX, xMin, xMax, nBinsY, yMin, yMax);
+  if(zMin!=-999999 && zMax!=999999)
+    {
+      histo -> SetMinimum(zMin);
+      histo -> SetMaximum(zMax);
+    }
+  histo->SetXTitle(xTitle);
+  histo->SetYTitle(yTitle);
+  return histo;
 }
 
 //combined plots
@@ -2045,10 +2219,10 @@ void plotterTools::plotHistos(){
     if(out->second->type==kPlotGraph)  {
       setAxisTitles((TGraph*)out->second->GetPlot(),"Event",out->second->name.Data());
       plotMe((TGraph*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));
-    }else if(out->second->type==kPlot1D)  {
+    }else if(out->second->type==kPlot1D || out->second->type==kPlot1DProf)  {
       setAxisTitles((TH1F*)out->second->GetPlot(),out->second->name.Data(),"Events");
       plotMe((TH1F*)out->second->GetPlot(),Form("%s_%s",out->second->group.Data(),out->first.Data()));
-    }else if(out->second->type==kPlot2D)  {
+    }else if(out->second->type==kPlot2D || out->second->type==kPlot2DProf)  {
       setAxisTitles((TH2F*)out->second->GetPlot(),((TAxis*)((TH2F*)out->second->GetPlot())->GetXaxis())->GetTitle(),((TAxis*)((TH2F*)out->second->GetPlot())->GetYaxis())->GetTitle());      
       plotMe((TH2F*)out->second->GetPlot(), Form("%s_%s",out->second->group.Data(),out->first.Data()));
     }

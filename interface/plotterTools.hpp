@@ -9,6 +9,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 #include <TGraph.h>
 #include <TRandom.h>
 #include <TChain.h>
@@ -47,7 +48,9 @@
 
 typedef enum PlotType {
   kPlot1D,
+  kPlot1DProf,
   kPlot2D,
+  kPlot2DProf,
   kPlotGraph,
   kPlotHistory
 } PlotType;
@@ -61,8 +64,8 @@ public:
   std::pair<D*,D*> Get2D(uint i);
   uint Size();
   TObject* Plot();
-  void Fill(D val, int i=-1);
-  void Fill2D(D valX, D valY, int i=-1);
+  void Fill(D valX, D valY, int i=-1);
+  void Fill2D(D valX, D valY, D valZ, int i=-1);
   void ClearVectors();
   varPlot();
   varPlot(int *iThisEntry, int *iHistEntry_, PlotType type_, bool profile_=false, uint size_=0);
@@ -88,6 +91,7 @@ public:
   int type;
   std::vector<D> x;
   std::vector<D> y;
+  std::vector<D> z;
   TObject *plot;
 
   std::vector<D> *xptr;
@@ -187,6 +191,8 @@ public:
   map <int, Waveform *> digi_waveforms;
   void initDigiPlots();
   TString getDigiChannelName(int group, int channel);
+  int getDigiChannelX(TString name);
+  int getDigiChannelY(TString name);
 
   void bookPlotsADC();
   bool wantADCplots;
@@ -216,6 +222,7 @@ public:
   void fillFiberOrder();
   void set_plot_blue ();
   void set_palette_fancy ();
+  void set_palette_fancy2 ();
   void set_palette_twocolor (int col1, int col2);
   void setPlotsFormat ();
   void plotMe (TH1F * histo, TString name="");
@@ -246,11 +253,16 @@ public:
   int getStepHistoryPlots();
   TGraph * addPlot(bool doPlot, TString name,int nPoints,TString type, TString group, TString module, bool vetoFill=false);//TGraph
   TH1F * addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TH1F
+  TProfile * addPlot(bool doPlot, TString name,int nBinsX, float xMin, float xMax, float yMin, float yMax, TString type, TString group, TString module, int varDim=1, bool vetoFill=false);//TProfile
   TH2F * addPlot (bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, 
-                  TString xTitle, TString yTitle, TString type, TString group, TString module, bool addProfile = false, bool vetoFill=false);
+                  TString xTitle, TString yTitle, TString type, TString group, TString module, bool addProfile = false, bool vetoFill=false);//TH2F
+  TProfile2D * addPlot (bool doPlot, TString name,int nBinsX, float xMin, float xMax, int nBinsY, float yMin, float yMax, float zMin, float zMax,
+			TString xTitle, TString yTitle, TString type, TString group, TString module, bool addProfile = false, bool vetoFill=false);//TProfile2D
   void addPlotCombined(bool doPlot, TString name, TString name1, TString name2,TString type, TString group , TString module);
   TH1F* bookHisto(TString name,int nBinsX,float xMin, float xMax, TString type, TString group, TString module);
-  TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax,TString xTitle, TString yTitle, TString type, TString group, TString module);
+  TProfile* bookHistoProf(TString name,int nBinsX,float xMin, float xMax, float yMin, float yMax, TString type, TString group, TString module);
+  TH2F* bookHisto2D(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax, TString xTitle, TString yTitle, TString type, TString group, TString module);
+  TProfile2D* bookHisto2DProf(TString name,int nBinsX,float xMin, float xMax,int nBinsY, float yMin, float yMax, float zMin, float zMax, TString xTitle, TString yTitle, TString type, TString group, TString module);
   TH2F* bookHistoCombined(TString name,TString name1, TString name2);
   void initVariable(TString name, int varDim=1);
   void computeVariable(TString name);
