@@ -45,7 +45,7 @@ int MAROC_ROC::Unpack (dataType &stream, Event * event, boardHeader &bH)
 	//Last word is ADC data XOR values, checking consistency
 	if (currWord != (xor_data&0x1FFF) )
 	  {
-	    cout << "[MAROC_ROC]::[Unpack]     | Event XOR data not consistent " << std::hex << currWord << "," << (xor_data&0x1FFF) << std::dec << endl;
+	    cout << "[MAROC_ROC]::[Unpack]     | Event XOR data inconsistent " << std::hex << currWord << "," << (xor_data&0x1FFF) << std::dec << endl;
 	  }
       }
 
