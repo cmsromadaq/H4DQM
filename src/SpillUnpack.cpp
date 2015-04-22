@@ -85,6 +85,9 @@ int SpillUnpack::AddBoard (boardHeader bH)
   case _LECROY1182_:
     boards_[bH.boardID]= new LECROY_1182(bH.boardSize);
     break;
+  case _MAROCROC_:
+    boards_[bH.boardID]= new MAROC_ROC(bH.boardSize);
+    break;
   case _UNKWN_:
     boards_[bH.boardID]= new DummyBoard;
     std::cout << "UNKNOWN BOARD " << std::hex << bH.boardID << std::dec << std::endl;

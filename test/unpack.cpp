@@ -110,8 +110,9 @@ int main(int argc, char *argv[])
   stringstream outfname ;
   outfname << DIGI_FOLDER << "/" << run << "/" << spill << ".root" ;
   
-  pair <int, string> outCode = execute ("ls " + DIGI_FOLDER + "/" + run) ;
-  if (outCode.first != 0) outCode = execute ("mkdir " + DIGI_FOLDER + "/" + run) ;
+  // pair <int, string> outCode = execute ("ls " + DIGI_FOLDER + "/" + run) ;
+  // if (outCode.first != 0) 
+  pair <int, string> outCode = execute ("mkdir -p " + DIGI_FOLDER + "/" + run) ;
   if (outCode.first != 0) 
     {
       cerr << "[UNPACKER] ERROR RUN " << run << ", SPILL " <<spill

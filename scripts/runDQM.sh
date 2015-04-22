@@ -22,42 +22,34 @@ case "$1" in
 esac
 done
 
-/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill
+$HOME/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill
 
 ### PLOT MAKER -- make me configurable
-### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
-### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
-### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
-#/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
+### $HOME/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
+### $HOME/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
+### $HOME/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
+$HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
+#$HOME/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
+DQMtypes="digitizer hodo DAQ TDC"
 cd $output/$run/$spill/$dir/
-mkdir hodo
-mkdir DAQ
-#mkdir ADC
-mkdir TDC 
-mkdir digitizer 
+for dir in $DQMtypes
+do
+    mkdir $dir
+    mv total/$dir* $dir
+done
 
-mv total/hodo_* hodo/
-mv total/DAQStatus_* DAQ/
-#mv total/ADC_* ADC/
-mv total/TDC_* TDC/
-mv total/digitizer_* digitizer/
 mv total/*.root .
-
 rm -r total
 
 
 ## hodo , TDC , DAQ 
 # copy skeleton php
-rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
-rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
-#for dir in hodo TDC DAQ digitizer total
-#for dir in digitizer hodo DAQ ADC TDC
-for dir in digitizer hodo DAQ TDC
-#for dir in hodo DAQ ADC TDC
+rsync -aP $HOME/DAQ/H4DQM/skel_DQM/ $output/$run/ 
+rsync -aP $HOME/DAQ/H4DQM/skel_DQM/ $output/$run/$spill/
+for dir in $DQMtypes
 do
-	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
+	rsync -aP $HOME/DAQ/H4DQM/skel_DQM/ $output/$run/$spill/$dir/
 done
 
 # touch -R
