@@ -1,13 +1,14 @@
 #include "interface/MAROC_ROC.hpp"
 #include "interface/Event.hpp"
 
+#include <bitset>
+
 #define DEBUG_MAROC_UNPACKER 0
 
 int MAROC_ROC::Unpack (dataType &stream, Event * event, boardHeader &bH) 
 {
   WORD currWord = 0 ;
   adcData thisData;
-
   if (eventSize_ != MAROC_ROC_EVENT_WORDS)
     cout << "[MAROC_ROC][Unpack]        | GOT WRONG NUMBER OF EVENT WORDS " 
 	 << eventSize_ << " EXPECTED " << MAROC_ROC_EVENT_WORDS << "\n" ;
@@ -36,8 +37,12 @@ int MAROC_ROC::Unpack (dataType &stream, Event * event, boardHeader &bH)
 	xor_data=(xor_data^currWord)&0xFFFF;
 
 	if (DEBUG_MAROC_UNPACKER) 
-	  cout << "[MAROC_ROC][Unpack]     | Read pattern: " << thisData.adcReadout
-	       << ", channel " << thisData.channel << ", board " << thisData.board << endl;
+	  {
+	    std::bitset<12> y(currWord);
+		
+	    cout << "[MAROC_ROC][Unpack]     | Read pattern: 0b" << y << " adcData " << thisData.adcReadout
+		 << ", channel " << thisData.channel << ", board " << thisData.board << endl;
+	  }
       }
     //for the last word
     else if (i==MAROC_ROC_EVENT_WORDS-1)
