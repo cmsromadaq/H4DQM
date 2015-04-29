@@ -6,7 +6,7 @@ run="0"
 spill="0"
 prescale=1
 
-TEMP=`getopt -o i:o:r:s: --long input:,output:,run:,spill: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o i:o:r:s:p: --long input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
