@@ -192,9 +192,18 @@ int SpillUnpack::UnpackEvents (WORD nevents, spillHeader *this_spill) {
       if (word == eventHeaderValue) 
         {
           event_->clear () ;
+	  std::streampos eventStartPos=rawFile->tellg();
           rawFile->read ((char*)&eventH.eventNumber, WORDSIZE);
           rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
           rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
+	  if (((eventH.eventNumber+(rand()%999))%2)!=0)
+	    {
+	      //Skipping events with prescale factor
+	      rawFile->seekg(std::streampos(eventH.eventSize-4*WORDSIZE),ios_base::cur);
+	      ++nevt;
+	      continue;
+	    }
+
 	  event_->id.runNumber = this_spill->runNumber;
 	  event_->id.spillNumber = this_spill->spillNumber;
           event_->id.evtNumber = eventH.eventNumber ;
