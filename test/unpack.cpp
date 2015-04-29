@@ -69,24 +69,29 @@ int main(int argc, char *argv[])
   string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
   string run;
   string spill;
+  
+  int prescale=1;
 
   static struct option long_options[] = {
     {"rawfolder", required_argument,       0,  'i' },
     {"digifolder", required_argument,       0,  'o' },
     {"run",    required_argument, 0,  'r' },
     {"spill",    required_argument, 0,  's' },
+    {"prescale",    required_argument, 0,  'p' },
     {0,           0,                 0,  0   }
   };
  
  int long_index =0;
  int opt;
 
- while ((opt = getopt_long(argc, argv,"i:o:r:s:", 
+ while ((opt = getopt_long(argc, argv,"i:o:r:s:p:", 
 			   long_options, &long_index )) != -1) {
    switch (opt) {
    case 'i' : RAW_FOLDER=string(optarg);
      break;
    case 'o' : DIGI_FOLDER=string(optarg);
+     break;
+   case 'p' : prescale=atoi(optarg);
      break;
    case 'r' : run=string(optarg);
      break;
@@ -137,7 +142,7 @@ int main(int argc, char *argv[])
 
   TTree * outTree = new TTree ("H4tree", "H4 testbeam tree") ;
 
-  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree) ;
+  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree, prescale) ;
 
   unpacker->Unpack (-1) ;
 

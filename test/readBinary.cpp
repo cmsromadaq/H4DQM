@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
   TTree * outTree = new TTree ("H4tree", "H4 testbeam tree") ;
 
-  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree) ;
+  SpillUnpack *unpacker = new SpillUnpack (rawFile,outFile, outTree,1) ;
 
   unpacker->Unpack (-1) ;
 

@@ -57,7 +57,7 @@ class SpillUnpack{
 public:
 
   SpillUnpack();
-  SpillUnpack(std::ifstream *in, TFile *out, TTree * outTree);
+  SpillUnpack(std::ifstream *in, TFile *out, TTree * outTree,int prescale);
   ~SpillUnpack();
 
   // add a board if not existing
@@ -82,6 +82,7 @@ private:
   UInt_t  boardId_;//probably useless
   UInt_t  boardType_;
   UInt_t  crateId_;
+  int prescale_;
 //  Int_t  nBoardTypes_;
 
 };

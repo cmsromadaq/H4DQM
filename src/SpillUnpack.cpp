@@ -11,10 +11,11 @@ WORD boardTrailerValue;
 // ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ---- ----
 
 
-SpillUnpack::SpillUnpack(ifstream* in, TFile* out, TTree * outTree) {
+SpillUnpack::SpillUnpack(ifstream* in, TFile* out, TTree * outTree,int prescale) {
   rawFile = in ;
   outFile_ = out ;
   outTree_ = outTree ;
+  prescale_ = prescale;
 
   spillHeaderValue = *((uint32_t*)"SPLH");
   spillTrailerValue = *((uint32_t*)"SPLT");
@@ -196,7 +197,7 @@ int SpillUnpack::UnpackEvents (WORD nevents, spillHeader *this_spill) {
           rawFile->read ((char*)&eventH.eventNumber, WORDSIZE);
           rawFile->read ((char*)&eventH.eventSize, WORDSIZE);
           rawFile->read ((char*)&eventH.nBoards, WORDSIZE);
-	  if (((eventH.eventNumber+(rand()%999))%2)!=0)
+	  if (((eventH.eventNumber+(rand()%999))% prescale_)!=0)
 	    {
 	      //Skipping events with prescale factor
 	      rawFile->seekg(std::streampos(eventH.eventSize-4*WORDSIZE),ios_base::cur);
