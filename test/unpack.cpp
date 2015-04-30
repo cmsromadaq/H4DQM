@@ -107,8 +107,9 @@ int main(int argc, char *argv[])
    }
  }
   
-  cout <<" RAW FOLDER IS: "<<RAW_FOLDER<<endl;
-  cout <<" DIGI FOLDER IS: "<<DIGI_FOLDER<<endl;
+  cout <<"[Unpacker]::[CONFIG]::RAW FOLDER: "<<RAW_FOLDER<<endl;
+  cout <<"[Unpacker]::[CONFIG]::DIGI FOLDER: "<<DIGI_FOLDER<<endl;
+  cout <<"[Unpacker]::[CONFIG]::PRESCALE: "<<prescale<<endl;
 
   stringstream filename ;
   filename << RAW_FOLDER << "/" << run << "/" << spill << ".raw" ;
@@ -150,8 +151,8 @@ int main(int argc, char *argv[])
   outFile->cd () ;
   outTree->Write ("",TObject::kOverwrite) ;
   outFile->Close () ;
-  cout << "[UNPACKER] " << outfname << " is closed." << endl;
+  cout << "[Unpacker]::[INFO]::" << outfname << " is closed" << endl;
 
-  rawFile->close () ;
-  cout << "[UNPACKER] " <<  filename << " is closed." << endl;
+  //  rawFile->close () ;
+  //  cout << "[Unpacker]::[INFO]::" <<  filename << " is closed." << endl;
 }
