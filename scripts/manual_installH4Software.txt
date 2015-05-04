@@ -1,0 +1,97 @@
+##################instructions to install H4 software on a new pc
+
+##manual post installation adjustment: source here http://linux.web.cern.ch/linux/scientific6/docs/install.shtml
+
+/usr/sbin/lcm --configure ntpd afscl
+emacs  /etc/sysconfig/yum-autoupdate and set YUMUPDATE=0
+/sbin/chkconfig --add yum-autoupdate
+ /sbin/service yum-autoupdate start
+ /usr/sbin/lcm --configure srvtab
+/usr/sbin/lcm --configure krb5clt sendmail ntpd chkconfig ocsagent ssh
+/usr/sbin/cern-config-users --setup-all
+/usr/sbin/addusercern micheli peruzzi meridiani pandolf
+/usr/bin/yum -y update
+
+####additional software
+lcm configure defaults
+yum install freenx nxagent nxauth nxproxy xorg-x11-apps screen
+yum install git make gcc-c++ gcc binutils libX11-devel libXpm-devel libXft-devel libXext-devel
+cd /opt/
+
+  #zeromq
+scp pcethtb2:/root/pch4/zeromq-4.0.4.tar.gz .
+tar -xvf zeromq-4.0.4.tar.gz
+./configure --prefix=/usr
+make -j 4
+make install
+cd ..
+scp -r pcethtb3:/opt/cppzmq-master .
+cp cppzmq-master/zmq.hpp /usr/include/
+export LD_LIBRARY_PATH=/opt/root/lib/root:/usr/lib/	
+easy_install pyzmq
+cd..
+
+   #CAEN
+scp -r pcethtb2:/root/pch4/CAEN*.tgz .
+tar -xvf CAENComm-1.2-build20140211.tgz 
+tar -xvf CAENDigitizer_2.4.6.tgz 
+tar -xvf CAENUpgrader-1.5.0-build20120724.tgz 
+tar -xvf CAENVMELib-2.41.tgz 
+
+cd CAENVMELib-2.41/lib/
+./install_x64
+cd ../../CAENComm-1.2/lib/
+./install_x64
+cd ../../CAENDigitizer_2.4.6/
+./install_64
+cd ../CAENUpgrader-1.5.0
+./configure
+make -j 4
+make install
+
+    #ARDUINO
+scp -r pcethtb2:/root/pch4/ARD*.tgz .
+tar -xvf arduino-1.5.7-linux64.tgz
+
+    #ROOT
+scp -r pcethtb2:/root/pch4/root*.tar.gz .
+tar -xvf root_v5.34.20.source.tar.gz
+mv root root-src
+cd root-src
+./configure --enable-genvector --enable-mathmore --enable-minuit2  --enable-opengl --enable-python --enable-reflex --enable-roofit  --enable-table --enable-unuran --enable-tmva --enable-mathmore  --prefix=/opt/root
+make -j 4
+make install
+
+emacs ~/.bashrc
+> add in .bashrc the following lines:
+
+# User specific aliases and functions                                                                                                                                                                             
+
+export SAVEHIST=10000
+export HISTSIZE=20000
+export HISTFILE=${HOME}/.history
+export VISUAL=vim
+export FCEDIT=vim
+
+source /opt/root/bin/thisroot.sh
+
+
+    #Other additional software (most of it should be already installed, not sure if it is useful or not)
+
+ yum install git make gcc-c++ gcc binutils libX11-devel libXpm-devel libXft-devel libXext-devel  gcc-gfortran openssl-devel pcre-devel  mesa-libGL-devel glew-devel ftgl-devel mysql-devel  fftw-devel cfitsio-devel graphviz-devel  avahi-compat-libdns_sd-devel libldap-dev python-devel  libxml2-devel gsl-static
+
+
+cern-config-users --setup-sudo-access --setup-user-accounts --setup-printers additional-sudoers
+
+   #final steps for daq and dqm software
+useradd cmsdaq (remember the usual password...)
+>log in as cmsdaq
+cd
+mkdir DAQ
+git clone -b master git@github.com:cmsromadaq/H4DAQ.git
+git clone -b master git@github.com:cmsromadaq/H4DQM.git
+cd H4DAQ
+./configure.py
+make -j 4
+cd ../H4DQM
+make -j 4 (Waveforms uses some Interpolation libraries that sometimes not present in root directory, if you get an error copy them by hand: scp cms-h4-03:/opt/root/include/root/Math/Interpol* /opt/root/include/root/Math/)
