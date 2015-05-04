@@ -16,6 +16,7 @@
 #include "interface/CAEN_V560.hpp"
 #include "interface/LECROY_1182.hpp"
 #include "interface/MAROC_ROC.hpp"
+#include "interface/CAEN_V265.hpp"
 #include "interface/DummyBoard.hpp"
 #include "interface/Event.hpp"
 
