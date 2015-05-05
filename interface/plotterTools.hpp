@@ -46,6 +46,10 @@
 #define wcYd 3
 #define wcYu 2
 
+#define beamTriggerVetoBitMask 0x0100
+#define pedTriggerVetoBitMask 0x0200
+#define ledTriggerVetoBitMask 0x0400
+
 typedef enum PlotType {
   kPlot1D,
   kPlot1DProf,
