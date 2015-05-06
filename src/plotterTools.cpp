@@ -167,7 +167,7 @@ plotterTools::getMaximumP (TProfile * p)
 
 
 
-plotterTools::plotterTools(TString filename, TString outfname, TString outdname){
+plotterTools::plotterTools(TString filename, TString outfname, TString outdname,TString triggerType){
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
@@ -181,6 +181,7 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
   inputTree_ = (TChain*) inputFile_->Get("H4tree");
   outputFile_ = TFile::Open(outfname,"RECREATE");
   outputDir_=outdname;
+  triggerType_=triggerType;
 
   fillFiberOrder();
 
@@ -1633,6 +1634,7 @@ void  plotterTools::Loop()
       if (iEntry%1000==0)
 	std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
       
+
       if(iEntry==0){
 	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeStart_[i]=treeStruct_.evtTime[i];
@@ -1648,6 +1650,16 @@ void  plotterTools::Loop()
 	for(uint i =0;i<treeStruct_.nEvtTimes;++i)
 	  timeEnd_[i]=treeStruct_.evtTime[i];
       }
+
+      WORD triggerWord=treeStruct_.triggerWords[0];
+      if ((~triggerWord & beamTriggerBitMask) && triggerType_!="beam"){//not of the triggerword is just a bit on, since beamWord=FE00, pedWord=FD00
+	continue;
+      }else if (~triggerWord & pedTriggerBitMask  && triggerType_!="ped") {
+	continue;
+      }else if (~triggerWord & ledTriggerBitMask  && triggerType_!="led") {
+	continue;
+      }
+
 
       fillObjects();
 

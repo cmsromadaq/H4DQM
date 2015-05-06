@@ -30,36 +30,41 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
+for runtype in beam ped led;do
+    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
-cd $output/$run/$spill/$dir/
-mkdir hodo
-mkdir DAQ
-#mkdir ADC
-mkdir TDC 
-mkdir digitizer 
-
-mv total/hodo_* hodo/
-mv total/DAQStatus_* DAQ/
-#mv total/ADC_* ADC/
-mv total/TDC_* TDC/
-mv total/digitizer_* digitizer/
-mv total/*.root .
-
-rm -r total
-
+    cd $output/$run/$spill/$dir/$runtype/
+    mkdir hodo
+    mkdir DAQ
+    mkdir ADC
+    mkdir TDC 
+    mkdir digitizer 
+    
+    mv total/hodo_* hodo/
+    mv total/DAQStatus_* DAQ/
+    mv total/ADC_* ADC/
+    mv total/TDC_* TDC/
+    mv total/digitizer_* digitizer/
+    mv total/*.root .
+    
+    rm -r total
+    cd -
+done
 
 ## hodo , TDC , DAQ 
 # copy skeleton php
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
+for runtype in beam ped led;do
+    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
+done
 #for dir in hodo TDC DAQ digitizer total
 #for dir in digitizer hodo DAQ ADC TDC
-for dir in digitizer hodo DAQ TDC
+for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
 do
-	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$dir/
+	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
 done
 
 # touch -R

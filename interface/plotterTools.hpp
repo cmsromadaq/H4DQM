@@ -46,6 +46,10 @@
 #define wcYd 3
 #define wcYu 2
 
+#define beamTriggerBitMask 0x0100
+#define pedTriggerBitMask 0x0200
+#define ledTriggerBitMask 0x0400
+
 typedef enum PlotType {
   kPlot1D,
   kPlot1DProf,
@@ -128,13 +132,14 @@ class plotterTools{
 
 public:
 
-  plotterTools (TString filename, TString outfname, TString outdname);
+  plotterTools (TString filename, TString outfname, TString outdname, TString triggerType = "beam");
 
   TChain* inputTree_;
   TFile* inputFile_;
   TFile* outputFile_;
   TFile* integratedFile_;
   TString outputDir_;
+  TString triggerType_;
 
   TString module_, group_;
   int historyStep_;//set the step of events for history plots
