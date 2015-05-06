@@ -58,14 +58,17 @@ rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 for runtype in beam ped led;do
     rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
-done
+
 #for dir in hodo TDC DAQ digitizer total
 #for dir in digitizer hodo DAQ ADC TDC
-for dir in digitizer hodo DAQ TDC ADC
+    for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
-do
+    do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
+    done
+
 done
+
 
 # touch -R
 find $output/$run/$spill -type f -exec touch {} \;
