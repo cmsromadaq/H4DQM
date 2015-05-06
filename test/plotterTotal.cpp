@@ -10,9 +10,10 @@ int main (int argc, char ** argv)
   string run="";
   string spill="";
   string integratedfname ="";
+  string triggerType ="";
 
   int c;
-  while ((c = getopt (argc, argv, "i:o:r:s:I:")) != -1)
+  while ((c = getopt (argc, argv, "i:o:r:s:I:t:")) != -1)
     switch (c)
       {
       case 'i':
@@ -30,6 +31,9 @@ int main (int argc, char ** argv)
       case 'I':
 	integratedfname= string(optarg);
 	break;
+      case 't':
+	triggerType = string(optarg);
+	break;
 
       case '?':
 	if (optopt == 'i'|| optopt == 'o'|| optopt == 'r'|| optopt == 's'||optopt == 'I')
@@ -46,16 +50,17 @@ int main (int argc, char ** argv)
       }
 
   string filename=ROOT_FOLDER+"/"+run+"/"+spill+".root";
-  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/total/";
-  string outfname=outdname+"dqmPlots"+"total"+".root";
-  string integratedName=OUT_FOLDER+"/"+run+"/"+integratedfname;
+  string outdname=OUT_FOLDER+"/"+run+"/"+spill+"/"+triggerType+"/total/";
+  //  string outfname=outdname+"dqmPlots"+"total"+".root";
+  string outfname=outdname+"dqmPlots_"+triggerType+".root";
+  string integratedName=OUT_FOLDER+"/"+run+"/"+triggerType+"_"+integratedfname;
 
   system( Form("mkdir -p %s", outdname.c_str()) );
 
 
-  std::cout<<filename<<" "<<outdname<<" "<<outfname<<" "<<integratedfname<<endl;
+  std::cout<<filename<<" "<<outdname<<" "<<outfname<<" "<<integratedfname<<" "<<triggerType<<endl;
 
-  plotterTools plotter(filename,outfname,outdname);
+  plotterTools plotter(filename,outfname,outdname,triggerType);
 
   plotter.setPlotsFormat () ;
   plotter.readInputTree();  
@@ -69,8 +74,8 @@ int main (int argc, char ** argv)
   plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("TDC"); 
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
-  //plotter.setGroup("ADC");
-  //plotter.bookPlotsADC();
+  plotter.setGroup("ADC");
+  plotter.bookPlotsADC();
   plotter.setGroup("digitizer");
   plotter.bookPlotsDigitizer();
 
