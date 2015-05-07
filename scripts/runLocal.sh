@@ -28,6 +28,7 @@ done
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t beam -I integrated.root 
 
 for runtype in beam ped led;do
+echo $runtype
 #local path
     ./bin/plotterTotal -i $output -o $output  -r $run -s $spill -t $runtype -I "integrated.root" 
     
