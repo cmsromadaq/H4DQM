@@ -22,17 +22,20 @@ case "$1" in
 esac
 done
 
-$HOME/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill
+mkdir -p $output/$run/
+mkdir -p $output/$run/$spill
+
+$HOME/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill > $output/$run/$spill/unpack.log
 
 ### PLOT MAKER -- make me configurable
 ### $HOME/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### $HOME/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### $HOME/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-$HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root 
+$HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root  >  $output/$run/$spill/plotter.log
 #$HOME/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
 DQMtypes="digitizer hodo DAQ TDC"
-cd $output/$run/$spill/$dir/
+cd $output/$run/$spill
 for dir in $DQMtypes
 do
     mkdir $dir
@@ -61,6 +64,6 @@ find $output/$run/$spill -type f -exec touch {} \;
 ln -s $output/$run/$spill $output/$run/last
 ln -s $output/$run $output/last
 
-rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
-rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
+#rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+#rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
 
