@@ -64,32 +64,17 @@ int main (int argc, char ** argv)
   plotter.setGroup("hodo");
   plotter.setModule("beam");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
-  plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.printHistos();
 
   plotter.Loop();
 
   if(integratedfname != "")  plotter.initIntegrated(integratedName); 
 
-  plotter.fitHisto("beamPositionX1","gaus");
-  plotter.fitHisto("beamPositionX2","gaus");
-  plotter.fitHisto("beamPositionY1","gaus");
-  plotter.fitHisto("beamPositionY2","gaus");
   plotter.fitHisto("beamPositionX","gaus");
   plotter.fitHisto("beamPositionY","gaus");
 
-  plotter.fitHisto("beamPositionSmallX","gaus");
-  plotter.fitHisto("beamPositionSmallY","gaus");
-
-
-  plotter.bookCombinedPlotsHodo();
-
   plotter.plotHistos();
   plotter.saveHistos();
- 
-
 
   return 0 ;
-
-
 }

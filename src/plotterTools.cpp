@@ -184,6 +184,12 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
 
   fillFiberOrder();
 
+  fillPmtInToOutMap();
+  fillPmtOutToHodoXMap();
+  fillPmtOutToHodoYMap();
+
+  pedestalCut();
+
   wantADCplots = false;
   wantDigiplots = false;
 
@@ -197,162 +203,98 @@ void plotterTools::initIntegrated(TString nameFile){
   if(integratedFile_==NULL){
     isIntegratedNew=false;
     integratedFile_=TFile::Open(nameFile,"Update");
-    }
+  }
   assert(integratedFile_!=NULL);
-
+  
   map<TString, varPlot<float>*>::iterator it;
-
+  
   TH1F* evt_info=NULL;
   TH1F* trg_info=NULL;
-
+  
   TH1F* hX_info=NULL;
   TH1F* hY_info=NULL;
-
-  TH1F* hSX_info=NULL;
-  TH1F* hSY_info=NULL;
-
-
-  it=varplots.find("beamPositionX");
+  
+  it=varplots.find("beamPositionX");   
   if(it!=varplots.end()){
-    hX_info=(TH1F*)varplots["beamPositionX"]->GetPlot();
+    hX_info=(TH1F*)varplots["beamPositionX"]->GetPlot();  
     hY_info=(TH1F*)varplots["beamPositionY"]->GetPlot();
-
   }
-
+  
   it=varplots.find("nTotalEvts");
   if(it!=varplots.end()){
     evt_info=(TH1F*)varplots["nTotalEvts"]->GetPlot();
     trg_info=(TH1F*)varplots["fractionTakenTrigHisto"]->GetPlot();
   }
-
-  it=varplots.find("beamPositionSmallX");
-  if(it!=varplots.end()){
-    hSX_info=(TH1F*)varplots["beamPositionSmallX"]->GetPlot();
-    hSY_info=(TH1F*)varplots["beamPositionSmallY"]->GetPlot();
-
-  }
-
-
+  
   if(hX_info!=NULL){
-
-      integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");
-      integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");//add controls
-      integratedPlots_["hodo_RMSX_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSX_spill");
-      integratedPlots_["hodo_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSY_spill");//add controls
-     
-      if(integratedPlots_["hodo_meanX_spill"]==NULL){
-	integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",200,0,200);
-	integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",200,0,200);
-	integratedPlots_["hodo_RMSX_spill"]=new TH1F("hodo_RMSX_spill","hodo_RMSX_spill",200,0,200);
-	integratedPlots_["hodo_RMSY_spill"]=new TH1F("hodo_RMSY_spill","hodo_RMSY_spill",200,0,200);
-
-
-      }
-
-    }
-    if(evt_info!=NULL){
-      integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpill");
-      integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpillHisto");
-      integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_fractionTakenTrigPerSpill");
-      integratedPlots_["DAQStatus_triggerRateHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRateHisto");
-      integratedPlots_["DAQStatus_triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRatePerSpill");
-      integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
-      if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
-	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",200,0,200);
-	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
-	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",200,0,200);
-	integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
-	integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
-	integratedPlots_["DAQStatus_growingEventPlot"]=new TH1F("DAQStatus_growingEventPlot","DAQStatus_growingEventPlot",2000,0,1000);
-      }
-
-    }
-
-    if(hSX_info!=NULL){
-
-      integratedPlots_["hodoSmall_meanX_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanX_spill");
-      integratedPlots_["hodoSmall_meanY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_meanY_spill");//add controls
-      integratedPlots_["hodoSmall_RMSX_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_RMSX_spill");
-      integratedPlots_["hodoSmall_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodoSmall_RMSY_spill");//add controls
-
-      if(integratedPlots_["hodoSmall_meanX_spill"]==NULL){
-	integratedPlots_["hodoSmall_meanX_spill"]=new TH1F("hodoSmall_meanX_spill","hodoSmall_meanX_spill",200,0,200);
-	integratedPlots_["hodoSmall_meanY_spill"]=new TH1F("hodoSmall_meanY_spill","hodoSmall_meanY_spill",200,0,200);
-	integratedPlots_["hodoSmall_RMSX_spill"]=new TH1F("hodoSmall_RMSX_spill","hodoSmall_RMSX_spill",200,0,200);
-	integratedPlots_["hodoSmall_RMSY_spill"]=new TH1F("hodoSmall_RMSY_spill","hodoSmall_RMSY_spill",200,0,200);
-
-      }
-
-    }
-
-
-
-  if(hX_info!=NULL){
-
-  int iBin=0;
-  for(iBin=1;iBin<integratedPlots_["hodo_meanX_spill"]->GetNbinsX() && integratedPlots_["hodo_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}
-  integratedPlots_["hodo_meanX_spill"]->SetBinContent(iBin,hX_info->GetMean());
-  integratedPlots_["hodo_meanX_spill"]->SetBinError(iBin,hX_info->GetRMS());
-
-  integratedPlots_["hodo_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
-  integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
-
-  integratedPlots_["hodo_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());
-  integratedPlots_["hodo_RMSY_spill"]->SetBinContent(iBin,hX_info->GetRMS());
-
-  setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
-  setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
-
-  setAxisTitles(integratedPlots_["hodo_RMSX_spill"], "nSpill","RMS X" );
-  setAxisTitles(integratedPlots_["hodo_RMSY_spill"], "nSpill","RMS Y" );
-
-
-  plotMe(integratedPlots_["hodo_meanX_spill"]);
-  plotMe(integratedPlots_["hodo_meanY_spill"]);
-
-  plotMe(integratedPlots_["hodo_RMSX_spill"]);
-  plotMe(integratedPlots_["hodo_RMSY_spill"]);
-
+    
+    integratedPlots_["hodo_meanX_spill"]=(TH1F*)integratedFile_->Get("hodo_meanX_spill");       
+    integratedPlots_["hodo_meanY_spill"]=(TH1F*)integratedFile_->Get("hodo_meanY_spill");
+    integratedPlots_["hodo_RMSX_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSX_spill");
+    integratedPlots_["hodo_RMSY_spill"]=(TH1F*)integratedFile_->Get("hodo_RMSY_spill"); 
+    
+    if(integratedPlots_["hodo_meanX_spill"]==NULL)
+      integratedPlots_["hodo_meanX_spill"]=new TH1F("hodo_meanX_spill","hodo_meanX_spill",200,0,200);
+    if(integratedPlots_["hodo_meanY_spill"]==NULL)
+      integratedPlots_["hodo_meanY_spill"]=new TH1F("hodo_meanY_spill","hodo_meanY_spill",200,0,200);
+    if(integratedPlots_["hodo_RMSX_spill"]==NULL)
+      integratedPlots_["hodo_RMSX_spill"]=new TH1F("hodo_RMSX_spill","hodo_RMSX_spill",200,0,200);
+    if(integratedPlots_["hodo_RMSY_spill"]==NULL)
+      integratedPlots_["hodo_RMSY_spill"]=new TH1F("hodo_RMSY_spill","hodo_RMSY_spill",200,0,200);
   }
-
-  if(hSX_info!=NULL){
+  
+  if(evt_info!=NULL){
+    integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpill");
+    integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_nTotalEvtsPerSpillHisto");
+    integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_fractionTakenTrigPerSpill");
+    integratedPlots_["DAQStatus_triggerRateHisto"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRateHisto");
+    integratedPlots_["DAQStatus_triggerRatePerSpill"]=(TH1F*)integratedFile_->Get("DAQStatus_triggerRatePerSpill");
+    integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
+    if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",200,0,200);
+      integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
+      integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",200,0,200);
+      integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
+      integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
+      integratedPlots_["DAQStatus_growingEventPlot"]=new TH1F("DAQStatus_growingEventPlot","DAQStatus_growingEventPlot",2000,0,1000);
+    }
+  }
+  
+  if(hX_info!=NULL){
     
     int iBin=0;
-    for(iBin=1;iBin<integratedPlots_["hodoSmall_meanX_spill"]->GetNbinsX() && integratedPlots_["hodoSmall_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}
-    integratedPlots_["hodoSmall_meanX_spill"]->SetBinContent(iBin,hX_info->GetMean());
-    integratedPlots_["hodoSmall_meanX_spill"]->SetBinError(iBin,hX_info->GetRMS());
+    for(iBin=1;iBin<integratedPlots_["hodo_meanX_spill"]->GetNbinsX() && integratedPlots_["hodo_meanX_spill"]->GetBinContent(iBin)>0; ++iBin){}  // ???? 
+    integratedPlots_["hodo_meanX_spill"]->SetBinContent(iBin,hX_info->GetMean());                                                                
+    integratedPlots_["hodo_meanX_spill"]->SetBinError(iBin,hX_info->GetRMS());
+  
+    integratedPlots_["hodo_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
+    integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
     
-    integratedPlots_["hodoSmall_meanY_spill"]->SetBinContent(iBin,hY_info->GetMean());
-    integratedPlots_["hodoSmall_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
+    integratedPlots_["hodo_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());
+    integratedPlots_["hodo_RMSY_spill"]->SetBinContent(iBin,hX_info->GetRMS());
+  
+    setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
+    setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
+  
+    setAxisTitles(integratedPlots_["hodo_RMSX_spill"], "nSpill","RMS X" );
+    setAxisTitles(integratedPlots_["hodo_RMSY_spill"], "nSpill","RMS Y" );
 
-    integratedPlots_["hodoSmall_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());    
-    integratedPlots_["hodoSmall_RMSY_spill"]->SetBinContent(iBin,hY_info->GetRMS());    
+    plotMe(integratedPlots_["hodo_meanX_spill"]);
+    plotMe(integratedPlots_["hodo_meanY_spill"]);
     
-    setAxisTitles(integratedPlots_["hodoSmall_meanX_spill"], "nSpill","mean X" );
-    setAxisTitles(integratedPlots_["hodoSmall_meanY_spill"], "nSpill","mean Y" );
-    
-    plotMe(integratedPlots_["hodoSmall_meanX_spill"]);
-    plotMe(integratedPlots_["hodoSmall_meanY_spill"]);
-
-    setAxisTitles(integratedPlots_["hodoSmall_RMSX_spill"], "nSpill","RMS X" );
-    setAxisTitles(integratedPlots_["hodoSmall_RMSY_spill"], "nSpill","RMS Y" );
-    
-    plotMe(integratedPlots_["hodoSmall_RMSX_spill"]);
-    plotMe(integratedPlots_["hodoSmall_RMSY_spill"]);
-
-
+    plotMe(integratedPlots_["hodo_RMSX_spill"]);
+    plotMe(integratedPlots_["hodo_RMSY_spill"]);
   }
 
-
   if(evt_info != NULL){
-
+    
   int iBin=0;
   for(iBin=1;iBin<integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetNbinsX() && integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->GetBinContent(iBin)>0; ++iBin){}
   integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]->SetBinContent(iBin,evt_info->GetEntries());
   setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"], "nSpill","nEvts" );
   plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]);
 
-
+  
 
   integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]->SetBinContent(iBin,trg_info->GetMean());
   setAxisTitles(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"], "nSpill","fractionTakenTrig" );
@@ -756,233 +698,76 @@ void plotterTools::computeVariable(TString name){
 //    variablesContainer_[variablesIterator_[name]][0]=((float)treeStruct_.scalerWord[1]);
 //    variablesContainer_[variablesIterator_[name]][1]=((float)treeStruct_.scalerWord[2]);
 //    variablesContainer_[variablesIterator_[name]][2]=((float)treeStruct_.scalerWord[0]);
- }else if(name=="nFibersOnX1"){
+
+ } else if(name=="nFibersOnX"){
 
    int fibersOn=0;
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX1][i]==1) fibersOn++;
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoX][i]==1) fibersOn++;
    }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="nFibersOnY1"){
-
-   int fibersOn=0;
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY1][i]==1) fibersOn++;
-   }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="nFibersOnX2"){
-
-   int fibersOn=0;
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX2][i]==1) fibersOn++;
-   }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="nFibersOnY2"){
-
-   int fibersOn=0;
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY2][i]==1) fibersOn++;
-   }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="beamProfileX1"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,1.,i);
-   }
-
- }else if(name=="beamProfileY1"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,1.,i);
-   }
-
- }else if(name=="beamProfileX2"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,1.,i);
-   }
-
- }else if(name=="beamProfileY2"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(1,i);
-     else varplots[name]->Fill(0,1.,i);
-   }
-
- }else if(name=="beamProfileDrawX1"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX1][i]==1) varplots[name]->Fill(i,1.);
-   }
-
- }else if(name=="beamProfileDrawY1"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY1][i]==1) varplots[name]->Fill(i,1.);
-   }
-
- }else if(name=="beamProfileDrawX2"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoX2][i]==1) varplots[name]->Fill(i,1.);
-   }
-
- }else if(name=="beamProfileDrawY2"){
-
-   for(int i=0;i<64;i++){
-     if(fibersOn_[hodoY2][i]==1) varplots[name]->Fill(i,1.);
-   }
-
- }else if(name=="beamPositionX1"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX1][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-
-
- }else if(name=="beamPositionY1"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoY1][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-
-
- }else if(name=="beamPositionX2"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX2][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-
-
- }else if(name=="beamPositionY2"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoY2][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-
-
- }else if(name == "beamProfileSmallX"){//small hodo
+   varplots[name]->Fill(fibersOn,1.);     
    
-   for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(1,1.,i);
-     else varplots[name]->Fill(0,i);
-   }
- }else if(name == "beamProfileSmallY"){
+ } else if(name=="nFibersOnY"){
 
-   for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(1,1.,i);
-     else varplots[name]->Fill(0,i);
+   int fibersOn=0;
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoY][i]==1) fibersOn++;
    }
- }else if(name == "beamProfileDrawSmallX"){//small hodo
+   varplots[name]->Fill(fibersOn,1.);
+
+ } else if(name=="beamProfileX2014"){    
+
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoX][i]==1) varplots[name]->Fill(1,i);
+     else varplots[name]->Fill(0,1.,i);
+   }
+
+ } else if(name=="beamProfileY2014"){    
    
-   for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallX][i]==1) varplots[name]->Fill(i,1.);
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoY][i]==1) varplots[name]->Fill(1,i);
+     else varplots[name]->Fill(0,1.,i);
    }
- }else if(name == "beamProfileDrawSmallY"){
 
-   for(int i =0 ;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallY][i]==1) varplots[name]->Fill(i,1.);
+ } else if(name=="beamProfileDrawX"){
+
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoX][i]==1) varplots[name]->Fill(i,1.);
    }
- }else if(name=="nFibersOnSmallX"){
+   
+ } else if(name=="beamProfileDrawY"){
 
-   int fibersOn=0;
-   for(int i=0;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallX][i]==1) fibersOn++;
+   for(int i=0;i<32;i++){
+     if(fibersOn_[hodoY][i]==1) varplots[name]->Fill(i,1.);
    }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="nFibersOnSmallY"){
-
-   int fibersOn=0;
-   for(int i=0;i<nFibersSmallHodo;i++){
-     if(fibersOnSmall_[hodoSmallY][i]==1) fibersOn++;
-   }
-   varplots[name]->Fill(fibersOn,1.);
-
- }else if(name=="beamPositionSmallX"){
-
+   
+ } else if(name=="beamPositionX2014"){  
+   
    float pos=0;
    int nFibersOn=0;
-   
-   for (int i=0;i<8;++i){   
-     if(fibersOnSmall_[hodoSmallX][i]==1){
+   for (int i=0;i<32;++i){   
+     if(fibersOn_[hodoX][i]==1){
        nFibersOn++;
        pos+=i; 
      }
    }
-
-
    if(nFibersOn>1){
      pos=pos/nFibersOn;
    }else{
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
-
- }else if(name=="beamPositionSmallY"){
-
+   
+ } else if(name=="beamPositionY2014"){
+   
    float pos=0;
    int nFibersOn=0;
-   
-   for (int i=0;i<8;++i){   
-     if(fibersOnSmall_[hodoSmallY][i]==1){
+   for (int i=0;i<32;++i){   
+     if(fibersOn_[hodoY][i]==1){
        nFibersOn++;
        pos+=i; 
      }
    }
-
-
    if(nFibersOn>1){
      pos=pos/nFibersOn;
    }else{
@@ -990,47 +775,131 @@ void plotterTools::computeVariable(TString name){
    }
    varplots[name]->Fill(pos,1.);
 
- }else if(name=="beamPositionX"){
+ } else if(name=="beamPositionX"){
 
-   float pos=0;
-   int nFibersOn=0;
-   for(int j=0;j<4;j++){
-     if(j!=hodoX1 && j!=hodoX2)continue;
-     for (int i=0;i<64;++i){   
-       if(fibersOn_[j][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
+   onFibersX.clear();
+   for (int i=0;i<32;++i){
+     if (fibersOn_[hodoX][i]==1) {
+       onFibersX.insert(std::pair<int,int>(i,fibersAdc_[hodoX][i]));
      }
    }
 
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
+   int nClustersOn=0;
+   
+   if (onFibersX.size()>1) {
 
- }else if(name=="beamPositionY"){
+     map<int, int>::iterator iter;
+	  
+     float eneSum = 0.;
+     float pos = 0.;
+     int nFibersOn = 0;
+     int theOneBefore = -1;
+     int thisOne = -1;
+     int thisValue = -1;
 
-   float pos=0;
-   int nFibersOn=0;
-   for(int j=0;j<4;j++){
-     if(j!=hodoY1 && j!=hodoY2)continue;
-     for (int i=0;i<64;++i){   
-       if(fibersOn_[j][i]==1){
+     for (iter = onFibersX.begin(); iter != onFibersX.end(); iter++) {
+       
+       if (theOneBefore==-1) {   // first round
+	 thisOne   = iter->first;
+	 thisValue = iter->second;
+	 pos+=thisOne*(float)thisValue; 
+	 eneSum+=(float)thisValue; 
 	 nFibersOn++;
-	 pos+=i; 
+       } else {                 
+	 thisOne = iter->first;
+	 if (thisOne==(theOneBefore+1)) {       // adiacent fibers
+	   thisValue = iter->second;
+	   pos+=thisOne*(float)thisValue; 
+	   eneSum+=(float)thisValue; 
+	   nFibersOn++;
+	 } else {            // there is a hole
+	   if (nFibersOn>1 && nFibersOn<=3) {  // close the previous cluster
+	     nClustersOn++;
+	     pos=pos/eneSum;
+	     varplots["beamPositionX"]->Fill(pos,1.);  
+	     varplots["nFibersPerClusterX"]->Fill(nFibersOn,1);
+	   } 
+	   // start a new cluster
+	   thisValue = iter->second;
+	   nFibersOn = 1;
+	   eneSum = (float)thisValue;
+	   pos = thisOne*(float)thisValue;
+	 }
        }
+       theOneBefore = thisOne;
+     }
+     // close the last cluster if any
+     if (nFibersOn>1 && nFibersOn<=3) {
+       nClustersOn++;
+       pos=pos/eneSum;
+       varplots["beamPositionX"]->Fill(pos,1.);  
+       varplots["nFibersPerClusterX"]->Fill(nFibersOn,1);
+     }
+   }
+   varplots["nClustersX"]->Fill(nClustersOn,1.);     
+
+ } else if(name=="beamPositionY"){
+   
+   onFibersY.clear();
+   for (int i=0;i<32;++i){
+     if (fibersOn_[hodoY][i]==1) {
+       onFibersY.insert(std::pair<int,int>(i,fibersAdc_[hodoY][i]));
      }
    }
 
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
+   int nClustersOn=0;
+   
+   if (onFibersY.size()>1) {
+     
+     map<int, int>::iterator iter;
+	  
+     float eneSum = 0.;
+     float pos = 0.;
+     int nFibersOn = 0;
+     int theOneBefore = -1;
+     int thisOne = -1;
+     int thisValue = -1;
+
+     for (iter = onFibersY.begin(); iter != onFibersY.end(); iter++) {
+
+       if (theOneBefore==-1) {   // first round
+	 thisOne   = iter->first;
+	 thisValue = iter->second;
+	 pos+=thisOne*(float)thisValue; 
+	 eneSum+=(float)thisValue; 
+	 nFibersOn++;
+       } else {                 
+	 thisOne = iter->first;
+	 if (thisOne==(theOneBefore+1)) {       // adiacent fibers
+	   thisValue = iter->second;
+	   pos+=thisOne*(float)thisValue; 
+	   eneSum+=(float)thisValue; 
+	   nFibersOn++;
+	 } else {            // there is a hole
+	   if (nFibersOn>1 && nFibersOn<=3) {  // close the previous cluster
+	     nClustersOn++;
+	     pos=pos/eneSum;
+	     varplots["beamPositionY"]->Fill(pos,1.);  
+	     varplots["nFibersPerClusterY"]->Fill(nFibersOn,1);
+	   } 
+	   // start a new cluster
+	   thisValue = iter->second;
+	   nFibersOn = 1;
+	   eneSum = (float)thisValue;
+	   pos = thisOne*(float)thisValue;
+	 }
+       }
+       theOneBefore = thisOne;
+     }
+     // close the last cluster if any
+     if (nFibersOn>1 && nFibersOn<=3) {
+       nClustersOn++;
+       pos=pos/eneSum;
+       varplots["beamPositionY"]->Fill(pos,1.);  
+       varplots["nFibersPerClusterY"]->Fill(nFibersOn,1);
+     }
    }
-   varplots[name]->Fill(pos,1.);
+   varplots["nClustersY"]->Fill(nClustersOn,1.);     
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
    //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
@@ -1100,123 +969,224 @@ void plotterTools::fillObjects(){
 }
 
 void plotterTools::fillHodo(){
+  
+  for(int i=0;i<nPlanesHodo;++i){
+    for(int j=0;j<nFibersHodo;++j){
+      fibersOn_[i][j]=0;                
+      fibersAdc_[i][j]=0;                
+    }
+  }
+  
+  for (UInt_t j=0; j<treeStruct_.nAdcChannels; j++) {
+    
+    if(treeStruct_.adcBoard[j]==201392129){
+      
+      int theAdcValue   = treeStruct_.adcData[j];
+      int theAdcChannel = treeStruct_.adcChannel[j];
+      int thePmtOut     = (PmtInToOut.find(theAdcChannel))->second;
 
+      if (theAdcChannel>63) continue;          // spare channels 
 
-   for(int i=0;i<nPlanesHodo;++i){
-     for(int j=0;j<nFibersHodo;++j){
-       fibersOn_[i][j]=0;
-     }
-   }
+      float pedValue = (B64ped.find(theAdcChannel))->second;
+      float pedRms   = (B64rms.find(theAdcChannel))->second;
+      float pedThres = (B64thr.find(theAdcChannel))->second;
 
-   for(int i =0 ; i <nPlanesSmallHodo;++i){
-     for(int j=0; j<nFibersSmallHodo;j++){
-       fibersOnSmall_[i][j]=0;
-     }
-   }
-
-
-   for(uint i=0;i<treeStruct_.nPatterns;++i){
-
-     if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
-
-       int pos = -1; // here is where the real hodoscope mapping is done
-       if (treeStruct_.patternBoard[i]==0x08030001){
-	 pos = (treeStruct_.patternChannel[i]<2) ? hodoY2 : hodoX2;
-       }
-       else if (treeStruct_.patternBoard[i]==0x08030002){
-	 pos = (treeStruct_.patternChannel[i]<2) ? hodoY1 : hodoX1;
-       }
-       std::vector<int> *fiberorder =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderB : &fiberOrderA;
-       
-       for (unsigned int j=0; j<32; j++){
-	 bool thisfibon = (treeStruct_.pattern[i]>>j)&0b1;
-	 fibersOn_[pos][fiberorder->at(j)-1]=thisfibon;
-       }
-
-
-//       // VERSION FOR THE WRONG CABLING OF THE HODOSCOPE
-//
-//       int planecouple = (treeStruct_.patternBoard[i]==0x08030001) ? 0 : 1;
-//       for (unsigned int j=0; j<32; j++){
-//	 //
-//	 bool isX=(planecouple ==0);
-//	 bool isY=(planecouple ==1);
-//
-//	 bool is1= ( ( treeStruct_.patternChannel[i]/2) == 0);
-//	 bool is2= ( ( treeStruct_.patternChannel[i]/2) == 1);
-//	 bool isA= ( ( treeStruct_.patternChannel[i]%2) == 0);
-//	 bool isB= ( ( treeStruct_.patternChannel[i]%2) == 1);
-//	 bool isC=false;
-//	 bool isD=false;
-//
-//	 // this will map X1Y2 and X2Y1 change Y2 <-> X2
-//	 if( isX && is2 ) { isX=false; isY=true;}
-//	 else if( isY && is2 ) { isY=false; isX=true;}
-//	 
-//	 if (isX and is1 ) 
-//	   {
-//	     if (isA) { 
-//	       isA=false;  //offset=32;
-//	       isB=false;
-//	       isC=false; //offset=32;
-//	       isD=true; 
-//	     }
-//	     else if (isB) { 
-//	       isB=false; //isA=true; 
-//	       isA=false;
-//	       isC=true;
-//	     }
-//	   }
-//
-//	 if (isX and is2)
-//	   {
-//	     if (isB) { isB=false;isD=true; }
-//	   }
-//	 if (!isA and !isB and !isC and !isD )
-//	   {
-//	     printf("No Fiber mapping\n");
-//	     exit(0);
-//	   }
-//	 std::vector<int> *fiberorder ;
-//	 int n=0;
-//	 if (isA) { fiberorder = &fiberOrderA; ++n;}
-//	 if (isB) { fiberorder = &fiberOrderB; ++n;}
-//	 if (isC) { fiberorder = &fiberOrderC; ++n;}
-//	 if (isD) { fiberorder = &fiberOrderD; ++n;}
-//
-//	 if (n != 1) printf("Number of matching is %d\n",n);
-//
-//	 bool thisfibon = (treeStruct_.pattern[i]>>j)&0b1;
-//
-//
-//	 int pos=0;
-//	 if (isY) pos+=2;
-//	 if (is2) pos+=1;
-//
-//	 fibersOn_[pos][fiberorder->at(j)-1]=thisfibon;
-//
-//       }
-
-     }
-     else if(treeStruct_.patternBoard[i]==0x08010001){
-     
-       if(treeStruct_.patternChannel[i]!=0) continue;
-
-       WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
-       WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
-
-       for(int j=0;j<8;j++){
-	 fibersOnSmall_[0][j]=(bool)((wordX>>j)&0b1);
-	 fibersOnSmall_[1][j]=(bool)((wordY>>j)&0b1);
-	 //	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
-       }
-     }
-
-   
-   }
-
+      int theHodoPixel = -999; 
+      if (thePmtOut>=0 && thePmtOut<32) { 
+	theHodoPixel = (PmtIntoHodoX.find(thePmtOut))->second;
+	fibersAdc_[0][theHodoPixel]=theAdcValue-(int)pedValue;
+	if (theAdcValue>pedThres) fibersOn_[0][theHodoPixel] = 1;
+      } else if (thePmtOut>=32 && thePmtOut<64) {
+	theHodoPixel = (PmtIntoHodoY.find(thePmtOut))->second;
+	fibersAdc_[1][theHodoPixel]=theAdcValue-(int)pedValue;
+	if (theAdcValue>pedThres) fibersOn_[1][theHodoPixel] = 1;
+      } else {
+	std::cout << "problem with hodo mapping! " << std::endl;
+      }
+    }
+  }
 }
 
+// 2015 hodo mapping
+void plotterTools::fillPmtInToOutMap() {
+  
+  // PMT In - PNT Out  [both 0->63]
+  PmtInToOut.clear();
+  PmtInToOut.insert(std::pair<int,int>(0,35));
+  PmtInToOut.insert(std::pair<int,int>(1,41));
+  PmtInToOut.insert(std::pair<int,int>(2,48));
+  PmtInToOut.insert(std::pair<int,int>(3,56));
+  PmtInToOut.insert(std::pair<int,int>(4,57));
+  PmtInToOut.insert(std::pair<int,int>(5,49));
+  PmtInToOut.insert(std::pair<int,int>(6,58));
+  PmtInToOut.insert(std::pair<int,int>(7,50));
+  PmtInToOut.insert(std::pair<int,int>(8,32));
+  PmtInToOut.insert(std::pair<int,int>(9,59));
+  PmtInToOut.insert(std::pair<int,int>(10,33));
+  PmtInToOut.insert(std::pair<int,int>(11,51));
+  PmtInToOut.insert(std::pair<int,int>(12,40));
+  PmtInToOut.insert(std::pair<int,int>(13,60));
+  PmtInToOut.insert(std::pair<int,int>(14,34));
+  PmtInToOut.insert(std::pair<int,int>(15,52));
+  PmtInToOut.insert(std::pair<int,int>(16,42));
+  PmtInToOut.insert(std::pair<int,int>(17,61));
+  PmtInToOut.insert(std::pair<int,int>(18,43));
+  PmtInToOut.insert(std::pair<int,int>(19,53));
+  PmtInToOut.insert(std::pair<int,int>(20,62));
+  PmtInToOut.insert(std::pair<int,int>(21,44));
+  PmtInToOut.insert(std::pair<int,int>(22,63));
+  PmtInToOut.insert(std::pair<int,int>(23,54));
+  PmtInToOut.insert(std::pair<int,int>(24,36));
+  PmtInToOut.insert(std::pair<int,int>(25,55));
+  PmtInToOut.insert(std::pair<int,int>(26,46));
+  PmtInToOut.insert(std::pair<int,int>(27,45));
+  PmtInToOut.insert(std::pair<int,int>(28,47));
+  PmtInToOut.insert(std::pair<int,int>(29,38));
+  PmtInToOut.insert(std::pair<int,int>(30,37));
+  PmtInToOut.insert(std::pair<int,int>(31,39));
+  PmtInToOut.insert(std::pair<int,int>(32,29));
+  PmtInToOut.insert(std::pair<int,int>(33,31));
+  PmtInToOut.insert(std::pair<int,int>(34,21));
+  PmtInToOut.insert(std::pair<int,int>(35,30));
+  PmtInToOut.insert(std::pair<int,int>(36,23));
+  PmtInToOut.insert(std::pair<int,int>(37,28));
+  PmtInToOut.insert(std::pair<int,int>(38,22));
+  PmtInToOut.insert(std::pair<int,int>(39,15));
+  PmtInToOut.insert(std::pair<int,int>(40,20));
+  PmtInToOut.insert(std::pair<int,int>(41,14));
+  PmtInToOut.insert(std::pair<int,int>(42,7));
+  PmtInToOut.insert(std::pair<int,int>(43,27));
+  PmtInToOut.insert(std::pair<int,int>(44,6));
+  PmtInToOut.insert(std::pair<int,int>(45,13));
+  PmtInToOut.insert(std::pair<int,int>(46,3));
+  PmtInToOut.insert(std::pair<int,int>(47,5));
+  PmtInToOut.insert(std::pair<int,int>(48,12));
+  PmtInToOut.insert(std::pair<int,int>(49,4));
+  PmtInToOut.insert(std::pair<int,int>(50,11));
+  PmtInToOut.insert(std::pair<int,int>(51,19));
+  PmtInToOut.insert(std::pair<int,int>(52,10));
+  PmtInToOut.insert(std::pair<int,int>(53,18));
+  PmtInToOut.insert(std::pair<int,int>(54,2));
+  PmtInToOut.insert(std::pair<int,int>(55,17));
+  PmtInToOut.insert(std::pair<int,int>(56,9));
+  PmtInToOut.insert(std::pair<int,int>(57,16));
+  PmtInToOut.insert(std::pair<int,int>(58,1));
+  PmtInToOut.insert(std::pair<int,int>(59,0));
+  PmtInToOut.insert(std::pair<int,int>(60,25));
+  PmtInToOut.insert(std::pair<int,int>(61,8));
+  PmtInToOut.insert(std::pair<int,int>(62,26));
+  PmtInToOut.insert(std::pair<int,int>(63,24));
+}
+
+// 2015 hodo mapping
+void plotterTools::fillPmtOutToHodoXMap() {
+
+  // PMT Out - Hodo X  [both 0->63]
+  PmtIntoHodoX.clear();
+  PmtIntoHodoX.insert(std::pair<int,int>(0,0));
+  PmtIntoHodoX.insert(std::pair<int,int>(1,12));
+  PmtIntoHodoX.insert(std::pair<int,int>(2,13));
+  PmtIntoHodoX.insert(std::pair<int,int>(3,14));
+  PmtIntoHodoX.insert(std::pair<int,int>(4,15));
+  PmtIntoHodoX.insert(std::pair<int,int>(5,16));
+  PmtIntoHodoX.insert(std::pair<int,int>(6,17));
+  PmtIntoHodoX.insert(std::pair<int,int>(7,28));
+  PmtIntoHodoX.insert(std::pair<int,int>(8,1));
+  PmtIntoHodoX.insert(std::pair<int,int>(9,11));
+  PmtIntoHodoX.insert(std::pair<int,int>(10,10));
+  PmtIntoHodoX.insert(std::pair<int,int>(11,9));
+  PmtIntoHodoX.insert(std::pair<int,int>(12,20));
+  PmtIntoHodoX.insert(std::pair<int,int>(13,19));
+  PmtIntoHodoX.insert(std::pair<int,int>(14,18));
+  PmtIntoHodoX.insert(std::pair<int,int>(15,29));
+  PmtIntoHodoX.insert(std::pair<int,int>(16,2));
+  PmtIntoHodoX.insert(std::pair<int,int>(17,6));
+  PmtIntoHodoX.insert(std::pair<int,int>(18,7));
+  PmtIntoHodoX.insert(std::pair<int,int>(19,8));
+  PmtIntoHodoX.insert(std::pair<int,int>(20,21));
+  PmtIntoHodoX.insert(std::pair<int,int>(21,22));
+  PmtIntoHodoX.insert(std::pair<int,int>(22,23));
+  PmtIntoHodoX.insert(std::pair<int,int>(23,30));
+  PmtIntoHodoX.insert(std::pair<int,int>(24,3));
+  PmtIntoHodoX.insert(std::pair<int,int>(25,4));
+  PmtIntoHodoX.insert(std::pair<int,int>(26,5));
+  PmtIntoHodoX.insert(std::pair<int,int>(27,27));
+  PmtIntoHodoX.insert(std::pair<int,int>(28,26));
+  PmtIntoHodoX.insert(std::pair<int,int>(29,25));
+  PmtIntoHodoX.insert(std::pair<int,int>(30,24));
+  PmtIntoHodoX.insert(std::pair<int,int>(31,31));
+}
+
+// 2015 hodo mapping
+void plotterTools::fillPmtOutToHodoYMap() {
+
+  // PMT Out - Hodo Y  [both 0->63]
+  PmtIntoHodoY.clear();
+  PmtIntoHodoY.insert(std::pair<int,int>(32,31));
+  PmtIntoHodoY.insert(std::pair<int,int>(33,24));
+  PmtIntoHodoY.insert(std::pair<int,int>(34,25));
+  PmtIntoHodoY.insert(std::pair<int,int>(35,26));
+  PmtIntoHodoY.insert(std::pair<int,int>(36,27));
+  PmtIntoHodoY.insert(std::pair<int,int>(37,5));
+  PmtIntoHodoY.insert(std::pair<int,int>(38,4));
+  PmtIntoHodoY.insert(std::pair<int,int>(39,3));
+  PmtIntoHodoY.insert(std::pair<int,int>(40,30));
+  PmtIntoHodoY.insert(std::pair<int,int>(41,23));
+  PmtIntoHodoY.insert(std::pair<int,int>(42,22));
+  PmtIntoHodoY.insert(std::pair<int,int>(43,21));
+  PmtIntoHodoY.insert(std::pair<int,int>(44,8));
+  PmtIntoHodoY.insert(std::pair<int,int>(45,7));
+  PmtIntoHodoY.insert(std::pair<int,int>(46,6));
+  PmtIntoHodoY.insert(std::pair<int,int>(47,2));
+  PmtIntoHodoY.insert(std::pair<int,int>(48,29));
+  PmtIntoHodoY.insert(std::pair<int,int>(49,18));
+  PmtIntoHodoY.insert(std::pair<int,int>(50,19));
+  PmtIntoHodoY.insert(std::pair<int,int>(51,20));
+  PmtIntoHodoY.insert(std::pair<int,int>(52,9));
+  PmtIntoHodoY.insert(std::pair<int,int>(53,10));
+  PmtIntoHodoY.insert(std::pair<int,int>(54,11));
+  PmtIntoHodoY.insert(std::pair<int,int>(55,1));
+  PmtIntoHodoY.insert(std::pair<int,int>(56,28));
+  PmtIntoHodoY.insert(std::pair<int,int>(57,17));
+  PmtIntoHodoY.insert(std::pair<int,int>(58,16));
+  PmtIntoHodoY.insert(std::pair<int,int>(59,15));
+  PmtIntoHodoY.insert(std::pair<int,int>(60,14));
+  PmtIntoHodoY.insert(std::pair<int,int>(61,13));
+  PmtIntoHodoY.insert(std::pair<int,int>(62,12));
+  PmtIntoHodoY.insert(std::pair<int,int>(63,0));
+}
+
+// 2015: map with pedestal mean and rms per crystal
+void plotterTools::pedestalCut(){
+
+  B64ped.clear();
+  B64rms.clear();
+  B64thr.clear();
+
+  char Buffer[800];  
+  int theBoard[66];
+  int theChannel[66];
+  float thePed[66];
+  float thePedRms[66];
+  float theChi2[66];
+  float theThreshold[66];
+  int iChannel=0;
+  ifstream *inputFile = new ifstream("../test/pedestalScan.txt");   
+  while( !(inputFile->eof()) ) {
+    inputFile->getline(Buffer,800);
+    if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))) {
+      sscanf(Buffer,"%d %d %f %f %f %f",&theBoard[iChannel],&theChannel[iChannel],&thePed[iChannel],&thePedRms[iChannel],&theChi2[iChannel],&theThreshold[iChannel]);
+      if (theBoard[iChannel]==201392129) {
+	B64ped.insert(std::pair<int,float>(theChannel[iChannel],thePed[iChannel]));
+	B64rms.insert(std::pair<int,float>(theChannel[iChannel],thePedRms[iChannel]));
+	B64thr.insert(std::pair<int,float>(theChannel[iChannel],theThreshold[iChannel]));
+      }
+      iChannel++;
+    }
+  }
+  inputFile->close();
+  delete inputFile;
+}
 
 void plotterTools::fillTdc(){
 
@@ -1322,10 +1292,8 @@ void plotterTools::initDigiPlots(){
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoX2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoY2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoX",name.Data()),33,-1,32,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_hodoY",name.Data()),33,-1,32,-999999,999999,"1DProf",group_,module_);
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1525,12 +1493,8 @@ void plotterTools::initTreeVars(){
 //  }
 //  else br->addDummy(28);
 //  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
-//  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
-//  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
-//  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
-//  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
+//  for (int i=0; i<64; i++) br->addMember("beamProfileX",i); 
+//  for (int i=0; i<64; i++) br->addMember("beamProfileY",i);  
 //  treevars[br->name]=br;
   
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
@@ -1583,17 +1547,11 @@ void plotterTools::initTreeVars(){
   treevars[br->name]=br;
 
   outTreeBranch<bool,float> *br2 = NULL;
-  br2 = new outTreeBranch<bool,float>("HODOX1",&varplots);
-  for (int i=0; i<64; i++) br2->addMember("beamProfileX1",i);
+  br2 = new outTreeBranch<bool,float>("HODOX",&varplots);
+  for (int i=0; i<32; i++) br2->addMember("beamProfileX",i);
   treevars2[br2->name]=br2;
-  br2 = new outTreeBranch<bool,float>("HODOY1",&varplots);
-  for (int i=0; i<64; i++) br2->addMember("beamProfileY1",i);
-  treevars2[br2->name]=br2;
-  br2 = new outTreeBranch<bool,float>("HODOX2",&varplots);
-  for (int i=0; i<64; i++) br2->addMember("beamProfileX2",i);
-  treevars2[br2->name]=br2;
-  br2 = new outTreeBranch<bool,float>("HODOY2",&varplots);
-  for (int i=0; i<64; i++) br2->addMember("beamProfileY2",i);
+  br2 = new outTreeBranch<bool,float>("HODOY",&varplots);
+  for (int i=0; i<32; i++) br2->addMember("beamProfileY",i);
   treevars2[br2->name]=br2;
 
   for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
@@ -1619,15 +1577,16 @@ void plotterTools::fillTreeVars(){
 void  plotterTools::Loop()
 {
 
-
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
-  //  nentries=1;
+  std::cout << "entries = " << nentries << endl;
+
+  // nentries=1;
 
   //loop and fill histos
-  for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry) 
-    {
+  for (unsigned iEntry = 0 ; iEntry < nentries ; ++iEntry)    
+  {
       inputTree_->GetEntry(iEntry);
 
       if (iEntry%1000==0)
@@ -1706,33 +1665,20 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9,1.);
 	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
 	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
-	    
+	   
 	    int x1 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
-	      if(fibersOn_[hodoX1][i]==1 && x1!=-1) { x1 = -1; break; }
+	    for(int i=0;i<32;i++){
+	      if(fibersOn_[hodoX][i]==1 && x1==-1) x1 = i;
+	      if(fibersOn_[hodoX][i]==1 && x1!=-1) { x1 = -1; break; }
 	    }
 	    int y1 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoY1][i]==1 && y1==-1) y1 = i;
-	      if(fibersOn_[hodoY1][i]==1 && y1!=-1) { y1 = -1; break; }
+	    for(int i=0;i<32;i++){
+	      if(fibersOn_[hodoY][i]==1 && y1==-1) y1 = i;
+	      if(fibersOn_[hodoY][i]==1 && y1!=-1) { y1 = -1; break; }
 	    }
-	    int x2 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoX2][i]==1 && x2==-1) x2 = i;
-	      if(fibersOn_[hodoX2][i]==1 && x2!=-1) { x2 = -1; break; }
-	    }
-	    int y2 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
-	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
-	    }
-	    
-	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    varplots[Form("%s_charge_integrated_vs_hodoY2",thisname.Data())]->Fill(y2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    
+
+	    varplots[Form("%s_charge_integrated_vs_hodoX",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_charge_integrated_vs_hodoY",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    
 	    int x = getDigiChannelX(it->second->name);
 	    int y = getDigiChannelY(it->second->name);
@@ -1769,53 +1715,27 @@ void plotterTools::bookPlotsScaler(int nBinsHistory){
 
 void plotterTools::bookPlotsHodo(int nBinsHistory){
 
-  addPlot(0,"beamProfileX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(0,"beamProfileY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(0,"beamProfileX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(0,"beamProfileY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(1,"beamProfileDrawX1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(1,"beamProfileDrawY1", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(1,"beamProfileDrawX2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
-  addPlot(1,"beamProfileDrawY2", 64,-0.5, 63.5,"1D",group_,module_,64);//simple TH1F
+  addPlot(0,"beamProfileX2014", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F
+  addPlot(0,"beamProfileY2014", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F
 
-  addPlot(1,"nFibersOnX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"nFibersOnY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"beamProfileDrawX", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F    
+  addPlot(1,"beamProfileDrawY", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F    
 
-  addPlot(0,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"nFibersOnX", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F       
+  addPlot(1,"nFibersOnY", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F       
 
-  addPlot(0,"beamPositionX", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionY", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionX2014", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F
+  addPlot(0,"beamPositionY2014", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F
 
+  addPlot(1,"beamPositionX", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F  
+  addPlot(1,"beamPositionY", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F  
+
+  addPlot(1,"nClustersX", 16,-0.5, 15.5,"1D",group_,module_); //simple TH1F    
+  addPlot(1,"nClustersY", 16,-0.5, 15.5,"1D",group_,module_); //simple TH1F    
+
+  addPlot(1,"nFibersPerClusterX", 2,1.5, 3.5,"1D",group_,module_); //simple TH1F    
+  addPlot(1,"nFibersPerClusterY", 2,1.5, 3.5,"1D",group_,module_); //simple TH1F    
 }
-
-void plotterTools::bookCombinedPlotsHodo(){
-//
-//  addPlotCombined(0,"hodoCorrelationX","beamProfileX1","beamProfileX2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-//  addPlotCombined(0,"hodoCorrelationY","beamProfileY1","beamProfileY2","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-//
-}
-
-void plotterTools::bookPlotsSmallHodo(int nBinsHistory){
-
-  addPlot(0,"beamProfileSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
-  addPlot(0,"beamProfileSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
-  addPlot(1,"beamProfileDrawSmallX", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
-  addPlot(1,"beamProfileDrawSmallY", 8,-0.5, 7.5,"1D",group_,module_,8);//simple TH1F
-
-  addPlot(1,"nFibersOnSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"nFibersOnSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-
-  addPlot(0,"beamPositionSmallX", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionSmallY", 8,-0.5, 7.5,"1D",group_,module_);//simple TH1F
-
-
-}
-
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
   addPlot(1,"fractionTakenTrig",nBinsHistory, "history", group_,module_);//TGraph with more complex variable
@@ -1843,9 +1763,9 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
 }
 
 void plotterTools::bookCombinedPlots(){
-////  addPlotCombined(0,"nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
-////  addPlotCombined(0,"HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
-////  addPlotCombined(0,"HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
+  ////  addPlotCombined(0,"nTrigSPSVsnTrig3DvsnEvts","nTrigSPS","nTrigSPSVsnTrig3D","2D",group_,module_);//correlation plots it uses TH1F done before to build this TH2
+  ////  addPlotCombined(0,"HodoWireCorrelationX","beamProfileX","TDCrecoX","2D",group_,module_); // TO BE ENABLED IF RUNNING ALL REQUIRED 1D PLOTTERS
+  ////  addPlotCombined(0,"HodoWireCorrelationY","beamProfileY","TDCrecoY","2D",group_,module_);
 //
 }
 

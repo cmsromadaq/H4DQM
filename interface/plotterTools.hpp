@@ -25,20 +25,12 @@
 
 #define nActiveDigitizerChannels 8
 
-#define nPlanesHodo 4
-#define nFibersHodo 64
+#define nPlanesHodo 2       
+#define nFibersHodo 32      
 
 // not the real hodoscope mapping, just for internal DQM use
-#define hodoX1 0
-#define hodoY1 1
-#define hodoX2 2
-#define hodoY2 3
-
-#define hodoSmallX 0
-#define hodoSmallY 1
-
-#define nPlanesSmallHodo 2
-#define nFibersSmallHodo 8
+#define hodoX 0
+#define hodoY 1
 
 //schema to be checked: Xleft, Xright, Ydown, Yup
 #define wcXl 0
@@ -171,9 +163,8 @@ public:
   int iThisEntry;
   int iHistEntry;
 
-  //fibers
+  int  fibersAdc_[nPlanesHodo][nFibersHodo];
   bool fibersOn_[nPlanesHodo][nFibersHodo];
-  bool fibersOnSmall_[nPlanesSmallHodo][nFibersSmallHodo];
 
   //tdc readings
   static const UInt_t MaxTdcChannels = 4;
@@ -193,6 +184,24 @@ public:
   TString getDigiChannelName(int group, int channel);
   int getDigiChannelX(TString name);
   int getDigiChannelY(TString name);
+
+  // hodoscope mapping
+  map<int,int> PmtInToOut;
+  map<int,int> PmtIntoHodoX;
+  map<int,int> PmtIntoHodoY;
+  void fillPmtInToOutMap();
+  void fillPmtOutToHodoXMap();
+  void fillPmtOutToHodoYMap();
+
+  // hodoscope clustering
+  map <int, int> onFibersX;
+  map <int, int> onFibersY;
+
+  // pedestal mean value, rms and default cut
+  void pedestalCut();
+  map<int, float> B64ped;
+  map<int, float> B64rms;
+  map<int, float> B64thr;
 
   void bookPlotsADC();
   bool wantADCplots;
@@ -240,11 +249,9 @@ public:
   void printHistos();
   void bookPlotsScaler (int nBinsHistory);
   void bookPlotsHodo (int nBinsHistory);
-  void bookPlotsSmallHodo (int nBinsHistory);
   void bookPlotsDAQStatus (int nBinsHistory);
   void bookPlotsTDC(int nBinsHistory);
   void bookCombinedPlots ();
-  void bookCombinedPlotsHodo ();
   TGraph* bookGraph (TString name, int nPoints, TString type, TString group, TString module);
   void setGroup(TString group);
   void setModule(TString module);
