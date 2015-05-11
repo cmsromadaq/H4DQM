@@ -1118,13 +1118,13 @@ void plotterTools::fillHodo(){
 
    for(uint i=0;i<treeStruct_.nPatterns;++i){
 
-     if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){
-
+     //     if(treeStruct_.patternBoard[i]==0x08030001 || treeStruct_.patternBoard[i]==0x08030002){  //in 2014 setup the board id was  0x08030002 maybe the crateid was different
+     if(treeStruct_.patternBoard[i]==0x08020001 || treeStruct_.patternBoard[i]==0x08020002){
        int pos = -1; // here is where the real hodoscope mapping is done
-       if (treeStruct_.patternBoard[i]==0x08030001){
+       if (treeStruct_.patternBoard[i]==0x08020001){
 	 pos = (treeStruct_.patternChannel[i]<2) ? hodoY2 : hodoX2;
        }
-       else if (treeStruct_.patternBoard[i]==0x08030002){
+       else if (treeStruct_.patternBoard[i]==0x08020002){
 	 pos = (treeStruct_.patternChannel[i]<2) ? hodoY1 : hodoX1;
        }
        std::vector<int> *fiberorder =(bool)( treeStruct_.patternChannel[i]&0b1) ? &fiberOrderB : &fiberOrderA;
