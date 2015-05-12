@@ -624,8 +624,9 @@ void  plotterTools::plotMe (TH2F * histo, TString name)
     histo->SetStats(kFALSE);
     histo->Draw ("colz") ;
   }
-  else histo->Draw ("colz") ;
-  
+  else { 
+    histo->Draw ("colz") ;
+  }
   std::cout << "plotting " << name << std::endl;
   c1->Print (canvasName, "png") ;
   set_palette_fancy();
@@ -739,6 +740,14 @@ void plotterTools::computeVariable(TString name){
 
    for(int i=0;i<32;i++){
      if(fibersOn_[hodoY][i]==1) varplots[name]->Fill(i,1.);
+   }
+
+ } else if(name=="beamProfileScatter"){
+
+   for(int i=0;i<32;i++){
+     for(int j=0;j<32;j++){
+       if(fibersOn_[hodoX][i]==1 && fibersOn_[hodoY][j]==1) varplots[name]->Fill2D(i,j,1);
+     }
    }
    
  } else if(name=="beamPositionX2014"){  
@@ -1720,6 +1729,8 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
 
   addPlot(1,"beamProfileDrawX", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F    
   addPlot(1,"beamProfileDrawY", 32,-0.5, 31.5,"1D",group_,module_,32);//simple TH1F    
+
+  addPlot(1,"beamProfileScatter", 32,-0.5, 31.5, 32,-0.5, 31.5,"","","2D",group_,module_,0,0);
 
   addPlot(1,"nFibersOnX", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F       
   addPlot(1,"nFibersOnY", 32,-0.5, 31.5,"1D",group_,module_);//simple TH1F       
