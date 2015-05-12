@@ -795,7 +795,7 @@ void plotterTools::computeVariable(TString name){
 
    int nClustersOn=0;
    
-   if (onFibersX.size()>1) {
+   if (onFibersX.size()>0) {
 
      map<int, int>::iterator iter;
 	  
@@ -822,7 +822,7 @@ void plotterTools::computeVariable(TString name){
 	   eneSum+=(float)thisValue; 
 	   nFibersOn++;
 	 } else {            // there is a hole
-	   if (nFibersOn>1 && nFibersOn<=3) {  // close the previous cluster
+	   if (nFibersOn>0 && nFibersOn<=3) {  // close the previous cluster
 	     nClustersOn++;
 	     pos=pos/eneSum;
 	     varplots["beamPositionX"]->Fill(pos,1.);  
@@ -838,7 +838,7 @@ void plotterTools::computeVariable(TString name){
        theOneBefore = thisOne;
      }
      // close the last cluster if any
-     if (nFibersOn>1 && nFibersOn<=3) {
+     if (nFibersOn>0 && nFibersOn<=3) {
        nClustersOn++;
        pos=pos/eneSum;
        varplots["beamPositionX"]->Fill(pos,1.);  
@@ -858,7 +858,7 @@ void plotterTools::computeVariable(TString name){
 
    int nClustersOn=0;
    
-   if (onFibersY.size()>1) {
+   if (onFibersY.size()>0) {
      
      map<int, int>::iterator iter;
 	  
@@ -885,7 +885,7 @@ void plotterTools::computeVariable(TString name){
 	   eneSum+=(float)thisValue; 
 	   nFibersOn++;
 	 } else {            // there is a hole
-	   if (nFibersOn>1 && nFibersOn<=3) {  // close the previous cluster
+	   if (nFibersOn>0 && nFibersOn<=3) {  // close the previous cluster
 	     nClustersOn++;
 	     pos=pos/eneSum;
 	     varplots["beamPositionY"]->Fill(pos,1.);  
@@ -901,7 +901,7 @@ void plotterTools::computeVariable(TString name){
        theOneBefore = thisOne;
      }
      // close the last cluster if any
-     if (nFibersOn>1 && nFibersOn<=3) {
+     if (nFibersOn>0 && nFibersOn<=3) {
        nClustersOn++;
        pos=pos/eneSum;
        varplots["beamPositionY"]->Fill(pos,1.);  
@@ -1744,8 +1744,8 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"nClustersX", 16,-0.5, 15.5,"1D",group_,module_); //simple TH1F    
   addPlot(1,"nClustersY", 16,-0.5, 15.5,"1D",group_,module_); //simple TH1F    
 
-  addPlot(1,"nFibersPerClusterX", 2,1.5, 3.5,"1D",group_,module_); //simple TH1F    
-  addPlot(1,"nFibersPerClusterY", 2,1.5, 3.5,"1D",group_,module_); //simple TH1F    
+  addPlot(1,"nFibersPerClusterX", 3,0.5, 3.5,"1D",group_,module_); //simple TH1F    
+  addPlot(1,"nFibersPerClusterY", 3,0.5, 3.5,"1D",group_,module_); //simple TH1F    
 }
 
 void plotterTools::bookPlotsDAQStatus(int nBinsHistory){
