@@ -705,7 +705,7 @@ void  plotterTools::plotMe (TGraph * graph, const TString & name)
   graph->SetMarkerStyle (8) ;
   graph->SetMarkerSize (1.5) ;
   graph->SetMarkerColor (kBlue) ;  
-  graph->Draw ("ALP") ;
+  graph->Draw ("AP") ;
   c1->Print (canvasName, "png") ;
   delete c1 ;
   return ;
@@ -1034,9 +1034,10 @@ void plotterTools::computeVariable(TString name){
    varplots[name]->Fill(pos,1.);
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
+   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.); before it was 2 and 1
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[0]/treeStruct_.scalerWord[3]),1.);
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
-   //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[0]/treeStruct_.scalerWord[3]),1.);
  }else if(name=="deltaTime10"){
    varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]),1.);
 
@@ -1575,10 +1576,10 @@ void plotterTools::initTreeVars(){
 //  if (wantADCplots) for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
 //  else br->addDummy(24);
 //  treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("SCINTvalues",&varplots);
-  if (wantADCplots) for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
-  else br->addDummy(4);
-  treevars[br->name]=br;
+//  br = new outTreeBranch<float,float>("SCINTvalues",&varplots);
+//  if (wantADCplots) for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+//  else br->addDummy(4);
+//  treevars[br->name]=br;
   br = new outTreeBranch<float,float>("TDCreco",&varplots);
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
   treevars[br->name]=br;

@@ -76,8 +76,8 @@ int main (int argc, char ** argv)
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("ADC");
   plotter.bookPlotsADC();
-  plotter.setGroup("digitizer");
-  plotter.bookPlotsDigitizer();
+  //  plotter.setGroup("digitizer");
+  //  plotter.bookPlotsDigitizer();
 
   plotter.printHistos();
 
@@ -92,16 +92,15 @@ int main (int argc, char ** argv)
   plotter.fitHisto("beamPositionX","gaus");
   plotter.fitHisto("beamPositionY","gaus");
 
-  plotter.fitHisto("beamPositionSmallX","gaus");
-  plotter.fitHisto("beamPositionSmallY","gaus");
+  //  plotter.fitHisto("beamPositionSmallX","gaus");
+  //  plotter.fitHisto("beamPositionSmallY","gaus");
 
   plotter.fitHisto("deltaTime10","gaus");
   plotter.fitHisto("deltaTime20","gaus");
   plotter.fitHisto("deltaTime21","gaus");
 
-  plotter.setPlotAxisRange("fractionTakenTrig","Y",0,1.1);
-
-  plotter.bookCombinedPlotsHodo();
+  plotter.setPlotAxisRange("fractionTakenTrig","Y",0.4,1.1);
+  //  plotter.bookCombinedPlotsHodo();
 
   plotter.plotHistos();
   plotter.saveHistos();
