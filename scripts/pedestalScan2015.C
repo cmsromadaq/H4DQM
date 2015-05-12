@@ -23,9 +23,9 @@ void pedestalScan2015::Loop()
   char histoName[300];
   for (int ii=0; ii<64; ii++) {
     sprintf(histoName, "H1_Ped_B64[%d]", ii);
-    H1_Ped_B64[ii] = new TH1F(histoName,histoName,35,735,770);
+    H1_Ped_B64[ii] = new TH1F(histoName,histoName,40,480,520);
   }
-  
+
   Long64_t nbytes = 0, nb = 0;
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);

@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Tue Apr 28 11:19:00 2015 by ROOT version 5.34/22
+// Tue May 12 11:07:11 2015 by ROOT version 5.34/22
 // from TTree H4tree/H4 testbeam tree
-// found on file: ../bin/1659.root
+// found on file: ../bin/1880.root
 //////////////////////////////////////////////////////////
 
 #ifndef pedestalScan2015_h
@@ -39,12 +39,12 @@ public :
    UInt_t          tdcChannel[1];   //[nTdcChannels]
    UInt_t          tdcData[1];   //[nTdcChannels]
    UInt_t          nDigiSamples;
-   UInt_t          digiFrequency[1];   //[nDigiSamples]
-   UInt_t          digiGroup[1];   //[nDigiSamples]
-   UInt_t          digiChannel[1];   //[nDigiSamples]
-   UInt_t          digiSampleIndex[1];   //[nDigiSamples]
-   Float_t         digiSampleValue[1];   //[nDigiSamples]
-   UInt_t          digiBoard[1];   //[nDigiSamples]
+   UInt_t          digiFrequency[9216];   //[nDigiSamples]
+   UInt_t          digiGroup[9216];   //[nDigiSamples]
+   UInt_t          digiChannel[9216];   //[nDigiSamples]
+   UInt_t          digiSampleIndex[9216];   //[nDigiSamples]
+   Float_t         digiSampleValue[9216];   //[nDigiSamples]
+   UInt_t          digiBoard[9216];   //[nDigiSamples]
    UInt_t          nScalerWords;
    UInt_t          scalerWord[1];   //[nScalerWords]
    UInt_t          scalerBoard[1];   //[nScalerWords]
@@ -110,9 +110,9 @@ pedestalScan2015::pedestalScan2015(TTree *tree) : fChain(0)
 // if parameter tree is not specified (or zero), connect the file
 // used to generate this class and read the Tree.
    if (tree == 0) {
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../bin/1659.root");
+      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("../bin/1882.root");
       if (!f || !f->IsOpen()) {
-         f = new TFile("../bin/1659.root");
+         f = new TFile("../bin/1882.root");
       }
       f->GetObject("H4tree",tree);
 
@@ -178,12 +178,12 @@ void pedestalScan2015::Init(TTree *tree)
    fChain->SetBranchAddress("tdcChannel", &tdcChannel, &b_tdcChannel);
    fChain->SetBranchAddress("tdcData", &tdcData, &b_tdcData);
    fChain->SetBranchAddress("nDigiSamples", &nDigiSamples, &b_nDigiSamples);
-   fChain->SetBranchAddress("digiFrequency", &digiFrequency, &b_digiFrequency);
-   fChain->SetBranchAddress("digiGroup", &digiGroup, &b_digiGroup);
-   fChain->SetBranchAddress("digiChannel", &digiChannel, &b_digiChannel);
-   fChain->SetBranchAddress("digiSampleIndex", &digiSampleIndex, &b_digiSampleIndex);
-   fChain->SetBranchAddress("digiSampleValue", &digiSampleValue, &b_digiSampleValue);
-   fChain->SetBranchAddress("digiBoard", &digiBoard, &b_digiBoard);
+   fChain->SetBranchAddress("digiFrequency", digiFrequency, &b_digiFrequency);
+   fChain->SetBranchAddress("digiGroup", digiGroup, &b_digiGroup);
+   fChain->SetBranchAddress("digiChannel", digiChannel, &b_digiChannel);
+   fChain->SetBranchAddress("digiSampleIndex", digiSampleIndex, &b_digiSampleIndex);
+   fChain->SetBranchAddress("digiSampleValue", digiSampleValue, &b_digiSampleValue);
+   fChain->SetBranchAddress("digiBoard", digiBoard, &b_digiBoard);
    fChain->SetBranchAddress("nScalerWords", &nScalerWords, &b_nScalerWords);
    fChain->SetBranchAddress("scalerWord", &scalerWord, &b_scalerWord);
    fChain->SetBranchAddress("scalerBoard", &scalerBoard, &b_scalerBoard);
