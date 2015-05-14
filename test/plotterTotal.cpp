@@ -10,9 +10,10 @@ int main (int argc, char ** argv)
   string run="";
   string spill="";
   string integratedfname ="";
+  string pedestalFile="test/pedestalScan.txt";
 
   int c;
-  while ((c = getopt (argc, argv, "i:o:r:s:I:")) != -1)
+  while ((c = getopt (argc, argv, "i:o:r:s:I:P:")) != -1)
     switch (c)
       {
       case 'i':
@@ -29,6 +30,9 @@ int main (int argc, char ** argv)
 	break;
       case 'I':
 	integratedfname= string(optarg);
+	break;
+      case 'P':
+	pedestalFile= string(optarg);
 	break;
 
       case '?':
@@ -53,11 +57,18 @@ int main (int argc, char ** argv)
   system( Form("mkdir -p %s", outdname.c_str()) );
 
 
-  std::cout<<filename<<" "<<outdname<<" "<<outfname<<" "<<integratedfname<<endl;
 
   plotterTools plotter(filename,outfname,outdname);
+  plotter.pedestalFile_=pedestalFile;
+  plotter.setPlotsFormat() ;
 
-  plotter.setPlotsFormat () ;
+  //New HODO
+  plotter.fillFiberOrder();
+  plotter.fillPmtInToOutMap();
+  plotter.fillPmtOutToHodoXMap();
+  plotter.fillPmtOutToHodoYMap();
+  plotter.pedestalCut();
+
   plotter.readInputTree();  
   int nentries = plotter.getTreeEntries();
   plotter.setStepHistoryPlots(20);
@@ -66,10 +77,10 @@ int main (int argc, char ** argv)
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
   plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
-  plotter.setGroup("TDC"); 
-  plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
-  //plotter.setGroup("ADC");
-  //plotter.bookPlotsADC();
+  // plotter.setGroup("TDC"); 
+  // plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
+  plotter.setGroup("ADC");
+  plotter.bookPlotsADC();
   plotter.setGroup("digitizer");
   plotter.bookPlotsDigitizer();
 

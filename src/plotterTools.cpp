@@ -182,14 +182,6 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname)
   outputFile_ = TFile::Open(outfname,"RECREATE");
   outputDir_=outdname;
 
-  fillFiberOrder();
-
-  fillPmtInToOutMap();
-  fillPmtOutToHodoXMap();
-  fillPmtOutToHodoYMap();
-
-  pedestalCut();
-
   wantADCplots = false;
   wantDigiplots = false;
 
@@ -760,7 +752,7 @@ void plotterTools::computeVariable(TString name){
        pos+=i; 
      }
    }
-   if(nFibersOn>1){
+   if(nFibersOn>0){
      pos=pos/nFibersOn;
    }else{
      pos=-1;
@@ -777,7 +769,7 @@ void plotterTools::computeVariable(TString name){
        pos+=i; 
      }
    }
-   if(nFibersOn>1){
+   if(nFibersOn>0){
      pos=pos/nFibersOn;
    }else{
      pos=-1;
@@ -1180,11 +1172,21 @@ void plotterTools::pedestalCut(){
   float theChi2[66];
   float theThreshold[66];
   int iChannel=0;
-  ifstream *inputFile = new ifstream("../test/pedestalScan.txt");   
+
+  ifstream *inputFile = new ifstream(pedestalFile_);   
+
+  if (!inputFile->is_open())
+    {
+      std::cerr << "[ERROR]::Pedestal file " << pedestalFile_ << " not found" << std::endl;
+      exit(1);
+    }
+
+  std::cout << "==> Reading pedestals " << std::endl;
   while( !(inputFile->eof()) ) {
     inputFile->getline(Buffer,800);
     if (!strstr(Buffer,"#") && !(strspn(Buffer," ") == strlen(Buffer))) {
       sscanf(Buffer,"%d %d %f %f %f %f",&theBoard[iChannel],&theChannel[iChannel],&thePed[iChannel],&thePedRms[iChannel],&theChi2[iChannel],&theThreshold[iChannel]);
+      std::cout << theBoard[iChannel] << "\t" << theChannel[iChannel] << "\t" << thePed[iChannel] << "\t" << theThreshold[iChannel] << std::endl;
       if (theBoard[iChannel]==201392129) {
 	B64ped.insert(std::pair<int,float>(theChannel[iChannel],thePed[iChannel]));
 	B64rms.insert(std::pair<int,float>(theChannel[iChannel],thePedRms[iChannel]));
@@ -1193,6 +1195,7 @@ void plotterTools::pedestalCut(){
       iChannel++;
     }
   }
+  std::cout << "==> Done" << std::endl;
   inputFile->close();
   delete inputFile;
 }
@@ -1507,37 +1510,37 @@ void plotterTools::initTreeVars(){
 //  treevars[br->name]=br;
   
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_max_amplitude",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_charge_integrated",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_charge_integrated",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_pedestal",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_pedestal_rms",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_pedestal_rms",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_max",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_max",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac30",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_frac30",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
   br = new outTreeBranch<float,float>("digi_time_at_frac50",&varplots);
-  for (int j=0; j<4; j++){
+  for (int j=0; j<1; j++){
     if (wantDigiplots) for (int i=0; i<nActiveDigitizerChannels; i++)  br->addMember(Form("digi_ch%02d_time_at_frac50",j*8+i));
     else br->addDummy(nActiveDigitizerChannels);}
   treevars[br->name]=br;
@@ -1548,20 +1551,23 @@ void plotterTools::initTreeVars(){
 //  else br->addDummy(24);
 //  treevars[br->name]=br;
   br = new outTreeBranch<float,float>("SCINTvalues",&varplots);
-  if (wantADCplots) for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
-  else br->addDummy(4);
+  if (wantADCplots) for (int i=0; i<2; i++) br->addMember(Form("ADC_board_6101_%d",i)); // BEAM SCINTILLATORS
+  else br->addDummy(2);
   treevars[br->name]=br;
-  br = new outTreeBranch<float,float>("TDCreco",&varplots);
-  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
+  // br = new outTreeBranch<float,float>("TDCreco",&varplots);
+  // br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
+  // treevars[br->name]=br;
+
+  //  outTreeBranch<bool,float> *br2 = NULL;
+  br = new outTreeBranch<float,float>("HODOX",&varplots);
+  br->addMember("beamPositionX2014");
+  br->addMember("nFibersOnX");
   treevars[br->name]=br;
 
-  outTreeBranch<bool,float> *br2 = NULL;
-  br2 = new outTreeBranch<bool,float>("HODOX",&varplots);
-  for (int i=0; i<32; i++) br2->addMember("beamProfileX",i);
-  treevars2[br2->name]=br2;
-  br2 = new outTreeBranch<bool,float>("HODOY",&varplots);
-  for (int i=0; i<32; i++) br2->addMember("beamProfileY",i);
-  treevars2[br2->name]=br2;
+  br = new outTreeBranch<float,float>("HODOY",&varplots);
+  br->addMember("beamPositionY2014");
+  br->addMember("nFibersOnY");
+  treevars[br->name]=br;
 
   for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));

@@ -34,7 +34,7 @@ $HOME/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill > $output/$ru
 $HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root  >  $output/$run/$spill/plotter.log
 #$HOME/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
-DQMtypes="digitizer hodo DAQ TDC"
+DQMtypes="digitizer hodo DAQ ADC"
 cd $output/$run/$spill
 for dir in $DQMtypes
 do

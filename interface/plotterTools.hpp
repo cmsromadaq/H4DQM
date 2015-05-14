@@ -1,3 +1,4 @@
+
 #ifndef PLOT_TOOLS
 #define PLOT_TOOLS
 
@@ -23,7 +24,7 @@
 
 #include "interface/Waveform.hpp"
 
-#define nActiveDigitizerChannels 8
+#define nActiveDigitizerChannels 9
 
 #define nPlanesHodo 2       
 #define nFibersHodo 32      
@@ -122,6 +123,7 @@ public:
 
   plotterTools (TString filename, TString outfname, TString outdname);
 
+  TString pedestalFile_;
   TChain* inputTree_;
   TFile* inputFile_;
   TFile* outputFile_;
