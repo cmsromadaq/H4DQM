@@ -1,0 +1,1 @@
+g++ -Wall -o mergeH4_trees `root-config --cflags` mergeH4_trees.cxx `root-config --glibs`
