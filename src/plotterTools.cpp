@@ -1584,6 +1584,15 @@ void plotterTools::initTreeVars(){
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
   treevars[br->name]=br;
 
+  br = new outTreeBranch<float,float>("HODO1reco",&varplots);
+  br->addMember("beamPositionX1"); br->addMember("beamPositionY1"); // HODO1
+  treevars[br->name]=br;
+
+  br = new outTreeBranch<float,float>("HODO2reco",&varplots);
+  br->addMember("beamPositionX2"); br->addMember("beamPositionY2"); // HODO2
+  treevars[br->name]=br;
+
+
   outTreeBranch<bool,float> *br2 = NULL;
   br2 = new outTreeBranch<bool,float>("HODOX1",&varplots);
   for (int i=0; i<64; i++) br2->addMember("beamProfileX1",i);
@@ -1796,10 +1805,10 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"nFibersOnX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
-  addPlot(0,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(0,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
+  addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
   addPlot(0,"beamPositionX", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(0,"beamPositionY", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
