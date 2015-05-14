@@ -31,7 +31,7 @@ $HOME/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill > $output/$ru
 ### $HOME/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### $HOME/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### $HOME/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-$HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root  >  $output/$run/$spill/plotter.log
+$HOME/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -I integrated.root -P $HOME/DAQ/H4DQM/test/pedestalScan.txt >  $output/$run/$spill/plotter.log 
 #$HOME/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
 DQMtypes="digitizer hodo DAQ ADC"
