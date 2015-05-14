@@ -1229,7 +1229,7 @@ void plotterTools::fillTdc(){
   tdc_recoy=-999;
 
   for (uint i=0; i<treeStruct_.nTdcChannels; i++){
-    if (treeStruct_.tdcBoard[i]==0x07030001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
+    if (treeStruct_.tdcBoard[i]==0x07020001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
       tdc_readings[treeStruct_.tdcChannel[i]].push_back((float)treeStruct_.tdcData[i]);
     }
   }
@@ -1847,8 +1847,8 @@ void plotterTools::bookPlotsTDC(int nBinsHistory){
   addPlot(0,"TDCinputTime2",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot(0,"TDCinputTime3",100,0,50000,"1D",group_,module_,MaxTdcReadings);
   addPlot(0,"TDCinputTime4",100,0,50000,"1D",group_,module_,MaxTdcReadings);
-  addPlot(0,"TDCrecoX",100,-50,50,"1D",group_,module_);
-  addPlot(0,"TDCrecoY",100,-50,50,"1D",group_,module_);
+  addPlot(1,"TDCrecoX",100,-50,50,"1D",group_,module_);
+  addPlot(1,"TDCrecoY",100,-50,50,"1D",group_,module_);
   addPlot(1,"nTdcChannels",8,-0.5,8.5,"1D",group_,module_);
   addPlot(0,"TDChistoryRecoX",nBinsHistory,"history",group_,module_);
   addPlot(0,"TDChistoryRecoY",nBinsHistory,"history",group_,module_);
