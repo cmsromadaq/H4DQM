@@ -80,6 +80,7 @@ if ($has_subs) {
 	    print " <a href=\"?".$_SERVER['QUERY_STRING']."&depth=1\">(hide plots in subfolders)</a>\n";
     }
     print "</h2>\n";
+    asort($folders);
     foreach ($folders as $filename) {
 	    print " <a href=\"$filename\">[$filename]</a>";
     }
