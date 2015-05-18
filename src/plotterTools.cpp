@@ -260,7 +260,7 @@ void plotterTools::initIntegrated(TString nameFile){
       integratedPlots_["DAQStatus_growingEventPlot"]=(TH1F*)integratedFile_->Get("DAQStatus_growingEventPlot");
       if(integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]==NULL){
 	integratedPlots_["DAQStatus_nTotalEvtsPerSpill"]=new TH1F("DAQStatus_nTotalEvtsPerSpill","DAQStatus_nTotalEvtsPerSpill",200,0,200);
-	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,10000);
+	integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]=new TH1F("DAQStatus_nTotalEvtsPerSpillHisto","DAQStatus_nTotalEvtsPerSpillHisto",2000,100,7000);
 	integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]=new TH1F("DAQStatus_fractionTakenTrigPerSpill","DAQStatus_fractionTakenTrigPerSpill",200,0,200);
 	integratedPlots_["DAQStatus_triggerRateHisto"]=new TH1F("DAQStatus_triggerRateHisto","DAQStatus_triggerRateHisto",2000,0,1000);
 	integratedPlots_["DAQStatus_triggerRatePerSpill"]=new TH1F("DAQStatus_triggerRatePerSpill","DAQStatus_triggerRatePerSpill",2000,0,1000);
@@ -360,7 +360,7 @@ void plotterTools::initIntegrated(TString nameFile){
   plotMe(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]);
 
 
-  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,10000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   setAxisTitles(integratedPlots_["DAQStatus_triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
   std::cout<<"NAME----"<<integratedPlots_["DAQStatus_triggerRatePerSpill"]->GetName();
   plotMe(integratedPlots_["DAQStatus_triggerRatePerSpill"]);
@@ -378,7 +378,7 @@ void plotterTools::initIntegrated(TString nameFile){
   setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
   plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]);
 
-  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(100000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(10000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["DAQStatus_triggerRateHisto"], "trigger Rate (Hz)","Entries" );
   plotMe(integratedPlots_["DAQStatus_triggerRateHisto"]);
