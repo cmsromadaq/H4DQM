@@ -299,7 +299,7 @@ void plotterTools::initIntegrated(TString nameFile){
   integratedPlots_["hodo_meanY_spill"]->SetBinError(iBin,hY_info->GetRMS());
 
   integratedPlots_["hodo_RMSX_spill"]->SetBinContent(iBin,hX_info->GetRMS());
-  integratedPlots_["hodo_RMSY_spill"]->SetBinContent(iBin,hX_info->GetRMS());
+  integratedPlots_["hodo_RMSY_spill"]->SetBinContent(iBin,hY_info->GetRMS());
 
   setAxisTitles(integratedPlots_["hodo_meanX_spill"], "nSpill","mean X" );
   setAxisTitles(integratedPlots_["hodo_meanY_spill"], "nSpill","mean Y" );
