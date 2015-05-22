@@ -360,7 +360,7 @@ void plotterTools::initIntegrated(TString nameFile){
   plotMe(integratedPlots_["DAQStatus_fractionTakenTrigPerSpill"]);
 
 
-  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,10000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRatePerSpill"]->SetBinContent(iBin,1000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   setAxisTitles(integratedPlots_["DAQStatus_triggerRatePerSpill"],"nSpill" ,"trigger Rate (Hz)" );
   std::cout<<"NAME----"<<integratedPlots_["DAQStatus_triggerRatePerSpill"]->GetName();
   plotMe(integratedPlots_["DAQStatus_triggerRatePerSpill"]);
@@ -378,7 +378,7 @@ void plotterTools::initIntegrated(TString nameFile){
   setAxisTitles(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"], "NEvts Per Spill","Entries" );
   plotMe(integratedPlots_["DAQStatus_nTotalEvtsPerSpillHisto"]);
 
-  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(10000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
+  integratedPlots_["DAQStatus_triggerRateHisto"]->Fill(1000000*evt_info->GetEntries()/(timeEnd_[0]-timeStart_[0]));//it's in Hz
   //  integratedPlots_["triggerRateHisto"]->SetBinError(iBin,evt_info->GetRMS());
   setAxisTitles(integratedPlots_["DAQStatus_triggerRateHisto"], "trigger Rate (Hz)","Entries" );
   plotMe(integratedPlots_["DAQStatus_triggerRateHisto"]);
@@ -1035,9 +1035,9 @@ void plotterTools::computeVariable(TString name){
 
  }else if(name=="fractionTakenTrig"){//DAQ Status
    //   varplots[name]->Fill(((float)treeStruct_.scalerWord[2]/treeStruct_.scalerWord[1]),1.); before it was 2 and 1
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[0]/treeStruct_.scalerWord[3]),1.);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[4]/treeStruct_.scalerWord[3]),1.);
  }else if(name=="fractionTakenTrigHisto"){//DAQ Status
-   varplots[name]->Fill(((float)treeStruct_.scalerWord[0]/treeStruct_.scalerWord[3]),1.);
+   varplots[name]->Fill(((float)treeStruct_.scalerWord[4]/treeStruct_.scalerWord[3]),1.);
  }else if(name=="deltaTime10"){
    varplots[name]->Fill(((int64_t)treeStruct_.evtTime[1]-(int64_t)treeStruct_.evtTime[0])-((int64_t)timeStart_[1]-(int64_t)timeStart_[0]),1.);
 
