@@ -679,7 +679,7 @@ void  plotterTools::plotMe (TH2F * histo, TString name)
     histo->Draw ("colz text") ;
   }
   else if (hname.Contains("_pulse")){
-    histo->GetYaxis()->SetRangeUser(2000,3700);
+    histo->GetYaxis()->SetRangeUser(3550,3800);
     histo->SetStats(kFALSE);
     histo->Draw ("colz") ;
   }
