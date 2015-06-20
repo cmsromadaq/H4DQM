@@ -1200,23 +1200,93 @@ void plotterTools::fillHodo(){
 //       }
 
      }
-     else if(treeStruct_.patternBoard[i]==0x08010001){
-     
-       if(treeStruct_.patternChannel[i]!=0) continue;
+     //hodo read out by pattern unt
+//    else if(treeStruct_.patternBoard[i]==0x08010001){
+//    
+//      if(treeStruct_.patternChannel[i]!=0) continue;
+//
+//      WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
+//      WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
+//
+//      for(int j=0;j<8;j++){
+//	 fibersOnSmall_[0][j]=(bool)((wordX>>j)&0b1);
+//	 fibersOnSmall_[1][j]=(bool)((wordY>>j)&0b1);
+//	 //	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
+//      }
+//    }
 
-       WORD wordX=(treeStruct_.pattern[i]& 0x0000FF00)>>8;
-       WORD wordY= (treeStruct_.pattern[i] & 0x000000FF);
-
-       for(int j=0;j<8;j++){
-	 fibersOnSmall_[0][j]=(bool)((wordX>>j)&0b1);
-	 fibersOnSmall_[1][j]=(bool)((wordY>>j)&0b1);
-	 //	 std::cout<<fibersOnSmall_[0][i]<<" "<<fibersOnSmall_[1][i]<<"----";
-       }
-     }
 
    
    }
 
+
+   //hodo readout by adc
+   float pedSmallX[8];
+   float pedSmallY[8];
+   float rmsSmallX[8];
+   float rmsSmallY[8];
+
+   int firstChannel=-1;   
+   bool isFirstChannel=false;
+   for (Int_t i=0; i<treeStruct_.nAdcChannels && i<MAX_ADC_CHANNELS; i++){
+    if(treeStruct_.adcBoard[i]==0x6010001){  
+      if(!isFirstChannel){
+	isFirstChannel=true;
+	firstChannel=i;
+      }
+       if(i==firstChannel){
+
+
+       pedSmallX[0]=99.53;
+       pedSmallX[1]=78.12;
+       pedSmallX[2]=109;
+       pedSmallX[3]=94.3;
+       pedSmallX[4]=98.62;
+ //      pedSmallX[2]=0.;
+ //      pedSmallX[3]=0.;
+ //      pedSmallX[4]=0.;
+       pedSmallX[5]=109.4;
+       pedSmallX[6]=87.76;
+       pedSmallX[7]=93.61;
+
+       pedSmallY[0]=98.19;
+       pedSmallY[1]=111.1;
+       pedSmallY[2]=98.93;
+       pedSmallY[3]=97.98;
+       pedSmallY[4]=96.62;
+       pedSmallY[5]=98.08;
+       pedSmallY[6]=86.29;
+       pedSmallY[7]=113.6;
+
+
+       rmsSmallX[0]=0.5;
+       rmsSmallX[1]=0.5;
+       rmsSmallX[2]=0.5;
+       rmsSmallX[3]=0.5;
+       rmsSmallX[4]=0.5;
+       rmsSmallX[5]=0.5;
+       rmsSmallX[6]=0.5;
+       rmsSmallX[7]=0.5;
+		    
+       rmsSmallY[0]=0.5;
+       rmsSmallY[1]=0.5;
+       rmsSmallY[2]=0.5;
+       rmsSmallY[3]=0.5;
+       rmsSmallY[4]=0.5;
+       rmsSmallY[5]=0.5;
+       rmsSmallY[6]=0.5;
+       rmsSmallY[7]=0.5;
+       }
+       if(i-firstChannel<16){
+	 //assuming channel 0 first channel of Y
+	 if (i-firstChannel<9)	 fibersOnSmall_[1][i-firstChannel]=(bool)(treeStruct_.adcChannel[i]>pedSmallX[i-firstChannel]+2*rmsSmallX[i-firstChannel]);
+	 else 	 fibersOnSmall_[0][i-firstChannel]=(bool)(treeStruct_.adcChannel[i]>pedSmallY[i-firstChannel]+2*rmsSmallY[i-firstChannel]);
+       }
+
+     }
+
+
+   }
 }
 
 
