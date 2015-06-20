@@ -1242,9 +1242,8 @@ void plotterTools::fillHodo(){
        pedSmallX[2]=109;
        pedSmallX[3]=94.3;
        pedSmallX[4]=98.62;
- //      pedSmallX[2]=0.;
- //      pedSmallX[3]=0.;
- //      pedSmallX[4]=0.;
+       //      pedSmallX[3]=0.;
+       //      pedSmallX[4]=0.;
        pedSmallX[5]=109.4;
        pedSmallX[6]=87.76;
        pedSmallX[7]=93.61;
@@ -1279,8 +1278,12 @@ void plotterTools::fillHodo(){
        }
        if(i-firstChannel<16){
 	 //assuming channel 0 first channel of Y
-	 if (i-firstChannel<9)	 fibersOnSmall_[1][i-firstChannel]=(bool)(treeStruct_.adcChannel[i]>pedSmallX[i-firstChannel]+2*rmsSmallX[i-firstChannel]);
-	 else 	 fibersOnSmall_[0][i-firstChannel]=(bool)(treeStruct_.adcChannel[i]>pedSmallY[i-firstChannel]+2*rmsSmallY[i-firstChannel]);
+	 if (i-firstChannel<8){
+	   fibersOnSmall_[1][i-firstChannel]=(bool)(treeStruct_.adcChannel[i]>pedSmallX[i-firstChannel]+2*rmsSmallX[i-firstChannel]);
+	 }else{
+	   fibersOnSmall_[0][i-firstChannel-8]=(bool)(treeStruct_.adcChannel[i]>pedSmallY[i-firstChannel-8]+2*rmsSmallY[i-firstChannel-8]);
+	 }
+
        }
 
      }
