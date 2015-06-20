@@ -69,7 +69,7 @@ int main (int argc, char ** argv)
   plotter.setModule("beam");
   plotter.setGroup("hodo");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
-  //plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
+  plotter.bookPlotsSmallHodo(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("DAQStatus"); 
   plotter.bookPlotsDAQStatus(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("TDC"); 
