@@ -41,10 +41,15 @@
 #define nFibersSmallHodo 8
 
 //schema to be checked: Xleft, Xright, Ydown, Yup
-#define wcXl 0
-#define wcXr 1
-#define wcYd 3
-#define wcYu 2
+//#define wcXl 0
+//#define wcXr 1
+//#define wcYd 3
+//#define wcYu 2
+//
+#define wcXl 4
+#define wcXr 5
+#define wcYd 6
+#define wcYu 7
 
 #define beamTriggerBitMask 0x0100
 #define pedTriggerBitMask 0x0200
