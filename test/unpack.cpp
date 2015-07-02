@@ -136,6 +136,8 @@ int main(int argc, char *argv[])
   size = rawFile->tellg () ;
   cout << "[UNPACKER] File " << filename.str () << " opened with size " << size << "\n" ;
 
+  if(prescale<0) prescale = (int)size/15000000;//if prescale =-1 compute the prescale to limit the size to 15MB per spill
+
   rawFile->seekg(0,std::ios::beg);
 
   TFile * outFile = TFile::Open (outfname.str ().c_str (), "RECREATE") ;  

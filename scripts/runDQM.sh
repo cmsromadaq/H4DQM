@@ -30,7 +30,8 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
-for runtype in beam ped led;do
+#for runtype in beam ped led;do
+for runtype in beam;do
     /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 
@@ -56,7 +57,8 @@ done
 # copy skeleton php
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
-for runtype in beam ped led;do
+#for runtype in beam ped led;do
+for runtype in beam ;do
     rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 
 #for dir in hodo TDC DAQ digitizer total
