@@ -1302,11 +1302,13 @@ void plotterTools::fillTdc(){
   tdc_recoy=-999;
 
   for (uint i=0; i<treeStruct_.nTdcChannels; i++){
-    if (treeStruct_.tdcBoard[i]==0x07020001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
+    //    if (treeStruct_.tdcBoard[i]==0x07020001 && treeStruct_.tdcChannel[i]<MaxTdcChannels){
+    if (treeStruct_.tdcChannel[i]<MaxTdcChannels){
       tdc_readings[treeStruct_.tdcChannel[i]].push_back((float)treeStruct_.tdcData[i]);
     }
   }
 
+  
   if (tdc_readings[wcXl].size()!=0 && tdc_readings[wcXr].size()!=0){
     float TXl = *std::min_element(tdc_readings[wcXl].begin(),tdc_readings[wcXl].begin()+tdc_readings[wcXl].size());
     float TXr = *std::min_element(tdc_readings[wcXr].begin(),tdc_readings[wcXr].begin()+tdc_readings[wcXr].size());
@@ -1789,8 +1791,21 @@ void  plotterTools::Loop()
 	    
 	    wave_pedestal=it->second->waveform->baseline(5,44); //use 40 samples between 5-44 to get pedestal and RMS
 	    it->second->waveform->offset(wave_pedestal.pedestal);
-	    
-	    it->second->waveform->rescale(-1); 
+
+	    //Inverting pulse shape apart for positive signals
+	    if (!( it->first.Contains("ch16") || 
+		   it->first.Contains("ch17") ||
+		   it->first.Contains("ch18") || 
+		   it->first.Contains("ch19") ||
+		   it->first.Contains("ch3") || 
+		   it->first.Contains("ch4") || 
+		   it->first.Contains("ch6") || 
+		   it->first.Contains("ch7")  
+
+		   ) 
+		)
+	      it->second->waveform->rescale(-1); 
+
 	    wave_max=it->second->waveform->max_amplitude(50,900,5); //find max amplitude between 50 and 900 samples
 	    
 	    TString thisname = it->second->name.ReplaceAll("_pulse","");

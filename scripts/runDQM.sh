@@ -31,56 +31,57 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
-for runtype in beam;do
-    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
+if [ $((spill%2)) -eq 1 ]; then
+    for runtype in beam;do
+	
+	/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
-
-    cd $output/$run/$spill/$dir/$runtype/
-    mkdir hodo
-    mkdir DAQ
-    mkdir ADC
-    mkdir TDC 
-    mkdir digitizer 
+	
+	cd $output/$run/$spill/$dir/$runtype/
+	mkdir hodo
+	mkdir DAQ
+	mkdir ADC
+	mkdir TDC 
+	mkdir digitizer 
+	
+	mv total/hodo_* hodo/
+	mv total/DAQStatus_* DAQ/
+	mv total/ADC_* ADC/
+	mv total/TDC_* TDC/
+	mv total/digitizer_* digitizer/
+	mv total/*.root .
+	
+	rm -r total
+	cd -
+    done
     
-    mv total/hodo_* hodo/
-    mv total/DAQStatus_* DAQ/
-    mv total/ADC_* ADC/
-    mv total/TDC_* TDC/
-    mv total/digitizer_* digitizer/
-    mv total/*.root .
-    
-    rm -r total
-    cd -
-done
-
 ## hodo , TDC , DAQ 
 # copy skeleton php
-rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
-rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
+    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
+    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 #for runtype in beam ped led;do
-for runtype in beam ;do
-    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
-
+    for runtype in beam ;do
+	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
+	
 #for dir in hodo TDC DAQ digitizer total
 #for dir in digitizer hodo DAQ ADC TDC
-    for dir in digitizer hodo DAQ TDC ADC
+	for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
-    do
-	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
+	do
+	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
+	done
     done
 
-done
-
-
+    
 # touch -R
-find $output/$run/$spill -type f -exec touch {} \;
+    find $output/$run/$spill -type f -exec touch {} \;
+    
+    [ -h $output/$run/last ] && rm $output/$run/last
+    [ -h $output/last ] && rm $output/last
+    
+    ln -s $output/$run/$spill $output/$run/last
+    ln -s $output/$run $output/last
 
-[ -h $output/$run/last ] && rm $output/$run/last
-[ -h $output/last ] && rm $output/last
-
-ln -s $output/$run/$spill $output/$run/last
-ln -s $output/$run $output/last
-
-rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
-rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
-
+    rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+    rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
+fi

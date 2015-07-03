@@ -136,7 +136,11 @@ int main(int argc, char *argv[])
   size = rawFile->tellg () ;
   cout << "[UNPACKER] File " << filename.str () << " opened with size " << size << "\n" ;
 
-  if(prescale<0) prescale = (int)size/15000000;//if prescale =-1 compute the prescale to limit the size to 15MB per spill
+  if(prescale<0) 
+    {
+      prescale = (int)size/20000000 + 1;//if prescale =-1 compute the prescale to limit the size to 10MB per spill
+      cout <<"[Unpacker]::[CONFIG]::COMPUTED AUTO PRESCALE FACTOR: "<<prescale<<endl;
+    }
 
   rawFile->seekg(0,std::ios::beg);
 

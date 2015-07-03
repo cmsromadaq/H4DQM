@@ -186,7 +186,7 @@ public:
   bool fibersOnSmall_[nPlanesSmallHodo][nFibersSmallHodo];
 
   //tdc readings
-  static const UInt_t MaxTdcChannels = 4;
+  static const UInt_t MaxTdcChannels = 16;
   static const UInt_t MaxTdcReadings = 20;
   std::vector<float> tdc_readings[MaxTdcChannels];
   float tdc_recox, tdc_recoy;
