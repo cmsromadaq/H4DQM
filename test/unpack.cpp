@@ -138,7 +138,7 @@ int main(int argc, char *argv[])
 
   if(prescale<0) 
     {
-      prescale = (int)size/20000000 + 1;//if prescale =-1 compute the prescale to limit the size to 10MB per spill
+      prescale = (int)size/40000000 + 1;//if prescale =-1 compute the prescale to limit the size to 10MB per spill
       cout <<"[Unpacker]::[CONFIG]::COMPUTED AUTO PRESCALE FACTOR: "<<prescale<<endl;
     }
 
