@@ -1792,21 +1792,18 @@ void  plotterTools::Loop()
 	    wave_pedestal=it->second->waveform->baseline(5,44); //use 40 samples between 5-44 to get pedestal and RMS
 	    it->second->waveform->offset(wave_pedestal.pedestal);
 
-	    //Inverting pulse shape apart for positive signals
-	    if (!( it->first.Contains("ch16") || 
-		   it->first.Contains("ch17") ||
-		   it->first.Contains("ch18") || 
-		   it->first.Contains("ch19") ||
-		   it->first.Contains("ch3") || 
-		   it->first.Contains("ch4") || 
-		   it->first.Contains("ch6") || 
-		   it->first.Contains("ch7")  
-
-		   ) 
-		)
-	      it->second->waveform->rescale(-1); 
-
+	    it->second->waveform->rescale(-1); 
 	    wave_max=it->second->waveform->max_amplitude(50,900,5); //find max amplitude between 50 and 900 samples
+	    if (wave_max.max_amplitude<20)
+	      {
+		//try not inverting if signal is positive
+		it->second->waveform->rescale(-1); 
+		Waveform::max_amplitude_informations wave_max_inv=it->second->waveform->max_amplitude(50,900,5); //find max amplitude between 50 and 900 samples
+		if (wave_max_inv.max_amplitude>wave_max.max_amplitude)
+		    wave_max=wave_max_inv;
+		else //stay with negative signals
+		  it->second->waveform->rescale(-1); 
+	      }
 	    
 	    TString thisname = it->second->name.ReplaceAll("_pulse","");
 	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal,1.);
@@ -1814,8 +1811,8 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_max_amplitude",thisname.Data())]->Fill(wave_max.max_amplitude,1.);
 	    varplots[Form("%s_charge_integrated",thisname.Data())]->Fill(it->second->waveform->charge_integrated(0,900),1.); // pedestal already subtracted
 	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9,1.);
-	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
-	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-3.e-9,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
+	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
+	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
 	    
 	    int x1 = -1;
 	    for(int i=0;i<64;i++){
