@@ -124,15 +124,14 @@ for spills in ${spillList[@]}; do
     unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}"
     echo "${unpackCommand}" >> ${log}/${run}/${spills}.sh
     [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root"  >> ${log}/${run}/${spills}.sh 
-
     #launch job
-    command="/bin/bash"
-    [ "${batch}" == "1" ] && command="bsub -q ${queue} -o ${log}/${run}/unpack_${spills}.log -e ${log}/${run}/unpack_${spills}.log"
     command="${command} < ${log}/${run}/${spills}.sh"
+    [ "${batch}" == "1" ] && command="bsub -q ${queue} -o ${log}/${run}/unpack_${spills}.log -e ${log}/${run}/unpack_${spills}.log /bin/bash ${log}/${run}/${spills}.sh"
     echo ${command}
     [ "${dryrun}" == "1" ] && continue
-    jobId=`${command} 2>&1`
+    jobId=`${command}`
     job=`echo ${jobId} | awk '{print $2}' | sed -e 's%<%%g' | sed -e 's%>%%g'`
+    echo "${job} submitted"
     jobList="${job} ${jobList}"
 #    echo "==>JOBS ${jobList}"
 done
