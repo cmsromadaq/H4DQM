@@ -154,8 +154,9 @@ echo "===> unpackData: input ${input}, run ${run}, spills ${spillList[@]}"
 
 runDir=`echo ${launchDir} | awk -F '/H4DQM' '{printf "%s/H4DQM\n",$1}'`
 
-[ "${dryrun}" == "1" ] ||  ${eosCommand} mkdir -p ${output}/${run};  mkdir -p ${log}/${run}
+[ "${dryrun}" == "1" ] ||  ${eosCommand} mkdir -p ${output}/${run}
 
+mkdir -p ${log}/${run}
 jobList=""
 for spills in ${spillList[@]}; do
     #prepare job 
