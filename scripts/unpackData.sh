@@ -80,7 +80,7 @@ launchJob()
     jobFile=${log}/${run}/${spills}.sh
     logFile=${log}/${run}/unpack_${spills}.log
 
-    [ -e ${logFile} ] && mv ${logFile} ${logFile}.old
+    [ -e ${logFile} ] && mv -f ${logFile} ${logFile}.old
     rm -rf ${jobFile}
     touch ${jobFile}
 
