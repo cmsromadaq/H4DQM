@@ -85,24 +85,27 @@ launchJob()
     touch ${jobFile}
 
     echo "#!/bin/sh" >>  ${jobFile}
+    echo "env" >>  ${jobFile}
+    echo "declare -i RESULT=0" >>  ${jobFile}
     [ "${cmssw}" == "1" ] && echo "cd ${cmsswDir}; eval \`scram runtime -sh\`; cd -" >>  ${jobFile}
 
-    tmpDir=/tmp
+    echo "tmpDir=/tmp" >>  ${jobFile}
     #using WORKDIR if provided
-    [ -e ${WORKDIR} ] && tmpDir=${WORKDIR} 
+    echo "[ \"\${WORKDIR}\" != \"\" ] && tmpDir=\${WORKDIR}" >>  ${jobFile} 
 
-    [ "${eos}" == "1" ]  &&  echo "mkdir -p ${tmpDir}/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} ${tmpDir}/${run}/${spills}.${suffix}; mkdir -p ${tmpDir}/DataTree" >> ${jobFile}
+    [ "${eos}" == "1" ]  &&  echo "mkdir -p \${tmpDir}/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} \${tmpDir}/${run}/${spills}.${suffix}; RESULT+=\$?; mkdir -p \${tmpDir}/DataTree" >> ${jobFile}
 
     jobInputDir=${input}
     jobOutputDir=${output}
     
     #stagein for EOS
-    [ "${eos}" == "1" ] &&  jobInputDir=${tmpDir}; jobOutputDir=${tmpDir}/DataTree
-    unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}"
+    [ "${eos}" == "1" ] &&  jobInputDir="\${tmpDir}"; jobOutputDir="\${tmpDir}/DataTree"
+    unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}; RESULT+=\$?"
     echo "${unpackCommand}" >> ${jobFile}
     #stageout for EOS
-    [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root"  >> ${jobFile} 
-
+    [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root; RESULT+=\$?"  >> ${jobFile} 
+    echo "[ \$RESULT -gt 0 ] && touch ${log}/${run}/${spills}.error" >>  ${jobFile}
+    echo "[ \$RESULT -eq 0 ] && touch ${log}/${run}/${spills}.done" >>  ${jobFile}
     #launch job
     command="${command} < ${jobFile}"
     [ "${batch}" == "1" ] && command="bsub -q ${queue} -o ${logFile} -e ${logFile} /bin/bash ${jobFile}"
