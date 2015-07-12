@@ -87,13 +87,17 @@ launchJob()
     echo "#!/bin/sh" >>  ${jobFile}
     [ "${cmssw}" == "1" ] && echo "cd ${cmsswDir}; eval \`scram runtime -sh\`; cd -" >>  ${jobFile}
 
-    [ "${eos}" == "1" ] &&  echo "mkdir -p /tmp/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} /tmp/${run}/${spills}.${suffix}; mkdir -p /tmp/DataTree" >> ${jobFile}
+    tmpDir=/tmp
+    #using WORKDIR if provided
+    [ -e ${WORKDIR} ] && tmpDir=${WORKDIR} 
+
+    [ "${eos}" == "1" ]  &&  echo "mkdir -p ${tmpDir}/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} ${tmpDir}/${run}/${spills}.${suffix}; mkdir -p ${tmpDir}/DataTree" >> ${jobFile}
 
     jobInputDir=${input}
     jobOutputDir=${output}
     
     #stagein for EOS
-    [ "${eos}" == "1" ] &&  jobInputDir=/tmp; jobOutputDir=/tmp/DataTree
+    [ "${eos}" == "1" ] &&  jobInputDir=${tmpDir}; jobOutputDir=${tmpDir}/DataTree
     unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}"
     echo "${unpackCommand}" >> ${jobFile}
     #stageout for EOS
