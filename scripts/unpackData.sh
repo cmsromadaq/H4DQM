@@ -13,7 +13,8 @@ merge=0
 batch=0
 clean=0
 eos=0
-
+cmssw=0
+cmsswDir=/cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_5/src/
 
 waitForBatchJobs() {
     jobList=( ${jobList} )
@@ -73,7 +74,43 @@ mergeSpills()
     done
 }
 
-TEMP=`getopt -o i:o:r:s:q:l:mbdce --long input:,output:,run:,spill:,queue:,log:,merge,batch,dryrun,clean,eos -n 'unpackData.sh' -- "$@"`
+launchJob()
+{
+    #prepareJobFile
+    jobFile=${log}/${run}/${spills}.sh
+    logFile=${log}/${run}/unpack_${spills}.log
+
+    [ -e ${logFile} ] && mv ${logFile} ${logFile}.old
+    rm -rf ${jobFile}
+    touch ${jobFile}
+
+    echo "#!/bin/sh" >>  ${jobFile}
+    [ "${cmssw}" == "1" ] && echo "cd ${cmsswDir}; eval \`scram runtime -sh\`; cd -" >>  ${jobFile}
+
+    [ "${eos}" == "1" ] &&  echo "mkdir -p /tmp/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} /tmp/${run}/${spills}.${suffix}; mkdir -p /tmp/DataTree" >> ${jobFile}
+
+    jobInputDir=${input}
+    jobOutputDir=${output}
+    
+    #stagein for EOS
+    [ "${eos}" == "1" ] &&  jobInputDir=/tmp; jobOutputDir=/tmp/DataTree
+    unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}"
+    echo "${unpackCommand}" >> ${jobFile}
+    #stageout for EOS
+    [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root"  >> ${jobFile} 
+
+    #launch job
+    command="${command} < ${jobFile}"
+    [ "${batch}" == "1" ] && command="bsub -q ${queue} -o ${logFile} -e ${logFile} /bin/bash ${jobFile}"
+    echo ${command}
+    [ "${dryrun}" == "1" ] && continue
+    jobId=`${command}`
+    job=`echo ${jobId} | awk '{print $2}' | sed -e 's%<%%g' | sed -e 's%>%%g'`
+    echo "${job} submitted"
+    jobList="${job} ${jobList}"
+}
+
+TEMP=`getopt -o i:o:r:s:q:l:mbdce --long input:,output:,run:,spill:,queue:,log:,merge,batch,dryrun,clean,eos,cmssw -n 'unpackData.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -91,6 +128,7 @@ case "$1" in
 -d | --dryrun ) dryrun=1; shift;;
 -c | --clean ) clean=1; shift;;
 -e | --eos ) eos=1; shift;;
+--cmssw ) cmssw=1; shift;;
 -- ) shift; break ;;
 * ) break ;;
 esac
@@ -100,11 +138,12 @@ eosCommand=""
 [ "$eos" == "1" ] && eosCommand="/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select"
 
 spillList="$spill"
-[[ "$spill" == "-1" && "$eos" == "0" ]] && spillList=`find ${input}/${run} -regextype 'posix-basic' -regex ".*\.${suffix}" -type f | xargs -I {} basename {} .${suffix} | awk '{printf "%d ",$1}END{printf"\n"}' | sort -n`
-[[ "$spill" == "-1" && "$eos" == "1" ]] && echo "Checking EOS dir $input"; spillList=`${eosCommand} find -f ${input}/${run} | grep ".${suffix}" | xargs -I {} basename {} .${suffix} | awk '{printf "%d ",$1}END{printf"\n"}' | sort -n`
-
+if [ "$spill" == "-1" ] && [ "$eos" == "0" ]; then echo "Checking spill files in $input"; spillList=`find ${input}/${run} -regextype 'posix-basic' -regex ".*\.${suffix}" -type f | xargs -I {} basename {} .${suffix} | awk '{printf "%d ",$1}END{printf"\n"}' | sort -n`
+fi
+if [ "$spill" == "-1" ] && [ "$eos" == "1" ]; then echo "Checking spill files in EOS dir $input"; spillList=`${eosCommand} find -f ${input}/${run} | grep ".${suffix}" | xargs -I {} basename {} .${suffix} | awk '{printf "%d ",$1}END{printf"\n"}' | sort -n`
+fi
 spillList=( $spillList )
-echo "===>unpackData: input ${input}, run ${run}, spills ${spillList[@]}"
+echo "===> unpackData: input ${input}, run ${run}, spills ${spillList[@]}"
 
 runDir=`echo ${launchDir} | awk -F '/H4DQM' '{printf "%s/H4DQM\n",$1}'`
 
@@ -113,27 +152,7 @@ runDir=`echo ${launchDir} | awk -F '/H4DQM' '{printf "%s/H4DQM\n",$1}'`
 jobList=""
 for spills in ${spillList[@]}; do
     #prepare job 
-    rm -rf ${log}/${run}/${spills}.sh
-    touch ${log}/${run}/${spills}.sh
-    echo "#!/bin/sh" >>  ${log}/${run}/${spills}.sh
-    echo "cd /cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_5/src/; eval \`scram runtime -sh\`; cd -" >>  ${log}/${run}/${spills}.sh
-    [ "${eos}" == "1" ] &&  echo "mkdir -p /tmp/${run}; ${eosCommand} cp ${input}/${run}/${spills}.${suffix} /tmp/${run}/${spills}.${suffix}; mkdir -p /tmp/DataTree" >> ${log}/${run}/${spills}.sh
-    jobInputDir=${input}
-    jobOutputDir=${output}
-    [ "${eos}" == "1" ] &&  jobInputDir=/tmp; jobOutputDir=/tmp/DataTree
-    unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}"
-    echo "${unpackCommand}" >> ${log}/${run}/${spills}.sh
-    [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root"  >> ${log}/${run}/${spills}.sh 
-    #launch job
-    command="${command} < ${log}/${run}/${spills}.sh"
-    [ "${batch}" == "1" ] && command="bsub -q ${queue} -o ${log}/${run}/unpack_${spills}.log -e ${log}/${run}/unpack_${spills}.log /bin/bash ${log}/${run}/${spills}.sh"
-    echo ${command}
-    [ "${dryrun}" == "1" ] && continue
-    jobId=`${command}`
-    job=`echo ${jobId} | awk '{print $2}' | sed -e 's%<%%g' | sed -e 's%>%%g'`
-    echo "${job} submitted"
-    jobList="${job} ${jobList}"
-#    echo "==>JOBS ${jobList}"
+    launchJob
 done
 
 [ ${merge} == 1 ] || exit 0
