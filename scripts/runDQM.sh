@@ -60,7 +60,7 @@ if [ $((spill%2)) -eq 1 ]; then
     rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
     rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 #for runtype in beam ped led;do
-    for runtype in beam ;do
+    for runtype in beam ped led;do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	
 #for dir in hodo TDC DAQ digitizer total
