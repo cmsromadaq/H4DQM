@@ -41,15 +41,15 @@
 #define nFibersSmallHodo 8
 
 //schema to be checked: Xleft, Xright, Ydown, Yup
-//#define wcXl 0
-//#define wcXr 1
-//#define wcYd 3
-//#define wcYu 2
-//
-#define wcXl 4
-#define wcXr 5
-#define wcYd 6
-#define wcYu 7
+#define wcXl 0
+#define wcXr 1
+#define wcYd 3
+#define wcYu 2
+
+//#define wcXl 4
+//#define wcXr 5
+//#define wcYd 6
+//#define wcYu 7
 
 #define beamTriggerBitMask 0x0100
 #define pedTriggerBitMask 0x0200
@@ -186,7 +186,7 @@ public:
   bool fibersOnSmall_[nPlanesSmallHodo][nFibersSmallHodo];
 
   //tdc readings
-  static const UInt_t MaxTdcChannels = 16;
+  static const UInt_t MaxTdcChannels = 4;
   static const UInt_t MaxTdcReadings = 20;
   std::vector<float> tdc_readings[MaxTdcChannels];
   float tdc_recox, tdc_recoy;
