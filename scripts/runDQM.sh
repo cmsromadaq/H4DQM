@@ -32,7 +32,7 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 if [ $((spill%2)) -eq 1 ]; then
-    for runtype in beam;do
+    for runtype in beam ped led;do
 	
 	/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
