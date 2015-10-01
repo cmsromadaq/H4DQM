@@ -62,21 +62,15 @@ if [ $((spill%2)) -eq 1 ]; then
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	    
 	    rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
-
-
-	done
-    
-#for runtype in beam ped led;do
-	for runtype in ped beam;do
-#for dir in hodo TDC DAQ digitizer total
-#for dir in digitizer hodo DAQ ADC TDC
 	    for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
 	    do
 		rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
 	    done
-	done
 
+
+	done
+    
     
 # touch -R
 	find $output/$run/$spill -type f -exec touch {} \;
