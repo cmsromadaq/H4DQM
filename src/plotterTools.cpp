@@ -1716,6 +1716,16 @@ void  plotterTools::Loop()
     {
       inputTree_->GetEntry(iEntry);
 
+      WORD triggerWord=treeStruct_.triggerWords[0];
+      if ((~triggerWord & beamTriggerBitMask) && triggerType_!="beam"){//not of the triggerword is just a bit on, since beamWord=FE00, pedWord=FD00
+	continue;
+      }else if (~triggerWord & pedTriggerBitMask  && triggerType_!="ped") {
+	continue;
+      }else if (~triggerWord & ledTriggerBitMask  && triggerType_!="led") {
+	continue;
+      }
+
+
       if (iEntry%1000==0)
 	std::cout<<"iEntry: "<<iEntry<<"/"<<nentries<<endl;
       
@@ -1736,14 +1746,6 @@ void  plotterTools::Loop()
 	  timeEnd_[i]=treeStruct_.evtTime[i];
       }
 
-      WORD triggerWord=treeStruct_.triggerWords[0];
-      if ((~triggerWord & beamTriggerBitMask) && triggerType_!="beam"){//not of the triggerword is just a bit on, since beamWord=FE00, pedWord=FD00
-	continue;
-      }else if (~triggerWord & pedTriggerBitMask  && triggerType_!="ped") {
-	continue;
-      }else if (~triggerWord & ledTriggerBitMask  && triggerType_!="led") {
-	continue;
-      }
 
 
       fillObjects();
