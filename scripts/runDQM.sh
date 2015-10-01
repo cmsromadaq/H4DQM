@@ -32,7 +32,7 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 if [ $((spill%2)) -eq 1 ]; then
-    for runtype in beam ped ;do
+    for runtype in ped ;do
 	
 	/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
@@ -53,14 +53,19 @@ if [ $((spill%2)) -eq 1 ]; then
 	
 	rm -r total
 	cd -
-    done
-    
+
 ## hodo , TDC , DAQ 
 # copy skeleton php
-    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
-    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
+	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
+	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
+
+	rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+
+
+    done
+    
 #for runtype in beam ped led;do
-    for runtype in beam ped;do
+    for runtype in ped;do
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	
 #for dir in hodo TDC DAQ digitizer total
