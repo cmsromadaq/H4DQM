@@ -59,7 +59,7 @@ if [ $((spill%2)) -eq 1 ]; then
 # copy skeleton php
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
-	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
+
 	    
 	    rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
 
@@ -68,6 +68,7 @@ if [ $((spill%2)) -eq 1 ]; then
     
 
 	for runtype in ped beam;do
+	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	    for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
 	    do
