@@ -76,8 +76,8 @@ int main (int argc, char ** argv)
   plotter.bookPlotsTDC(nentries/plotter.getStepHistoryPlots());
   plotter.setGroup("ADC");
   plotter.bookPlotsADC();
-//  plotter.setGroup("digitizer");
-//  plotter.bookPlotsDigitizer();
+  plotter.setGroup("digitizer");
+  plotter.bookPlotsDigitizer();
 
   plotter.printHistos();
 
