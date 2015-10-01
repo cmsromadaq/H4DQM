@@ -59,6 +59,8 @@ if [ $((spill%2)) -eq 1 ]; then
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
 	rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 
+	rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+
 
     done
     
