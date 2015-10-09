@@ -31,7 +31,7 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
-if [ $((spill%2)) -eq 1 ]; then
+if [ $((spill%5)) -eq 1 ]; then
     if [ $((spill)) -ne 3 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
 	for runtype in ped beam;do
