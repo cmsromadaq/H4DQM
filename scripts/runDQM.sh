@@ -24,7 +24,7 @@ case "$1" in
 esac
 done
 
-/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale
+
 
 ### PLOT MAKER -- make me configurable
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
@@ -33,8 +33,8 @@ done
 #for runtype in beam ped led;do
 if [ $((spill%2)) -eq 1 ]; then
     if [ $((spill)) -ne 3 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
+	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
 	for runtype in ped beam;do
-	    
 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
