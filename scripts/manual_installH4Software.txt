@@ -95,3 +95,13 @@ cd H4DAQ
 make -j 4
 cd ../H4DQM
 make -j 4 (Waveforms uses some Interpolation libraries that sometimes not present in root directory, if you get an error copy them by hand: scp cms-h4-03:/opt/root/include/root/Math/Interpol* /opt/root/include/root/Math/)
+
+
+########### backup scripts
+as root user:
+cd /root/tbb
+scp micheli@lxplus:~/.globus/usercert.pem micheliCert.pem
+scp micheli@lxplus:~/.globus/userkey.pem .
+voms-proxy-init --voms cms --hours 168 --cert micheliCert.pem --key userkey.pem 
+gfalFS /root/tbb/T3_PSI/ srm://t3se01.psi.ch///pnfs/psi.ch/cms/trivcat/store/t3groups/ethz-ecal/H4TestBeamFall2015/
+service tbb restart
