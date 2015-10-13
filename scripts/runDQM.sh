@@ -34,7 +34,7 @@ done
 if [ $((spill%5)) -eq 1 ]; then
     if [ $((spill)) -ne 3 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
-	for runtype in ped beam;do
+	for runtype in led ped beam;do
 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
