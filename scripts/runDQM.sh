@@ -33,9 +33,10 @@ done
 #for runtype in beam ped led;do
 if [ $((spill%5)) -eq 1 ]; then
     if [ $((spill)) -ne 3 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
-	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
+	mkdir -p /tmp/${run}
+	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o /tmp -r $run -s $spill -p $prescale	    
 	for runtype in led ped beam;do
-	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t$runtype -I integrated.root 
+	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i /tmp -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
 	    cd $output/$run/$spill/$dir/$runtype/
@@ -66,8 +67,8 @@ if [ $((spill%5)) -eq 1 ]; then
 
 	done
     
-
-	for runtype in ped beam;do
+	rm -rf /tmp/${run}
+	for runtype in led ped beam;do
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	    for dir in digitizer hodo DAQ TDC ADC
 #for dir in hodo DAQ ADC TDC
@@ -90,4 +91,5 @@ if [ $((spill%5)) -eq 1 ]; then
 	rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
 	rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
     fi
+
 fi
