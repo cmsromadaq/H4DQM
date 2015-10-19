@@ -105,3 +105,8 @@ scp micheli@lxplus:~/.globus/userkey.pem .
 voms-proxy-init --voms cms --hours 168 --cert micheliCert.pem --key userkey.pem 
 gfalFS /root/tbb/T3_PSI/ srm://t3se01.psi.ch///pnfs/psi.ch/cms/trivcat/store/t3groups/ethz-ecal/H4TestBeamFall2015/
 service tbb restart
+
+############ db export
+db is on pcethtb2, to export it:
+mysqldump -u root -p --tab=/tmp rundb_v2
+ls /tmp/run.txt 
