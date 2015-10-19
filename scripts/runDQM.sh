@@ -31,9 +31,9 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
-if [ [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ]; then
-    if [ $((spill)) -ne 5 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
-	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
+if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
+    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
+	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o /tmp -r $run -s $spill -p $prescale	    
 	for runtype in led ped beam;do
 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i /tmp -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
@@ -66,7 +66,7 @@ if [ [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ]; then
 
 	done
     
-	rm -rf /tmp/${run}
+	rm -f /tmp/${run}/${spill}.root
 	for runtype in led ped beam;do
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	    for dir in digitizer hodo DAQ TDC ADC
