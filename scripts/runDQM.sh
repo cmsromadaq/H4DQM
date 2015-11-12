@@ -102,7 +102,7 @@ if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
 	rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
 
 	#clean unpack file
-	[ "${clean}" == "1" ] || rm -rfv ${output}/${run}/${spill}
+	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
 	
     fi
 
