@@ -33,6 +33,8 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 
+mkdir -p /tmp/DQM
+
 if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
     if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o /tmp/DQM -r $run -s $spill -p $prescale	    
