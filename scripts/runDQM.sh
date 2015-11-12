@@ -7,7 +7,7 @@ spill="0"
 prescale=1
 keepUnpack=1
 
-TEMP=`getopt -o i:o:r:s:p: --long input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o ki:o:r:s:p: --long keepUnpack,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
