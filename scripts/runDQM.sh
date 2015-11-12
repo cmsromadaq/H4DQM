@@ -5,12 +5,12 @@ output="/tmp"
 run="0"
 spill="0"
 prescale=1
+keepUnpack=1
 
 TEMP=`getopt -o i:o:r:s:p: --long input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
-
 
 while true; do
 case "$1" in
@@ -19,6 +19,7 @@ case "$1" in
 -r | --run ) run="$2"; shift 2;;
 -s | --spill ) spill="$2"; shift 2;;
 -p | --prescale ) prescale=$2; shift 2;;
+-k | --keepUnpack ) keepUnpack=1; shift 1;;
 -- ) shift; break ;;
 * ) break ;;
 esac
@@ -33,9 +34,9 @@ done
 #for runtype in beam ped led;do
 if [ [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ]; then
     if [ $((spill)) -ne 5 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
-	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale	    
+	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o /tmp/DQM -r $run -s $spill -p $prescale	    
 	for runtype in led ped beam;do
-	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i /tmp -o $output  -r $run -s $spill -t$runtype -I integrated.root 
+	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i /tmp/DQM -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
 	    cd $output/$run/$spill/$dir/$runtype/
@@ -65,8 +66,10 @@ if [ [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ]; then
 
 
 	done
-    
-	rm -rf /tmp/${run}
+
+	#clean unpack file
+	[ "${keepUnpack}" == "1" ] || rm -rf /tmp/DQM/${run}/${spill.root}
+
 	for runtype in led ped beam;do
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
 	    for dir in digitizer hodo DAQ TDC ADC
