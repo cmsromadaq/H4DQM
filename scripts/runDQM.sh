@@ -6,8 +6,9 @@ run="0"
 spill="0"
 prescale=1
 keepUnpack=1
+clean=0
 
-TEMP=`getopt -o ki:o:r:s:p: --long keepUnpack,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o cki:o:r:s:p: --long clean,keepUnpack,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -20,6 +21,7 @@ case "$1" in
 -s | --spill ) spill="$2"; shift 2;;
 -p | --prescale ) prescale=$2; shift 2;;
 -k | --keepUnpack ) keepUnpack=1; shift 1;;
+-c | --clean ) clean=1; shift 1;;
 -- ) shift; break ;;
 * ) break ;;
 esac
@@ -71,7 +73,7 @@ if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
 	done
 
 	#clean unpack file
-	[ "${keepUnpack}" == "1" ] || rm -rf /tmp/DQM/${run}/${spill.root}
+	[ "${keepUnpack}" == "1" ] || rm -rfv /tmp/DQM/${run}/${spill.root}
 
 	for runtype in led ped beam;do
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
@@ -87,14 +89,21 @@ if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
 # touch -R
 	find $output/$run/$spill -type f -exec touch {} \;
 	
-	[ -h $output/$run/last ] && rm $output/$run/last
-	[ -h $output/last ] && rm $output/last
+	[ -h $output/$run/last ] && rm -v $output/$run/last
+	[ -h $output/last ] && rm -v $output/last
 	
 	ln -s $output/$run/$spill $output/$run/last
 	ln -s $output/$run $output/last
 	
+	chmod -R a+rx $output/$run/
+	chmod -R g+rx $output/$run/
+
 	rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
 	rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
+
+	#clean unpack file
+	[ "${clean}" == "1" ] || rm -rfv ${output}/${run}/${spill}
+	
     fi
 
 fi
