@@ -3,8 +3,8 @@
 function post_install ()
 {
     # DRYRUN
+    echo ">> POST INSTALL"
     if [ ${1} == 1 ]; then
-	echo ">> POST INSTALL"
 	return 
     fi
     # POST INSTALL
@@ -21,8 +21,8 @@ function post_install ()
 function root ()
 {
     # DRYRUN
+    echo ">> ROOT"
     if [ ${1} == 1 ]; then
-	echo ">> ROOT"
 	return 
     fi
     # install pkgs
@@ -49,8 +49,8 @@ function root ()
 function zeromq ()
 {
     # DRYRUN
+    echo ">> ZEROMQ"
     if [ ${1} == 1 ]; then
-	echo ">> ZEROMQ"
 	return 
     fi
     # get ZEROMQ
@@ -73,8 +73,8 @@ function zeromq ()
 function caenlib ()
 {
     # DRYRUN
+    echo ">> CAENLIB"
     if [ ${1} == 1 ]; then
-	echo ">> CAENLIB"
 	return 
     fi
     # get CAEN lib
@@ -105,8 +105,8 @@ function caenlib ()
 function a2818_driver()
 {
     # DRYRUN
+    echo ">> A2818"
     if [ ${1} == 1 ]; then
-	echo ">> A2818"
 	return 
     fi
     # get CAEN lib
@@ -122,8 +122,8 @@ function a2818_driver()
 function arduino ()
 {
     # DRYRUN
+    echo ">> ARDUINO"
     if [ ${1} == 1 ]; then
-	echo ">> ARDUINO"
 	return 
     fi
     # get arduino lib
@@ -137,8 +137,8 @@ function arduino ()
 function useradd ()
 {
     # DRYRUN
+    echo ">> USERADD"
     if [ ${1} == 1 ]; then
-	echo ">> USERADD"
 	return 
     fi
     # set cmsdaq user
@@ -146,6 +146,8 @@ function useradd ()
     su cmsdaq <<EOF
     mkdir -p /home/cmsdaq/.ssh
     echo 'ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAkrNSeBxzuZlyTp0ni28eyU2EogwedJCZuZ/e+6stkM1iwXAdPzcbm6BK1VAdzCOlqGzu8RueDit6KNvWzCzqLeJcIU5K46OgWcNZDuf25Qxe0rNbxrYP6JCpLojaPdXDSGTrCxza+7VJTUN680ew39GFzOBMy1gV5G9VPdeX37dwutCeQ0JN3hb3MLbHXILC0ZqjeU6HuuaT+Ev3/B86lTCICUy/bEL6UyhQrco75Oo7zeQkPt3dKNcFESiNJHgzuwvoGtkjud04uEYdldcZWcQ3XQTRC3bFblei/TFiyxmoAtphO7b5+QCoaAHuoTkxFqqcmZPbslkWazcviajAjw== cmsdaq@myhost' > /home/cmsdaq/.ssh/id_rsa.pub
+    curl -o /home/cmsdaq/.ssh/id_rsa https://cernbox.cern.ch/index.php/s/PkRK1Dkb2ibZUHo/download
+    chmod 0600 /home/cmsdaq/.ssh/id_rsa
     cat << EOL > /home/cmsdaq/.k5login
 meridian@CERN.CH
 spigazzi@CERN.CH
@@ -160,17 +162,20 @@ EOF
 function h4sw ()
 {
     # DRYRUN
+    echo ">> H4SW"
     if [ ${1} == 1 ]; then
-	echo ">> H4SW"
 	return 
     fi
     # install H4DAQ H4DQM H4GUI H4Analysis as cmsdaq
-    yum install mysql-connector-python.noarch
-    cd /home/cmsdaq/.ssh/
-    curl -o id_rsa https://cernbox.cern.ch/index.php/s/PkRK1Dkb2ibZUHo/download
+    yum -y install mysql-connector-python.noarch
+    source /opt/root/bin/thisroot.sh
+    source /opt/rh/python27/enable
+    source /opt/rh/devtoolset-3/enable
+    gcc --version
     su cmsdaq <<EOF
     mkdir -p /home/cmsdaq/DAQ
     cd /home/cmsdaq/DAQ
+    ssh-keyscan github.com >> /home/cmsdaq/.ssh/known_hosts
     git clone -b master git@github.com:cmsromadaq/H4DAQ.git
     git clone -b master git@github.com:cmsromadaq/H4DQM.git
     git clone -b master git@github.com:cmsromadaq/H4GUI.git
@@ -190,8 +195,8 @@ EOF
 function mysql_db()
 {
    # DRYRUN
+    echo ">> MYSQL"
     if [ ${1} == 1 ]; then
-	echo ">> MYSQL"
 	return 
     fi
     yum install -y mysql-server mysql
@@ -205,8 +210,8 @@ function mysql_db()
 function web_server()
 {
    # DRYRUN
+    echo ">> HTTPD"
     if [ ${1} == 1 ]; then
-	echo ">> HTTPD"
 	return 
     fi
 
@@ -228,8 +233,8 @@ EOF
 function data_disk()
 {
    # DRYRUN
+    echo ">> DATA DISK"
     if [ ${1} == 1 ]; then
-	echo ">> DATA DISK"
 	return 
     fi
     chown -R cmsdaq.cmsdaq /data/
@@ -240,8 +245,24 @@ function data_disk()
     mkdir -p /data/DQM/
 EOF
 }
-### MAIN ###
 
+function progress_bar() {
+# Process data
+    let _progress=(${1}*100/${2}*100)/100
+    let _done=(${_progress}*4)/10
+    let _left=40-$_done
+# Build progressbar string lengths
+    _fill=$(printf "%${_done}s")
+    _empty=$(printf "%${_left}s")
+
+# 1.2 Build progressbar strings and print the ProgressBar line
+# 1.2.1 Output example:
+# 1.2.1.1 Progress : [########################################] 100%
+printf "\r                                                                                     "
+printf "\r\rProgress : [${_fill// /#}${_empty// /-}] ${_progress}%% => $opt"
+}
+
+### MAIN ###
 TEMP=`getopt -o d --long dryrun,useradd,arduino,caenlib,a2818_driver,zeromq,root,post_install,h4sw,mysql_db,web_server,data_disk -n 'install_h4daq.sh' -- "$@"`
 
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
@@ -271,12 +292,22 @@ while true; do
     esac
 done
 
-for opt in post_install root zeromq caenlib a2818_driver arduino useradd mysql_db web_server data_disk; 
+echo "H4DAQ installer V1.0"
+touch install_h4daq.log
+i=1
+options=("post_install" "root" "zeromq" "caenlib" "a2818_driver" "arduino" "useradd" "h4sw" "mysql_db" "web_server" "data_disk")
+len=${#options[@]}
+if  [ "$all" != 1 ]; then
+    len=1
+fi
+for opt in "${options[@]}"; 
 do    
     eval var=\$$opt
     if [ "$all" == 1 ] || [ "$var" == 1 ]; then
-    	$opt $dryrun
+    	$opt $dryrun 2>&1 >> install_h4daq.log 
+	progress_bar $((i++)) $len 
+        sleep 0.5
     fi
 done
-
+echo
 exit 0
