@@ -100,7 +100,7 @@ launchJob()
     
     #stagein for EOS
     [ "${eos}" == "1" ] &&  jobInputDir="\${tmpDir}"; jobOutputDir="\${tmpDir}/DataTree"
-    unpackCommand="${runDir}/bin/unpack -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}; RESULT+=\$?"
+    unpackCommand="${runDir}/bin/unpack -p ${prescale} -i ${jobInputDir} -r ${run} -s ${spills} -o ${jobOutputDir}; RESULT+=\$?"
     echo "${unpackCommand}" >> ${jobFile}
     #stageout for EOS
     [ "${eos}" == "1" ] && echo "${eosCommand} cp ${jobOutputDir}/${run}/${spills}.root ${output}/${run}/${spills}.root; RESULT+=\$?"  >> ${jobFile} 
@@ -135,6 +135,7 @@ case "$1" in
 -d | --dryrun ) dryrun=1; shift;;
 -c | --clean ) clean=1; shift;;
 -e | --eos ) eos=1; shift;;
+-p | --prescale ) prescale=$2; shift 2;;
 --cmssw ) cmssw=1; shift;;
 -- ) shift; break ;;
 * ) break ;;
