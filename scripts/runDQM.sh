@@ -8,7 +8,7 @@ prescale=1
 keepUnpack=1
 clean=0
 
-TEMP=`getopt -o cki:o:r:s:p: --long clean,keepUnpack,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o cki:o:r:s:p:u: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -17,6 +17,7 @@ while true; do
 case "$1" in
 -i | --input ) input="$2"; shift 2 ;;
 -o | --output ) output="$2"; shift 2 ;;
+-u | --unpackFolder ) unpackFolder="$2"; shift 2 ;;
 -r | --run ) run="$2"; shift 2;;
 -s | --spill ) spill="$2"; shift 2;;
 -p | --prescale ) prescale=$2; shift 2;;
@@ -35,13 +36,14 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 
-mkdir -p /tmp/DQM
+mkdir -p $unpackFolder
 
-if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
+/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
+
+if [ $((spill%$prescale)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
     if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
-	/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o /tmp/DQM -r $run -s $spill -p $prescale	    
 	for runtype in led ped beam;do
-	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i /tmp/DQM -o $output  -r $run -s $spill -t$runtype -I integrated.root 
+	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
 	    cd $output/$run/$spill/$dir/$runtype/
@@ -73,7 +75,7 @@ if [ $((spill%5)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
 	done
 
 	#clean unpack file
-	[ "${keepUnpack}" == "1" ] || rm -rfv /tmp/DQM/${run}/${spill.root}
+	[ "${keepUnpack}" == "1" ] || rm -rfv $unpackFolder/${run}/${spill.root}
 
 	for runtype in led ped beam;do
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
