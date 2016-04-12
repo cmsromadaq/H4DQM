@@ -8,7 +8,7 @@ prescale=1
 keepUnpack=1
 clean=0
 
-TEMP=`getopt -o cki:o:r:s:p:u: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:prescale: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o cki:o:r:s:p:u:w: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:prescale:webDQM: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -23,6 +23,7 @@ case "$1" in
 -p | --prescale ) prescale=$2; shift 2;;
 -k | --keepUnpack ) keepUnpack=1; shift 1;;
 -c | --clean ) clean=1; shift 1;;
+-w | --webDQM ) webDQM=1; shift 1;;
 -- ) shift; break ;;
 * ) break ;;
 esac
@@ -69,7 +70,7 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 
 	    
-	    rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
+	    rsync -aP $output/$run/ $webDQM.cern.ch:/data/public_DQM_plots/$run/
 
 
 	done
@@ -100,8 +101,8 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
-	rsync -aP $output/$run/ pcethtb3.cern.ch:/data/public_DQM_plots/$run/
-	rsync -aP $output/last pcethtb3.cern.ch:/data/public_DQM_plots/
+	rsync -aP $output/$run/ $webDQM.cern.ch:/data/public_DQM_plots/$run/
+	rsync -aP $output/last $webDQM.cern.ch:/data/public_DQM_plots/
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
