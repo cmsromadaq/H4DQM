@@ -40,8 +40,8 @@ mkdir -p $unpackFolder
 
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
 
-if [ $((spill%$prescale)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
-    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
+if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
+#    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	for runtype in led ped beam;do
 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root 
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
@@ -106,6 +106,6 @@ if [ $((spill%$prescale)) -eq 1 ] || [ $((spill)) -lt 4 ] ; then
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
 	
-    fi
+#    fi
 
 fi
