@@ -70,7 +70,7 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 
 	    
-	    rsync -aP $output/$run/ $webDQM.cern.ch:/data/public_DQM_plots/$run/
+	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
 
 
 	done
@@ -101,8 +101,8 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
-	rsync -aP $output/$run/ $webDQM.cern.ch:/data/public_DQM_plots/$run/
-	rsync -aP $output/last $webDQM.cern.ch:/data/public_DQM_plots/
+	rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
+	rsync -aP $output/last $webDQMh:/data/public_DQM_plots/
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
