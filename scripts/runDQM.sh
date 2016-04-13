@@ -8,7 +8,7 @@ prescale=1
 keepUnpack=1
 clean=0
 
-TEMP=`getopt -o cki:o:r:s:p:u:w: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:prescale:webDQM: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o cki:o:r:s:p:u:w: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:,prescale:,webDQM: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -30,15 +30,15 @@ esac
 done
 
 
-
 ### PLOT MAKER -- make me configurable
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterHodo -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterDAQStatus -i $output -o $output  -r $run -s $spill -I integrated.root
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 
-mkdir -p $unpackFolder
 
+mkdir -p $unpackFolder
+echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
 
 if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
