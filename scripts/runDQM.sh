@@ -1,4 +1,4 @@
-#!/bin/bash
+1#!/bin/bash
 
 input="/tmp/"
 output="/tmp"
@@ -23,7 +23,7 @@ case "$1" in
 -p | --prescale ) prescale=$2; shift 2;;
 -k | --keepUnpack ) keepUnpack=1; shift 1;;
 -c | --clean ) clean=1; shift 1;;
--w | --webDQM ) webDQM=1; shift 1;;
+-w | --webDQM ) webDQM=$2; shift 2;;
 -- ) shift; break ;;
 * ) break ;;
 esac
@@ -102,7 +102,7 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	chmod -R g+rx $output/$run/
 
 	rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
-	rsync -aP $output/last $webDQMh:/data/public_DQM_plots/
+	rsync -aP $output/last $webDQM:/data/public_DQM_plots/
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
