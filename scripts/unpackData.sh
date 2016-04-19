@@ -117,7 +117,7 @@ launchJob()
     jobList="${job} ${jobList}"
 }
 
-TEMP=`getopt -o i:o:r:s:q:l:mbdce --long input:,output:,run:,spill:,queue:,log:,merge,batch,dryrun,clean,eos,cmssw -n 'unpackData.sh' -- "$@"`
+TEMP=`getopt -o i:o:r:s:q:l:p:mbdce --long input:,output:,prescale:,run:,spill:,queue:,log:,merge,batch,dryrun,clean,eos,cmssw -n 'unpackData.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"

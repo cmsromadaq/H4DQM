@@ -41,7 +41,7 @@ mkdir -p $unpackFolder
 
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
 
-if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
+if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 2 ] ; then
 #    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	for runtype in led ped beam;do
 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root 
@@ -70,7 +70,7 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 
 	    
-	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
+	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
 
 
 	done
@@ -101,8 +101,8 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 4 ] ; then
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
-	rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
-	rsync -aP $output/last $webDQMh:/data/public_DQM_plots/
+	rsync -aP $output/$run/ /data/public_DQM_plots/$run/
+	rsync -aP $output/last /data/public_DQM_plots/
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
