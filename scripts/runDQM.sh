@@ -8,7 +8,7 @@ prescale=1
 keepUnpack=1
 clean=0
 
-TEMP=`getopt -o cki:o:r:s:p:u:w: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:prescale:webDQM: -n 'runDQM.sh' -- "$@"`
+TEMP=`getopt -o cki:o:r:s:p:u:w: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:,prescale:,webDQM: -n 'runDQM.sh' -- "$@"`
 if [ $? != 0 ] ; then echo "Options are wrong..." >&2 ; exit 1 ; fi
 
 eval set -- "$TEMP"
@@ -23,12 +23,11 @@ case "$1" in
 -p | --prescale ) prescale=$2; shift 2;;
 -k | --keepUnpack ) keepUnpack=1; shift 1;;
 -c | --clean ) clean=1; shift 1;;
--w | --webDQM ) webDQM=1; shift 1;;
+-w | --webDQM ) webDQM=$2; shift 2;;
 -- ) shift; break ;;
 * ) break ;;
 esac
 done
-
 
 
 ### PLOT MAKER -- make me configurable
@@ -37,8 +36,9 @@ done
 ### /home/cmsdaq/DAQ/H4DQM/bin/plotterTDC -i $output -o $output  -r $run -s $spill 
 #for runtype in beam ped led;do
 
-mkdir -p $unpackFolder
 
+mkdir -p $unpackFolder
+echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
 
 if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 2 ] ; then
@@ -101,8 +101,13 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 2 ] ; then
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
+<<<<<<< HEAD
 	rsync -aP $output/$run/ /data/public_DQM_plots/$run/
 	rsync -aP $output/last /data/public_DQM_plots/
+=======
+	rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
+	rsync -aP $output/last $webDQM:/data/public_DQM_plots/
+>>>>>>> 4038b8f4dddd513bd50275c698df9842908b1f18
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
