@@ -1399,10 +1399,14 @@ void plotterTools::initDigiPlots(){
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
 	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoX2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_hodoY2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(0,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(0,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(0,Form("%s_charge_integrated_vs_hodoX2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(0,Form("%s_charge_integrated_vs_hodoY2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+
+	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1412,10 +1416,10 @@ void plotterTools::initDigiPlots(){
         }
     }
   
-  addPlot(1,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
-  addPlot(1,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
-  addPlot(1,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
-  addPlot(1,Form("allCh_pedestal_rms_map"), 8, 0, 8, 8, 0, 8, 2.0, 4.0, "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
+  addPlot(0,Form("allCh_pedestal_rms_map"), 8, 0, 8, 8, 0, 8, 2.0, 4.0, "x", "y", "2DProf", group_, module_, 1, true) ;
   //addPlot(1,"MatrixViewCeF3",2,-1,1,2,-1,1,"X view from back","Y view from back","2D", group_, module_,false,true);
 }
 
@@ -1841,6 +1845,9 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoY2",thisname.Data())]->Fill(y2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+
+	    varplots[Form("%s_charge_integrated_vs_TDCrecoX",thisname.Data())]->Fill(tdc_recox,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    
 	    
 	    int x = getDigiChannelX(it->second->name);
