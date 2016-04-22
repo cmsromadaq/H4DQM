@@ -1404,8 +1404,8 @@ void plotterTools::initDigiPlots(){
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoX2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoY2",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
 
-	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
-	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
+	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
