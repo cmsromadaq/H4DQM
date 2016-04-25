@@ -102,7 +102,7 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt $unprescaledSpills ] ; the
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
-	if($webDQM -ne "localhost");then
+	if [ "$webDQM" != "localhost" ] ; then
 	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
 	    rsync -aP $output/last $webDQM:/data/public_DQM_plots/
 	else
