@@ -101,13 +101,13 @@ if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt 2 ] ; then
 	chmod -R a+rx $output/$run/
 	chmod -R g+rx $output/$run/
 
-<<<<<<< HEAD
-	rsync -aP $output/$run/ /data/public_DQM_plots/$run/
-	rsync -aP $output/last /data/public_DQM_plots/
-=======
-	rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
-	rsync -aP $output/last $webDQM:/data/public_DQM_plots/
->>>>>>> 4038b8f4dddd513bd50275c698df9842908b1f18
+	if($webDQM -ne "localhost");then
+	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
+	    rsync -aP $output/last $webDQM:/data/public_DQM_plots/
+	else
+	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
+	    rsync -aP $output/last /data/public_DQM_plots/
+	fi
 
 	#clean unpack file
 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
