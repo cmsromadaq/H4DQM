@@ -1599,20 +1599,25 @@ void plotterTools::initTreeDQMBranches(){
 void plotterTools::initTreeVars(){
 
   outTreeBranch<float,float> *br;
-//  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
-//  if (wantADCplots){
-//    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
-//    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
-//  }
-//  else br->addDummy(28);
+  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
+  if (wantADCplots){
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11201_%d",i)); //Caen Lecroy ADC 0
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11202_%d",i)); //Caen Lecroy ADC 1
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11203_%d",i)); //Caen Lecroy ADC 2
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11204_%d",i)); //Caen Lecroy ADC 3
+    for (int i=0; i<32; i++) br->addMember(Form("ADC_board_14201_%d",i)); //Caen peak ADC
+    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+    //    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  }
+  else br->addDummy(64);
 //  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
 //  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
 //  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
 //  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
 //  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
-//  treevars[br->name]=br;
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
+  treevars[br->name]=br;
   
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   for (int j=0; j<4; j++){
