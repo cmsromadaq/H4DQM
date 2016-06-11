@@ -1676,6 +1676,13 @@ void plotterTools::initTreeVars(){
   br->addMember("beamPositionX2"); br->addMember("beamPositionY2"); // HODO2
   treevars[br->name]=br;
 
+  br = new outTreeBranch<float,float>("nFibersOn1",&varplots);
+  br->addMember("nFibersOnX1");  br->addMember("nFibersOnY1");
+  treevars[br->name]=br;
+  br = new outTreeBranch<float,float>("nFibersOn2",&varplots);
+  br->addMember("nFibersOnX2");  br->addMember("nFibersOnY2");
+  treevars[br->name]=br;
+
 
   outTreeBranch<bool,float> *br2 = NULL;
   br2 = new outTreeBranch<bool,float>("HODOX1",&varplots);
@@ -1690,6 +1697,9 @@ void plotterTools::initTreeVars(){
   br2 = new outTreeBranch<bool,float>("HODOY2",&varplots);
   for (int i=0; i<64; i++) br2->addMember("beamProfileY2",i);
   treevars2[br2->name]=br2;
+
+
+
 
   for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));
