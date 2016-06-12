@@ -5,7 +5,7 @@ output="/tmp"
 run="0"
 spill="0"
 prescale=1
-keepUnpack=1
+keepUnpack=0
 clean=0
 
 TEMP=`getopt -o cki:o:r:s:p:u:w:a: --long clean,keepUnpack,unpackFolder,input:,output:,run:,spill:,unprescaledSpills:,prescale:,webDQM: -n 'runDQM.sh' -- "$@"`
@@ -38,14 +38,14 @@ done
 #for runtype in beam ped led;do
 
 
-mkdir -p $unpackFolder
-echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
-/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
 
 if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt $unprescaledSpills ] ; then
+    mkdir -p $unpackFolder
+    echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
+    /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill > /tmp/${run}_${spill}_unpack.log 2>&1 	    
 #    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
 	for runtype in led ped beam;do
-	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root 
+	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root  > /tmp/${run}_${spill}_dqm_${runtype}.log 2>&1
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
 	    cd $output/$run/$spill/$dir/$runtype/
