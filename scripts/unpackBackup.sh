@@ -28,5 +28,5 @@ done
 mkdir -p $log
 source /opt/root/bin/thisroot.sh
 /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill  -p $prescale > $log/${run}_${spill}_unpack.log 2>&1
-echo "$input/$run/$spill.raw" > /var/spool/tbb/$run_$spill_raw
-echo "$output/$run/$spill.roor" > /var/spool/tbb/$run_$spill_dataTree
+echo "$input/$run/$spill.raw" > /var/spool/tbb/${run}_${spill}_raw
+echo "$output/$run/$spill.root" > /var/spool/tbb/${run}_${spill}_dataTree
