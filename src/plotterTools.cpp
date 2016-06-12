@@ -1738,9 +1738,9 @@ void  plotterTools::Loop()
       WORD triggerWord=treeStruct_.triggerWords[0];
       if ((~triggerWord & beamTriggerBitMask) && triggerType_!="beam"){//not of the triggerword is just a bit on, since beamWord=FE00, pedWord=FD00
 	continue;
-      }else if (~triggerWord & pedTriggerBitMask  && triggerType_!="ped") {
+      }else if ((~triggerWord & pedTriggerBitMask)  && triggerType_!="ped") {
 	continue;
-      }else if (~triggerWord & ledTriggerBitMask  && triggerType_!="led") {
+      }else if ((~triggerWord & ledTriggerBitMask)  && triggerType_!="led") {
 	continue;
       }
 
