@@ -1599,20 +1599,25 @@ void plotterTools::initTreeDQMBranches(){
 void plotterTools::initTreeVars(){
 
   outTreeBranch<float,float> *br;
-//  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
-//  if (wantADCplots){
-//    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
-//    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
-//  }
-//  else br->addDummy(28);
+  br = new outTreeBranch<float,float>("ADCvalues",&varplots);
+  if (wantADCplots){
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11201_%d",i)); //Caen Lecroy ADC 0
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11202_%d",i)); //Caen Lecroy ADC 1
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11203_%d",i)); //Caen Lecroy ADC 2
+    for (int i=0; i<8; i++) br->addMember(Form("ADC_board_11204_%d",i)); //Caen Lecroy ADC 3
+    for (int i=0; i<32; i++) br->addMember(Form("ADC_board_14201_%d",i)); //Caen peak ADC
+    //    for (int i=0; i<24; i++) br->addMember(Form("ADC_board_6301_%d",i)); // BGO
+    //    for (int i=4; i<8; i++) br->addMember(Form("ADC_board_11301_%d",i)); // BEAM SCINTILLATORS
+  }
+  else br->addDummy(64);
 //  br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER
 //  for (int i=0; i<64; i++) br->addMember("beamProfileX1",i); // BIG HODOSCOPE
 //  for (int i=0; i<64; i++) br->addMember("beamProfileY1",i);  
 //  for (int i=0; i<64; i++) br->addMember("beamProfileX2",i);  
 //  for (int i=0; i<64; i++) br->addMember("beamProfileY2",i);
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
-//  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
-//  treevars[br->name]=br;
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallX",i); // SMALL HODOSCOPE
+  //  for (int i=0; i<8; i++) br->addMember("beamProfileSmallY",i);
+  treevars[br->name]=br;
   
   br = new outTreeBranch<float,float>("digi_max_amplitude",&varplots);
   for (int j=0; j<4; j++){
@@ -1671,6 +1676,13 @@ void plotterTools::initTreeVars(){
   br->addMember("beamPositionX2"); br->addMember("beamPositionY2"); // HODO2
   treevars[br->name]=br;
 
+  br = new outTreeBranch<float,float>("nFibersOn1",&varplots);
+  br->addMember("nFibersOnX1");  br->addMember("nFibersOnY1");
+  treevars[br->name]=br;
+  br = new outTreeBranch<float,float>("nFibersOn2",&varplots);
+  br->addMember("nFibersOnX2");  br->addMember("nFibersOnY2");
+  treevars[br->name]=br;
+
 
   outTreeBranch<bool,float> *br2 = NULL;
   br2 = new outTreeBranch<bool,float>("HODOX1",&varplots);
@@ -1685,6 +1697,9 @@ void plotterTools::initTreeVars(){
   br2 = new outTreeBranch<bool,float>("HODOY2",&varplots);
   for (int i=0; i<64; i++) br2->addMember("beamProfileY2",i);
   treevars2[br2->name]=br2;
+
+
+
 
   for (std::map<TString,outTreeBranch<float,float>*>::const_iterator it = treevars.begin(); it!= treevars.end(); it++){
     outputTree->Branch(it->first.Data(),&(it->second->dataptr));
@@ -1723,9 +1738,9 @@ void  plotterTools::Loop()
       WORD triggerWord=treeStruct_.triggerWords[0];
       if ((~triggerWord & beamTriggerBitMask) && triggerType_!="beam"){//not of the triggerword is just a bit on, since beamWord=FE00, pedWord=FD00
 	continue;
-      }else if (~triggerWord & pedTriggerBitMask  && triggerType_!="ped") {
+      }else if ((~triggerWord & pedTriggerBitMask)  && triggerType_!="ped") {
 	continue;
-      }else if (~triggerWord & ledTriggerBitMask  && triggerType_!="led") {
+      }else if ((~triggerWord & ledTriggerBitMask)  && triggerType_!="led") {
 	continue;
       }
 
