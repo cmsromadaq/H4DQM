@@ -41,15 +41,10 @@
 #define nFibersSmallHodo 8
 
 //schema to be checked: Xleft, Xright, Ydown, Yup
-//#define wcXl 0
-//#define wcXr 1
-//#define wcYd 3
-//#define wcYu 2
-
-#define wcXl 2
-#define wcXr 3
-#define wcXd 1
-#define wcXu 0
+#define wcXl 0
+#define wcXr 1
+#define wcYd 2
+#define wcYu 3
 
 //#define wcXl 4
 //#define wcXr 5
