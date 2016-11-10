@@ -40,7 +40,11 @@ done
 
 mkdir -p $unpackFolder
 echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
-/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill 	    
+mkdir -p /tmp/unpack/${run}
+/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill > /tmp/unpack/${run}/${spill}.log 	    
+
+echo "raw/EB/${run}/${spill}.raw" > /var/spool/tbb/${run}_${spill}_raw
+echo "raw/DataTree/${run}/${spill}.root" > /var/spool/tbb/${run}_${spill}_dataTree
 
 if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt $unprescaledSpills ] ; then
 #    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
