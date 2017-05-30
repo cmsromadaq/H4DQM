@@ -54,7 +54,7 @@ int SpillUnpack::AddBoard (boardHeader bH)
 	//	<< " crate Id: "<<crateId
 		<< endl;
   }
-  
+
   switch(boardType){
   case _TIME_:
     boards_[bH.boardID] = new TIME;
@@ -88,6 +88,9 @@ int SpillUnpack::AddBoard (boardHeader bH)
     break;
   case _CAENV785_:      //785 event format exacly as 792
     boards_[bH.boardID]= new CAEN_V792(bH.boardSize);
+    break;
+  case _VFEADAPTER_:    // VFE adapter for ECAL TB
+    boards_[bH.boardID]= new VFE_adapter();
     break;
   case _UNKWN_:
     boards_[bH.boardID]= new DummyBoard;
@@ -272,7 +275,7 @@ int SpillUnpack::UnpackBoards(WORD nboards) {
 
 	bH.Update();
 
-        if (DEBUG_UNPACKER) 
+//        if (DEBUG_UNPACKER) 
           {
             cout << "[SpillUnpack][UnpackBoards]| ======== BOARD START ======= \n" ;
             cout << "[SpillUnpack][UnpackBoards]| Board " << iBoard << "/" << nboards

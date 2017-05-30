@@ -5,8 +5,6 @@
 #include "interface/Board.hpp"
 #include "interface/Event.hpp"
 
-#include "uhal/uhal.hpp"
-
 class VFE_adapter: public Board {
 
 public :
