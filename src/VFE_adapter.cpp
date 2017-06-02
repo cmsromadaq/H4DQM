@@ -30,8 +30,52 @@
 #include "interface/VFE_adapter.hpp"
 #include <bitset>
 
-using namespace std ;
-
-int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH) 
+int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
 {
+    uint32_t header;
+    stream.read ((char*)header, sizeof(uint32_t));
+    //unsigned int nSamples_ = (bH.boardSize - 4) /3 ; //move to hpp like dig1742Words_
+    unsigned int nSamples_ = headNSamples(header);
+    unsigned int nDevices = headNDevices(header);
+    unsigned int freq = headFrequency(header);
+    unsigned int timestamp[3];
+    stream.read ((char*)timestamp, 3 * sizeof(uint32_t));
+    unsigned long int t1 =  timestamp[0]     &0xFFFF;
+    unsigned long int t2 =  timestamp[1]     &0xFFFF;
+    unsigned long int t3 = (timestamp[1]>>16)&0xFFFF;
+    unsigned long int t4 =  timestamp[2]     &0xFFFF;
+    unsigned long int t5 = (timestamp[2]>>16)&0x00FF;
+    unsigned long int ts = (t5<<56) + (t4<<42) + (t3<<28) + (t2<<14) + t1;
+    unsigned short int ch_sample[5]; // 5 channels per VFE
+    size_t offset = event->digiValues.size();
+    event->digiValues.resize(offset + nSamples_ * 5);
+    unsigned int samples[3]; // first 16 bits are trashed, see the event description above
+    for (int idev = 0; idev < nDevices; ++idev) {
+        for (int iSample = 0; iSample < nSamples_; ++iSample) {
+            stream.read ((char*)samples, 3 * sizeof(uint32_t));
+            //int j = (is + 1) * 3;
+            ch_sample[0] = samples[0]     &0xFFFF;
+            ch_sample[1] = samples[1]     &0xFFFF;
+            ch_sample[2] =(samples[1]>>16)&0xFFFF;
+            ch_sample[3] = samples[2]     &0xFFFF;
+            ch_sample[4] =(samples[2]>>16)&0xFFFF;
+            //fprintf(stderr, "*** sample: %5d    blocks: %8.8x %8.8x %8.8x\n", iSample, samples[0], samples[1], samples[2]);
+            //fprintf(stderr, "--> sample: %5d  channels: %8d %8d %8d %8d %8d\n", iSample, ch_sample[0], ch_sample[1], ch_sample[2], ch_sample[3], ch_sample[4]);
+
+            for (int ich = 0; ich < 5; ++ich) {
+                size_t pos = offset + (idev * 5 + ich) * nSamples_ + iSample;
+                event->digiValues[pos].board = bH.boardID; // FIXME: to be checked: if > 1 adapter, check they get different boadID
+                event->digiValues[pos].channel = ich;
+                event->digiValues[pos].group = idev;
+                event->digiValues[pos].frequency = freq;
+                event->digiValues[pos].sampleIndex = iSample;
+                event->digiValues[pos].sampleValue = ch_sample[ich];
+
+                //std::cout << "VFE_adapter unpack       | sample " << iSample << " channel: "<< ich << " value: " << event->digiValues[pos].sampleValue << "\n" ;
+
+            }
+        }
+    }
+    
+    return 0 ;
 }
