@@ -37,7 +37,7 @@ private :
   unsigned int dig1742Words_ ;
   bool isDigiSample_ ;
   unsigned int digRawData_ ;
-  float digRawSample_ ;
+  unsigned int digRawSample_ ;
 
   int nChannelWords_ ;
   int nSamplesToReadout_ ;
