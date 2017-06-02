@@ -33,9 +33,9 @@
 int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
 {
     uint32_t header;
-    stream.read ((char*)header, sizeof(uint32_t));
-    //unsigned int nSamples_ = (bH.boardSize - 4) /3 ; //move to hpp like dig1742Words_
-    unsigned int nSamples_ = headNSamples(header);
+    stream.read ((char*)&header, sizeof(uint32_t));
+    //unsigned int nSamples = (bH.boardSize - 4) /3 ; //move to hpp like dig1742Words_
+    unsigned int nSamples = headNSamples(header);
     unsigned int nDevices = headNDevices(header);
     unsigned int freq = headFrequency(header);
     unsigned int timestamp[3];
@@ -48,10 +48,10 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
     unsigned long int ts = (t5<<56) + (t4<<42) + (t3<<28) + (t2<<14) + t1;
     unsigned short int ch_sample[5]; // 5 channels per VFE
     size_t offset = event->digiValues.size();
-    event->digiValues.resize(offset + nSamples_ * 5);
+    event->digiValues.resize(offset + nSamples * 5);
     unsigned int samples[3]; // first 16 bits are trashed, see the event description above
     for (int idev = 0; idev < nDevices; ++idev) {
-        for (int iSample = 0; iSample < nSamples_; ++iSample) {
+        for (int iSample = 0; iSample < nSamples; ++iSample) {
             stream.read ((char*)samples, 3 * sizeof(uint32_t));
             //int j = (is + 1) * 3;
             ch_sample[0] = samples[0]     &0xFFFF;
@@ -63,7 +63,7 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
             //fprintf(stderr, "--> sample: %5d  channels: %8d %8d %8d %8d %8d\n", iSample, ch_sample[0], ch_sample[1], ch_sample[2], ch_sample[3], ch_sample[4]);
 
             for (int ich = 0; ich < 5; ++ich) {
-                size_t pos = offset + (idev * 5 + ich) * nSamples_ + iSample;
+                size_t pos = offset + (idev * 5 + ich) * nSamples + iSample;
                 event->digiValues[pos].board = bH.boardID; // FIXME: to be checked: if > 1 adapter, check they get different boadID
                 event->digiValues[pos].channel = ich;
                 event->digiValues[pos].group = idev;
