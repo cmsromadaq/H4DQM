@@ -15,10 +15,10 @@ class VFE_adapter: public Board
         int Unpack(dataType &stream) { return -1; }
         int Unpack(dataType &stream, Event * event, boardHeader&);
 
-        uint16_t headNSamples(uint32_t header)  { return  header & 0x3FFF;    }
-        uint16_t headFrequency(uint32_t header) { return 40 * (((header>>14) & 0x3) + 1);  }
-        uint16_t headNDevices(uint32_t header)  { return (header>>16) & 0x7;  }
-        uint16_t headFwVersion(uint32_t header) { return (header>>19) & 0x1F; }
+        int headNSamples(uint32_t header)  { return  header & 0x3FFF;    }
+        int headFrequency(uint32_t header) { return 40 * (((header>>14) & 0x3) + 1);  }
+        int headNDevices(uint32_t header)  { return (header>>16) & 0x7;  }
+        int headFwVersion(uint32_t header) { return (header>>19) & 0x1F; }
 };
 
 #endif

@@ -53,7 +53,6 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
     for (int idev = 0; idev < nDevices; ++idev) {
         for (int iSample = 0; iSample < nSamples; ++iSample) {
             stream.read ((char*)samples, 3 * sizeof(uint32_t));
-            //int j = (is + 1) * 3;
             ch_sample[0] = samples[0]     &0xFFFF;
             ch_sample[1] = samples[1]     &0xFFFF;
             ch_sample[2] =(samples[1]>>16)&0xFFFF;
@@ -64,9 +63,9 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
 
             for (int ich = 0; ich < 5; ++ich) {
                 size_t pos = offset + (idev * 5 + ich) * nSamples + iSample;
-                event->digiValues[pos].board = bH.boardID; // FIXME: to be checked: if > 1 adapter, check they get different boadID
+                event->digiValues[pos].board = bH.boardSingleId; // FSM number
+                event->digiValues[pos].group = idev; // adapter number
                 event->digiValues[pos].channel = ich;
-                event->digiValues[pos].group = idev;
                 event->digiValues[pos].frequency = freq;
                 event->digiValues[pos].sampleIndex = iSample;
                 event->digiValues[pos].sampleValue = ch_sample[ich];
