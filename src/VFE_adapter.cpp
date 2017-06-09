@@ -48,7 +48,7 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
     unsigned long int ts = (t5<<56) + (t4<<42) + (t3<<28) + (t2<<14) + t1;
     unsigned short int ch_sample[5]; // 5 channels per VFE
     size_t offset = event->digiValues.size();
-    event->digiValues.resize(offset + nSamples * 5);
+    event->digiValues.resize(offset + nDevices * nSamples * 5);
     unsigned int samples[3]; // first 16 bits are trashed, see the event description above
     for (int idev = 0; idev < nDevices; ++idev) {
         for (int iSample = 0; iSample < nSamples; ++iSample) {
