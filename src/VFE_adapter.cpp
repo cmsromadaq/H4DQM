@@ -66,7 +66,7 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
                 event->digiValues[pos].board = bH.boardSingleId; // FSM number
                 event->digiValues[pos].group = idev; // adapter number
                 event->digiValues[pos].channel = ich;
-                event->digiValues[pos].frequency = freq;
+                event->digiValues[pos].frequency = (freq+1)*40;
                 event->digiValues[pos].sampleIndex = iSample;
                 event->digiValues[pos].sampleValue = ch_sample[ich];
 
