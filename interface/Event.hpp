@@ -18,7 +18,7 @@
 #define SMALL_HODO_X_NFIBERS 8
 #define SMALL_HODO_Y_NFIBERS 8
 #define MAX_TRIG_WORDS 32
-#define MAX_RO 10
+#define MAX_RO 100
 
 using namespace std ;
 

@@ -38,19 +38,26 @@ int VFE_adapter::Unpack (dataType &stream, Event * event, boardHeader &bH)
     unsigned int nSamples = headNSamples(header);
     unsigned int nDevices = headNDevices(header);
     unsigned int freq = headFrequency(header);
-    unsigned int timestamp[3];
-    stream.read ((char*)timestamp, 3 * sizeof(uint32_t));
-    unsigned long int t1 =  timestamp[0]     &0xFFFF;
-    unsigned long int t2 =  timestamp[1]     &0xFFFF;
-    unsigned long int t3 = (timestamp[1]>>16)&0xFFFF;
-    unsigned long int t4 =  timestamp[2]     &0xFFFF;
-    unsigned long int t5 = (timestamp[2]>>16)&0x00FF;
-    unsigned long int ts = (t5<<56) + (t4<<42) + (t3<<28) + (t2<<14) + t1;
+    
     unsigned short int ch_sample[5]; // 5 channels per VFE
     size_t offset = event->digiValues.size();
     event->digiValues.resize(offset + nDevices * nSamples * 5);
     unsigned int samples[3]; // first 16 bits are trashed, see the event description above
-    for (int idev = 0; idev < nDevices; ++idev) {
+    for (int idev = 0; idev < nDevices; ++idev) 
+      {
+	unsigned int timestamp[3];
+	stream.read ((char*)timestamp, 3 * sizeof(uint32_t));
+
+	//---store number off clocks cycles since board init
+	unsigned long int t1 =  timestamp[0]     &0xFFFF;
+	unsigned long int t2 =  timestamp[1]     &0xFFFF;
+	unsigned long int t3 = (timestamp[1]>>16)&0xFFFF;
+	unsigned long int t4 =  timestamp[2]     &0xFFFF;
+	unsigned long int t5 = (timestamp[2]>>16)&0x00FF;
+	unsigned long int ts = (t5<<56) + (t4<<42) + (t3<<28) + (t2<<14) + t1;
+	timeData td{bH.boardSingleId, ts};
+	event->evtTimes.push_back(td);
+
         for (int iSample = 0; iSample < nSamples; ++iSample) {
             stream.read ((char*)samples, 3 * sizeof(uint32_t));
             ch_sample[0] = samples[0]     &0xFFFF;
