@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/home/cmsdaq/DAQ/H4Analysis/lib/:/home/cmsdaq/DAQ/H4Analysis/CfgManager/lib/:/home/cmsdaq/DAQ/H4Analysis/DynamicTTree/lib/:$LD_LIBRARY_PATH
+
 input="/tmp/"
 output="/tmp"
 run="0"
