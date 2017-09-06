@@ -3,7 +3,7 @@ CXX		=g++
 LD		=g++
 CXXFLAGS	=-O2 -ggdb -std=gnu++0x -Wall
 ###LDFLAGS		=-L/cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_1/external/slc6_amd64_gcc481/lib -lz -lm
-LDFLAGS		=-L/cvmfs/cms.cern.ch/slc6_amd64_gcc600/cms/cmssw/CMSSW_8_1_0/external/slc6_amd64_gcc600/lib -lz -lm
+LDFLAGS		=-L/cvmfs/cms.cern.ch/slc6_amd64_gcc600/cms/cmssw/CMSSW_8_1_0/external/slc6_amd64_gcc600/libs -lz -lm
 SOFLAGS		=-fPIC -shared 
 SHELL		=bash
 ###
