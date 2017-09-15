@@ -1547,6 +1547,7 @@ void  plotterTools::readInputTree ()
   inputTree_->SetBranchAddress("digiSampleIndex",treeStruct_.digiSampleIndex);
   inputTree_->SetBranchAddress("digiSampleValue",treeStruct_.digiSampleValue);
   inputTree_->SetBranchAddress("digiBoard"    ,treeStruct_.digiBoard);
+  inputTree_->SetBranchAddress("digiFrequency",treeStruct_.digiFrequency);
 
   inputTree_->SetBranchAddress("nScalerWords"    ,&treeStruct_.nScalerWords);
   inputTree_->SetBranchAddress("scalerWord"    ,treeStruct_.scalerWord);
