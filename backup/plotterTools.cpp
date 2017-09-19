@@ -858,25 +858,6 @@ void plotterTools::computeVariable(TString name){
    }
    varplots[name]->Fill(pos,1.);
 
-//TEST
- }else if(name=="beamPositionTEST"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX1][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-//TEST END
-
  }else if(name=="beamPositionY1"){
 
    float pos=0;
@@ -1686,12 +1667,6 @@ void plotterTools::initTreeVars(){
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
   treevars[br->name]=br;
 
-//THIS IS A TEST
-  br = new outTreeBranch<float,float>("HODO1reco",&varplots);
-  br->addMember("beamPositionTEST"); // HODO1
-  treevars[br->name]=br;
-//END
-
   br = new outTreeBranch<float,float>("HODO1reco",&varplots);
   br->addMember("beamPositionX1"); br->addMember("beamPositionY1"); // HODO1
   treevars[br->name]=br;
@@ -1939,7 +1914,6 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F

@@ -87,7 +87,6 @@ int main (int argc, char ** argv)
 
   plotter.fitHisto("beamPositionX1","gaus");
   plotter.fitHisto("beamPositionX2","gaus");
-  plotter.fitHisto("beamPositionTEST","gaus");
   plotter.fitHisto("beamPositionY1","gaus");
   plotter.fitHisto("beamPositionY2","gaus");
   plotter.fitHisto("beamPositionX","gaus");
