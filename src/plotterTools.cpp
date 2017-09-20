@@ -1,6 +1,10 @@
 #include <plotterTools.hpp>
 #include <assert.h>
 
+#include <iostream>
+#include <fstream>
+#include <ostream>
+
 #define VERBOSE 0
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
@@ -145,7 +149,7 @@ plotterTools::getMinimumP (TProfile * p)
   for (int i = 2 ; i <= p->GetNbinsX () ; ++i)
     {
       if (p->GetBinError (i) == 0) continue ;
-//      cout << min << " " << p->GetBinContent (i) << endl ;
+      cout << min << " NOTE THIS IS IMPORTNAT " << p->GetBinContent (i) << endl ;
       if (p->GetBinContent (i) < min) min = p->GetBinContent (i) ;
     }
   return min ;
@@ -857,8 +861,25 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
+ }else if(name=="WCvsHodo"){
 
-//TEST
+   float pos=0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[hodoX1][i]==1){
+	 nFibersOn++;
+	 pos+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     pos=pos/nFibersOn;
+   }else{
+     pos=-1;
+   }
+   varplots[name]->Fill2D(pos,tdc_recox,1.);
+
+
+/*//TEST
  }else if(name=="beamPositionTEST"){
 
    float pos=0;
@@ -875,7 +896,7 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
-//TEST END
+//TEST END*/
 
  }else if(name=="beamPositionY1"){
 
@@ -1415,7 +1436,7 @@ void plotterTools::initDigiPlots(){
           addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
 	  addPlot(1,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
-	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
+	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,5000,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
@@ -1424,6 +1445,7 @@ void plotterTools::initDigiPlots(){
 
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
+          //addPlot(1,Form("%s_MAXIMUMPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1433,7 +1455,7 @@ void plotterTools::initDigiPlots(){
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-  
+  addPlot(1,Form("MAXIMUMPLOTTEST"),66,0,5000,-999999,999999,"1D",group_,module_);
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1686,11 +1708,13 @@ void plotterTools::initTreeVars(){
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
   treevars[br->name]=br;
 
+/*
 //THIS IS A TEST
   br = new outTreeBranch<float,float>("HODO1reco",&varplots);
   br->addMember("beamPositionTEST"); // HODO1
   treevars[br->name]=br;
 //END
+*/
 
   br = new outTreeBranch<float,float>("HODO1reco",&varplots);
   br->addMember("beamPositionX1"); br->addMember("beamPositionY1"); // HODO1
@@ -1748,6 +1772,51 @@ void plotterTools::fillTreeVars(){
 void  plotterTools::Loop()
 {
 
+	{ //THIS IS A TEST TO SEE WHAT HAPPENS
+	//cout << "SUCCESSFUL TEST" << endl;
+
+ ifstream indata;
+ char read;
+ int num;
+ bool b1 = 1;
+ int numelems = 1;
+ int tracker = 0;
+ int count = 0;
+
+  FILE*datapts;
+  datapts = fopen("IC.txt","r");
+  if(!datapts){ // file couldn't be opened
+  std::cerr << "Error: the calibration file " << "IC.txt" << " could not be opened" << std::endl;
+}
+  read = getc(datapts);
+while ( read != EOF ) { // keep reading until end-of-file
+	if(read == '\t' && b1 == 1) numelems++;
+	if(read == '\n') b1 = 0;
+	read = getc(datapts);
+}
+  fclose(datapts);
+  cout << numelems << endl;
+
+  float channel_peak[numelems];
+  float channel_x[numelems];
+  float channel_y[numelems];
+
+ indata.open("IC.txt"); // opens the file
+ while ( indata>>num ) { // keep reading until end-of-file
+//  cout << "IC number read is " << num << endl;
+ if(tracker == 0) {channel_peak[count] = num; count++;}
+ if(tracker == 1) {channel_x[count] = num; count++;}
+ if(tracker == 2) {channel_y[count] = num; count++;}
+ if(count == numelems) {tracker++; count = 0;}
+
+}
+  indata.close();
+
+//for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
+//for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
+//for(int i = 0; i < numelems; i++) cout << channel_y[i] << endl;
+
+	} //END TEST IT WORKED
 
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
@@ -1888,10 +1957,13 @@ void  plotterTools::Loop()
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoX",thisname.Data())]->Fill(tdc_recox,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    
+
+		//%s_MAXIMUMPLOTTEST
 	    
 	    int x = getDigiChannelX(it->second->name);
 	    int y = getDigiChannelY(it->second->name);
 	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted	
+	    varplots["MAXIMUMPLOTTEST"]->Fill(wave_max.max_amplitude,1.); // pedestal already subtracted
 	    varplots["allCh_max_amplitude_map"]->Fill2D(x,y,wave_max.max_amplitude); // pedestal already subtracted
 	    varplots["allCh_pedestal_map"]->Fill2D(x,y,wave_pedestal.pedestal); // pedestal already subtracted
 	    varplots["allCh_pedestal_rms_map"]->Fill2D(x,y,wave_pedestal.rms); // pedestal already subtracted
@@ -1910,8 +1982,6 @@ void  plotterTools::Loop()
   std::cout << outputTree->GetEntries() << std::endl;
 
 }
-
-
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
@@ -1939,7 +2009,8 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
+//  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
+  addPlot(1,"WCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F

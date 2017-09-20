@@ -2,7 +2,7 @@
 
 input="/tmp/kyee"
 output="/tmp/kyee/output"
-run="3201"
+run="7290"
 spill="2"
 prescale=1
 
