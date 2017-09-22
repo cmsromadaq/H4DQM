@@ -149,7 +149,7 @@ plotterTools::getMinimumP (TProfile * p)
   for (int i = 2 ; i <= p->GetNbinsX () ; ++i)
     {
       if (p->GetBinError (i) == 0) continue ;
-      cout << min << " NOTE THIS IS IMPORTNAT " << p->GetBinContent (i) << endl ;
+     // cout << min << p->GetBinContent (i) << endl ;
       if (p->GetBinContent (i) < min) min = p->GetBinContent (i) ;
     }
   return min ;
@@ -1429,10 +1429,11 @@ void plotterTools::initDigiPlots(){
     {
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
-        {
+        { //Note to self, for run 7290, which should have 25 channels, only 7 are registered?
 	  if (*iChannel>=nActiveDigitizerChannels) continue;
-	  
+
           TString name = getDigiChannelName(*iGroup,*iChannel);
+	  int nametest = *iChannel;
           addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
 	  addPlot(1,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
@@ -1450,12 +1451,15 @@ void plotterTools::initDigiPlots(){
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
-	  
+		  
+	  //cout << "Here is name.Data() " << name.Data() << endl;
+ 	  //cout << "Here is nametest " << nametest << endl; //nametest works up here...
+
 	  TString thisname = Form("%s_%s",name.Data(),"pulse");
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-  addPlot(1,Form("MAXIMUMPLOTTEST"),66,0,5000,-999999,999999,"1D",group_,module_);
+  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1772,8 +1776,8 @@ void plotterTools::fillTreeVars(){
 void  plotterTools::Loop()
 {
 
-	{ //THIS IS A TEST TO SEE WHAT HAPPENS
-	//cout << "SUCCESSFUL TEST" << endl;
+//THIS IS A TEST TO SEE WHAT HAPPENS
+//cout << "SUCCESSFUL TEST" << endl;
 
  ifstream indata;
  char read;
@@ -1789,6 +1793,7 @@ void  plotterTools::Loop()
   std::cerr << "Error: the calibration file " << "IC.txt" << " could not be opened" << std::endl;
 }
   read = getc(datapts);
+
 while ( read != EOF ) { // keep reading until end-of-file
 	if(read == '\t' && b1 == 1) numelems++;
 	if(read == '\n') b1 = 0;
@@ -1800,6 +1805,8 @@ while ( read != EOF ) { // keep reading until end-of-file
   float channel_peak[numelems];
   float channel_x[numelems];
   float channel_y[numelems];
+  float max_amp[numelems];
+  int value = 0;
 
  indata.open("IC.txt"); // opens the file
  while ( indata>>num ) { // keep reading until end-of-file
@@ -1809,14 +1816,13 @@ while ( read != EOF ) { // keep reading until end-of-file
  if(tracker == 2) {channel_y[count] = num; count++;}
  if(count == numelems) {tracker++; count = 0;}
 
-}
-  indata.close();
+}  indata.close();
 
 //for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_y[i] << endl;
 
-	} //END TEST IT WORKED
+	 //END TEST IT WORKED
 
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
@@ -1877,6 +1883,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 	}
 
 
+
       if (wantDigiplots){
 
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
@@ -1888,6 +1895,12 @@ while ( read != EOF ) { // keep reading until end-of-file
 	    if (treeStruct_.digiChannel[iSample]>=nActiveDigitizerChannels) continue;
 
 	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
+	    TString thisval = Form("%02d",treeStruct_.digiChannel[iSample]);
+	    //cout << "My attempt at reading the thing... " << thisval.Data() << endl; //This works, but now I need to find out how to make sure I'm not falling for the super repeat. 
+
+//	    int nametest = treeStruct_.digiChannel[iSample]; //This also works, but again, I gotta make sure I'm not falling for the super repeat. 
+//	    cout << "nametest over here " << nametest << endl;
+
 	    thisname=Form("%s_%s",thisname.Data(),"pulse");
 	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
@@ -1898,6 +1911,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 	//Add reconstruction of waveforms
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  {
+
 	    if (!(it->second->waveform)) continue;
 	    
 	    Waveform::baseline_informations wave_pedestal;
@@ -1918,7 +1932,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 		else //stay with negative signals
 		  it->second->waveform->rescale(-1); 
 	      }
-	    
+
 	    TString thisname = it->second->name.ReplaceAll("_pulse","");
 	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal,1.);
 	    varplots[Form("%s_pedestal_rms",thisname.Data())]->Fill(wave_pedestal.rms,1.);
@@ -1927,7 +1941,8 @@ while ( read != EOF ) { // keep reading until end-of-file
 	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9,1.);
 	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
 	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
-	    
+
+
 	    int x1 = -1;
 	    for(int i=0;i<64;i++){
 	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
@@ -1957,20 +1972,42 @@ while ( read != EOF ) { // keep reading until end-of-file
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoX",thisname.Data())]->Fill(tdc_recox,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    
-
-		//%s_MAXIMUMPLOTTEST
-	    
-	    int x = getDigiChannelX(it->second->name);
+	    int x = getDigiChannelX(it->second->name); //This gives the channel!
+//	    cout << "x channel value versus the plot name " << x << "and then " << thisname.Data() << endl; //Run this code without this commented to see a red flag for an error. 
+	    max_amp[x] = wave_max.max_amplitude;
 	    int y = getDigiChannelY(it->second->name);
-	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted	
-	    varplots["MAXIMUMPLOTTEST"]->Fill(wave_max.max_amplitude,1.); // pedestal already subtracted
+	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots["allCh_max_amplitude_map"]->Fill2D(x,y,wave_max.max_amplitude); // pedestal already subtracted
 	    varplots["allCh_pedestal_map"]->Fill2D(x,y,wave_pedestal.pedestal); // pedestal already subtracted
 	    varplots["allCh_pedestal_rms_map"]->Fill2D(x,y,wave_pedestal.rms); // pedestal already subtracted
 	    sum_amplitudes+=wave_max.max_amplitude;
-	  }
+	  } // End of iterator loop
+	
+//MORE TESTING
+    float energy_sum = 0;
+    float position_weight_sum = 0;
+    float position_weight[numelems];
+    
+    for (int i = 0;i < numelems;i++) energy_sum += max_amp[i]/channel_peak[i];
+    for(int channel = 0;channel < numelems;channel++){
+      position_weight[channel] = 3.8 + log(max_amp[channel]/(channel_peak[channel]*energy_sum));
+      if (position_weight[channel] < 0) position_weight[channel] = 0;
+      position_weight_sum += position_weight[channel];
+    }
+    EA_X = 0;
+    for(int channel = 0;channel < numelems;channel++ && position_weight_sum != 0) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
+    EA_Y = 0;
+    for(int channel = 0;channel < numelems;channel++ && position_weight_sum != 0) EA_Y += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
+
+    varplots["MAXIMUMPLOTTEST"]->Fill(max_amp[2],1.); // pedestal already subtracted
+
+//END TESTING*/
+
+
+//	  cout << "Place of the output " << endl;
+	  //This will be the location of the EA_X and EA_Y calculations. Fill the max_amp[channel value] = maximum waveform
+	  //And then with those values, you should be able to calculate things. 
       }
-      
 
       fillTreeVars();
       outputTree->Fill();

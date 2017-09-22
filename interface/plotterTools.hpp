@@ -191,6 +191,9 @@ public:
   std::vector<float> tdc_readings[MaxTdcChannels];
   float tdc_recox, tdc_recoy;
 
+  //EA_X and EA_Y calculations
+  float EA_X, EA_Y;
+
   //adc channel names
   std::map<TString,UInt_t*> adc_channelnames;
   void initAdcChannelNames(int nBinsHistory);
