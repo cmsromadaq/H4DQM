@@ -50,7 +50,8 @@ struct treeStructData
   unsigned int digiChannel[MAX_DIGI_SAMPLES] ;
   unsigned int digiSampleIndex[MAX_DIGI_SAMPLES] ;
   unsigned int digiBoard[MAX_DIGI_SAMPLES] ;
-  UShort_t digiSampleValue[MAX_DIGI_SAMPLES] ;
+  UShort_t digiSampleValue[MAX_DIGI_SAMPLES] ; //For new runs
+//  float digiSampleValue[MAX_DIGI_SAMPLES] ; //For old runs
 
   unsigned int nTdcChannels ;
   unsigned int tdcBoard[MAX_TDC_CHANNELS] ;

@@ -66,9 +66,13 @@ int main(int argc, char *argv[])
       exit (-1) ;
     }
 
+ //This part will definitely need to be changed for my purposes. 
+//  string RAW_FOLDER = "/data2/govoni/data/raw/" ;
+//  string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
 
-  string RAW_FOLDER = "/data2/govoni/data/raw/" ;
-  string DIGI_FOLDER = "/data2/govoni/data/digi/" ;
+
+  string RAW_FOLDER = "/tmp/kyee/raw/" ;
+  string DIGI_FOLDER = "/tmp/kyee/digi/";
   string run;
   string spill;
   

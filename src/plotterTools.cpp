@@ -1,10 +1,6 @@
 #include <plotterTools.hpp>
 #include <assert.h>
 
-#include <iostream>
-#include <fstream>
-#include <ostream>
-
 #define VERBOSE 0
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
@@ -1423,10 +1419,17 @@ void plotterTools::initDigiPlots(){
   int yNbins = 4096;
   float ymin = 0;
   float ymax = 4096;
-  
+
+  cout << "channel size " << channels.size() << endl; 
+  cout << "Digigroup value is " << treeStruct_.digiGroup << endl;
+  cout << "Digigroup position 0 is " << treeStruct_.digiGroup[0] << endl;
+  cout << "Groups.size is " <<  groups.size() << endl;
+  cout << "nActivedigi channels value is " << nActiveDigitizerChannels << endl;
+  cout << "treeStruct_.nDigisamples is " << treeStruct_.nDigiSamples << endl;
   for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
     {
+	cout << "iGroup = " << *iGroup << endl;
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
         { //Note to self, for run 7290, which should have 25 channels, only 7 are registered?
@@ -1446,7 +1449,7 @@ void plotterTools::initDigiPlots(){
 
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
-          //addPlot(1,Form("%s_MAXIMUMPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
+          //addPlot(1,Form("MAXIMUMPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1459,7 +1462,8 @@ void plotterTools::initDigiPlots(){
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
+//  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
+  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1482,7 +1486,8 @@ int plotterTools::getDigiChannelX(TString name){
   std::size_t pos = nameStr.find("ch");
   std::string chStr = nameStr.substr(pos+2,2);
   int chId = atoi(chStr.c_str());
-  if( chId ==  0 ) return 0;
+  if(chId >= 0 && chId < 32) return chId;
+/*  if( chId ==  0 ) return 0;
   if( chId ==  1 ) return 1;
   if( chId ==  2 ) return 3;
   if( chId ==  3 ) return 4;
@@ -1513,7 +1518,7 @@ int plotterTools::getDigiChannelX(TString name){
   if( chId == 28 ) return 3;
   if( chId == 29 ) return 4;
   if( chId == 30 ) return 6;
-  if( chId == 31 ) return 7;
+  if( chId == 31 ) return 7; */
   return -1;
 }
 
@@ -1523,7 +1528,8 @@ int plotterTools::getDigiChannelY(TString name){
   std::size_t pos = nameStr.find("ch");
   std::string chStr = nameStr.substr(pos+2,2);
   int chId = atoi(chStr.c_str());
-  if( chId ==  0 ) return 7;
+  if(chId >= 0 && chId < 32) return chId;
+/*  if( chId ==  0 ) return 7;
   if( chId ==  1 ) return 7;
   if( chId ==  2 ) return 7;
   if( chId ==  3 ) return 7;
@@ -1554,7 +1560,7 @@ int plotterTools::getDigiChannelY(TString name){
   if( chId == 28 ) return 0;
   if( chId == 29 ) return 0;
   if( chId == 30 ) return 0;
-  if( chId == 31 ) return 0;
+  if( chId == 31 ) return 0; */
   return -1;
 }
 
@@ -1806,6 +1812,7 @@ while ( read != EOF ) { // keep reading until end-of-file
   float channel_x[numelems];
   float channel_y[numelems];
   float max_amp[numelems];
+  float Int_C[numelems];
   int value = 0;
 
  indata.open("IC.txt"); // opens the file
@@ -1971,10 +1978,13 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoX",thisname.Data())]->Fill(tdc_recox,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-	    
+//            varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,wave_max.max_amplitude); // testing a recoY versus maximum plot. 	   
+ 
 	    int x = getDigiChannelX(it->second->name); //This gives the channel!
-//	    cout << "x channel value versus the plot name " << x << "and then " << thisname.Data() << endl; //Run this code without this commented to see a red flag for an error. 
+	    //cout << "x channel value versus the plot name " << x << "and then " << thisname.Data() << endl; //These two things should match up
 	    max_amp[x] = wave_max.max_amplitude;
+	    Int_C[x] = it->second->waveform->charge_integrated(0,900);
+	    //max_amp[x] = it->second->waveform->charge_integrated(0,900);
 	    int y = getDigiChannelY(it->second->name);
 	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots["allCh_max_amplitude_map"]->Fill2D(x,y,wave_max.max_amplitude); // pedestal already subtracted
@@ -1987,19 +1997,38 @@ while ( read != EOF ) { // keep reading until end-of-file
     float energy_sum = 0;
     float position_weight_sum = 0;
     float position_weight[numelems];
-    
+    numelems = 5;
+	/*for (int i = 0;i < numelems;i++)
+	{
+	cout << "channel peak " << channel_peak[i] << endl;
+	cout << "channel_x " << channel_x[i] << endl;
+	cout << "channel_y " << channel_y[i] << endl;
+	}*/ //This check is successful. The peak values are reasonable. 
+
+//    for (int i = 0;i < numelems;i++) cout << "max_amp of " << i << " is " << max_amp[i] << endl;
+	//This bit works as well, but, of course, the channels 8-25 are blank. For now I'm going to set numelems = 8.
     for (int i = 0;i < numelems;i++) energy_sum += max_amp[i]/channel_peak[i];
+//    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
     for(int channel = 0;channel < numelems;channel++){
       position_weight[channel] = 3.8 + log(max_amp[channel]/(channel_peak[channel]*energy_sum));
       if (position_weight[channel] < 0) position_weight[channel] = 0;
       position_weight_sum += position_weight[channel];
+//      cout << "position weight of " << channel << " is " << position_weight[channel] << endl;
     }
-    EA_X = 0;
-    for(int channel = 0;channel < numelems;channel++ && position_weight_sum != 0) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
-    EA_Y = 0;
-    for(int channel = 0;channel < numelems;channel++ && position_weight_sum != 0) EA_Y += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
+//      cout << "Position weight sum = " << position_weight_sum << endl;
 
-    varplots["MAXIMUMPLOTTEST"]->Fill(max_amp[2],1.); // pedestal already subtracted
+    if(position_weight_sum != 0){
+    EA_X = 0;
+    for(int channel = 0;channel < numelems;channel++) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
+//    cout << "EA_X value calculated is " << EA_X << endl; //As of right now, values of mostly 0 are being calculated, but maybe that's expected seeing how we're on C3 o-o
+
+    EA_Y = 0;
+    for(int channel = 0;channel < numelems;channel++) EA_Y += 22.0 * channel_y[channel] * position_weight[channel]/position_weight_sum;
+//    cout << "EA_Y value calculated is " << EA_Y << endl;
+    }
+//      cout << "EA_Y value calculated is " << EA_Y << endl;
+//      cout << "tdc_recoy found is " << tdc_recoy << endl;
+    varplots["MAXIMUMPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
 
 //END TESTING*/
 
@@ -2048,6 +2077,7 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 //  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
   addPlot(1,"WCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
+//  addPlot(1,"MAXIMUMPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
