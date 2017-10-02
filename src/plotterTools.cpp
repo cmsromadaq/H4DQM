@@ -1,7 +1,7 @@
 #include <plotterTools.hpp>
 #include <assert.h>
 
-#define VERBOSE 0
+#define VERBOSE 0 //Changed from 0 to see what happens
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
   if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
@@ -171,6 +171,17 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname,
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
+/*
+  cout << "TString filename " << filename << endl; 
+  cout << "TString outfname " << outfname << endl;
+  cout << "TString outdname " << outdname << endl; 
+  cout << "TString triggerType " << triggerType << endl;
+*/
+
+  cout << "TString filename " << filename.Data() << endl; 
+  cout << "TString outfname " << outfname.Data() << endl;
+  cout << "TString outdname " << outdname.Data() << endl; 
+  cout << "TString triggerType " << triggerType.Data() << endl;
 
   if( inputFile_==0 ) {
     std::cout << "ERROR! Din't find file " << filename << std::endl;
@@ -1411,6 +1422,7 @@ void plotterTools::initDigiPlots(){
 
   std::set<int> channels = listElements (treeStruct_.digiChannel,  treeStruct_.nDigiSamples) ;
   std::set<int> groups = listElements (treeStruct_.digiGroup,  treeStruct_.nDigiSamples) ;
+  std::set<int> boards = listElements (treeStruct_.digiBoard,  treeStruct_.nDigiSamples) ;
   
   int xNbins = 1024 ;
   float xmin = 0 ;
@@ -1419,14 +1431,35 @@ void plotterTools::initDigiPlots(){
   int yNbins = 4096;
   float ymin = 0;
   float ymax = 4096;
+  
 
+  /*
+inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTree_->SetBranchAddress("digiGroup" ,treeStruct_.digiGroup);inputTree_->SetBranchAddress("digiChannel" ,treeStruct_.digiChannel);inputTree_->SetBranchAddress("digiSampleIndex",treeStruct_.digiSampleIndex);inputTree_->SetBranchAddress("digiSampleValue",treeStruct_.digiSampleValue);inputTree_->SetBranchAddress("digiBoard" ,treeStruct_.digiBoard);
+*/
+
+//for(int k = 0; k < boards.size(); k++) cout << boards[i] << endl; 
+
+
+/*  cout << "From the inputTree->SetBranchAddress" << endl << endl;
+//  cout << "treeStruct_.nDigiSamples[0] value " << treeStruct_.nDigiSamples[0] << endl;
+  cout << "Digigroup[0] value is " << treeStruct_.digiGroup[0] << endl;
+  cout << "TreeStruct_.digiChannel[0] value is " << treeStruct_.digiChannel[0] << endl;
+  cout << "TreeStruct_.digiChannel[0] value is " << treeStruct_.digiChannel[0] << endl;
+  cout << "treeStruct_.digiSampleIndex[0] value is " << treeStruct_.digiSampleIndex[0] << endl;
+  cout << "treeStruct_.digiSampleValue[0] value is " << treeStruct_.digiSampleValue[0] << endl;
+  cout << "treeStruct_.digiBoard[0] value is " << treeStruct_.digiBoard[0] << endl;
+  cout << "boards size is " << boards.size() << endl;
+
+  cout << endl;  
   cout << "channel size " << channels.size() << endl; 
-  cout << "Digigroup value is " << treeStruct_.digiGroup << endl;
   cout << "Digigroup position 0 is " << treeStruct_.digiGroup[0] << endl;
   cout << "Groups.size is " <<  groups.size() << endl;
   cout << "nActivedigi channels value is " << nActiveDigitizerChannels << endl;
-  cout << "treeStruct_.nDigisamples is " << treeStruct_.nDigiSamples << endl;
-  for (set<int>::iterator iGroup = groups.begin () ; 
+  cout << "treeStruct_.nDigisamples is " << treeStruct_.nDigiSamples << endl; 
+*/
+
+  for (set<int>::iterator iGroup = groups.begin () ;
+
        iGroup != groups.end () ; ++iGroup)
     {
 	cout << "iGroup = " << *iGroup << endl;
@@ -1462,8 +1495,8 @@ void plotterTools::initDigiPlots(){
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-//  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
-  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
+  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
+//  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1909,9 +1942,49 @@ while ( read != EOF ) { // keep reading until end-of-file
 //	    cout << "nametest over here " << nametest << endl;
 
 	    thisname=Form("%s_%s",thisname.Data(),"pulse");
-	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.);
+	    //varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.); //Original pulse plots
+	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*6.25, treeStruct_.digiSampleValue[iSample],1.);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
+
 	  }
+
+//NOTE THIS IS MY OWN TEST LOOP DOWN HERE
+
+  double mean = 0;
+
+  for (unsigned int i(5);i<=44;++i)
+    {
+      mean+= treeStruct_.digiSampleValue[i];
+    }
+
+  mean=mean/(double)(5-44+1);
+
+
+  int channel;
+  int chpergroup = 5; //NOTE THIS COULD STAND CHANGING. 
+  int ngroups = 5; //NOTE THIS AS WELL
+  int tchan = ngroups*chpergroup;
+  int imax[tchan];
+  float max[tchan];
+
+for (int i = 0; i < tchan; i++) imax[i] = -1;
+for (int i = 0; i < tchan; i++) max[i] = -9999;
+
+for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	  {
+	     channel = (treeStruct_.digiGroup[iSample] * chpergroup) + treeStruct_.digiChannel[iSample];
+
+             if (treeStruct_.digiSampleValue[iSample]>=max[channel])
+		{
+		  max[channel]= treeStruct_.digiSampleValue[iSample];
+		  imax[channel]=iSample;
+		}
+	  }
+ 
+varplots["MAXIMUMPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
+
+//END MY TESTING OF THINGS WITH DIGI STUFF */
+
 
 	float sum_amplitudes = 0;
 
@@ -2028,7 +2101,7 @@ while ( read != EOF ) { // keep reading until end-of-file
     }
 //      cout << "EA_Y value calculated is " << EA_Y << endl;
 //      cout << "tdc_recoy found is " << tdc_recoy << endl;
-    varplots["MAXIMUMPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
+//    varplots["MAXIMUMPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
 
 //END TESTING*/
 
