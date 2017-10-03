@@ -1495,8 +1495,9 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_);
+//  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
+  addPlot(1,"MAXIMUMPLOTTEST", xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1928,7 +1929,32 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  if (it->second->waveform) it->second->waveform->clear();
-	
+
+//TRYING A LOOP WHERE CHANNELS ARE "FED"
+
+	int offset;
+
+	for(int channel = 0; channel < 25; channel++)
+     {
+	offset = channel*nentries;
+	for (uint iSample = offset ; iSample < offset+nentries ; ++iSample)
+	  {
+
+	 double mean = 0;
+
+	  for (unsigned int i(iSample+5);i<=iSample+44;++i)
+	    {
+	      mean+= treeStruct_.digiSampleValue[i];
+	    }
+
+            mean=mean/(double)(44-5+1);
+
+		
+	if(channel == 0) varplots["MAXIMUMPLOTTEST"]->Fill2D((iSample-offset), treeStruct_.digiSampleValue[iSample]-mean,1.);
+	  }
+     }
+//END MORE TRYING
+
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
 
@@ -1948,7 +1974,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 	  }
 
-//NOTE THIS IS MY OWN TEST LOOP DOWN HERE
+/*/NOTE THIS IS MY OWN TEST LOOP DOWN HERE
 
   double mean = 0;
 
@@ -1957,31 +1983,45 @@ while ( read != EOF ) { // keep reading until end-of-file
       mean+= treeStruct_.digiSampleValue[i];
     }
 
-  mean=mean/(double)(5-44+1);
+  mean=mean/(double)(44-5+1);
+//  cout << "calculated pedestal is " << mean << endl; //Mean is, indeed, calculating good values. 
 
-
-  int channel;
+  int channel = 0;
   int chpergroup = 5; //NOTE THIS COULD STAND CHANGING. 
   int ngroups = 5; //NOTE THIS AS WELL
   int tchan = ngroups*chpergroup;
   int imax[tchan];
   float max[tchan];
 
+  int chtest1 = 0;
+  int chtest2 = 0;
+
+
 for (int i = 0; i < tchan; i++) imax[i] = -1;
 for (int i = 0; i < tchan; i++) max[i] = -9999;
 
 for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
-	     channel = (treeStruct_.digiGroup[iSample] * chpergroup) + treeStruct_.digiChannel[iSample];
-
-             if (treeStruct_.digiSampleValue[iSample]>=max[channel])
+	     //channel = (treeStruct_.digiGroup[iSample] * chpergroup) + treeStruct_.digiChannel[iSample]
+	     if(channel == 25) channel = 0;
+	     //cout << "Channel is this " << channel << endl; //Weird results, long, long chains of Channel 2, 2, 2, 2, 2, etc...
+             if (treeStruct_.digiSampleValue[iSample] >=max[channel])
 		{
 		  max[channel]= treeStruct_.digiSampleValue[iSample];
 		  imax[channel]=iSample;
 		}
+	     if(channel == 2) chtest2++;
+	     if(channel == 1) chtest1++;
+	     channel++;
+	     
+	     
 	  }
- 
-varplots["MAXIMUMPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
+/*
+cout << "The channel2's counter is " << chtest2 << endl;
+cout << "The channel1's counter is " << chtest1 << endl;
+cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSamples << endl;
+*/
+//varplots["MAXIMUMPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
 
 //END MY TESTING OF THINGS WITH DIGI STUFF */
 
@@ -2118,7 +2158,7 @@ varplots["MAXIMUMPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
 
   //  fillMatrixView();
 
-  std::cout << outputTree->GetEntries() << std::endl;
+//  std::cout << outputTree->GetEntries() << std::endl;
 
 }
 
@@ -2534,6 +2574,7 @@ void plotterTools::saveHistos(){
   for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
     out->second->GetPlot()->Write(out->second->name);
   outputTree->Write();
+//  outputTree->AutoSave();
   outputFile_->Close();
   if(VERBOSE){  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
   std::cout << "==================== DQM analysis is done =======================" << std::endl;
