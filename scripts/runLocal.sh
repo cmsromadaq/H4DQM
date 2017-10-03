@@ -3,6 +3,7 @@
 input="/tmp/kyee"
 output="/tmp/kyee/output"
 run="7290"
+#run="5860"
 spill="2"
 prescale=1
 
@@ -27,7 +28,8 @@ done
 #/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $output -r $run -s $spill -p $prescale
 #/home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $output -o $output  -r $run -s $spill -t beam -I integrated.root 
 
-for runtype in beam ped led;do
+#for runtype in beam ped led;do
+for runtype in beam;do
 echo $runtype
 #local path
 echo $input $output $run $spill $runtype 
