@@ -43,6 +43,10 @@ Depending on what you change the input and output to, you'll need to make design
     mkdir /tmp/kyee/output
     cp  /eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jun2017/raw/DataTree/7290/2.root /tmp/kyee/7290
 
+    mkdir /tmp/kyee/5860
+    mkdir /tmp/kyee/output
+    cp  /eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jul2016/raw/DataTree/5860/2.root /tmp/kyee/5860
+
 
 In order to work on newer runs, the line 53 in interface/Event.hpp needs to be editted from float digiSampleValue[MAX_DIGI_SAMPLES] to UShort_t digiSampleValue[MAX_DIGI_SAMPLES]
 

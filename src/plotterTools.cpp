@@ -1459,7 +1459,7 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 */
 
   for (set<int>::iterator iGroup = groups.begin () ;
-
+   
        iGroup != groups.end () ; ++iGroup)
     {
 	cout << "iGroup = " << *iGroup << endl;
@@ -1482,7 +1482,7 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
-          //addPlot(1,Form("MAXIMUMPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
+          //addPlot(1,Form("newPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
@@ -1495,10 +1495,18 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-//  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
-//  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
-  addPlot(1,"MAXIMUMPLOTTEST", xNbins, xmin, xmax*6, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
-  addPlot(1,"MAXIMUMPLOTTEST2", xNbins, xmax*6, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+   
+	for(int i = 0; i < 25; i++)
+   {
+	TString thisname = Form("newpulseplot_%d", i);
+	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
+	//cout << "Here's the name " << thisname << endl;
+   }
+
+//  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
+//  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
+  addPlot(1,"newPLOTTEST", xNbins, xmin, xmax*13, yNbins, ymin, 1000, "iSample", "digiSampleIndex", "2D", group_, module_, 1, true) ;
+  addPlot(1,"newPLOTTEST2", xNbins, xmax*6, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1869,6 +1877,8 @@ while ( read != EOF ) { // keep reading until end-of-file
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
 
+//cout << "This is a test to see if a loop can be put here, ndigisamples value " << treeStruct_.nDigiSamples << endl;
+
   //  nentries=1;
 
   //loop and fill histos
@@ -1924,8 +1934,6 @@ while ( read != EOF ) { // keep reading until end-of-file
 	  }
 	}
 
-      cout << "Number of digisamples is follows " << treeStruct_.nDigiSamples << endl;
-
       if (wantDigiplots){
 
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
@@ -1933,31 +1941,67 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 //TRYING A LOOP WHERE CHANNELS ARE "FED"
 
-	int offset = 0;
+	int timestamp[40]; 
+	int numchan = 0;
+	int window = 150;
+	float tunit = 6.25;
 
-//	for(int channel = 0; channel < 25; channel++)
-     {
-//	offset = channel*nentries;
+	for(int i = 0; i < 40; i++)
+	{
+		timestamp[i] = -1;
+	}
 
-	double mean = 0;
-/*
-	  for (unsigned int i(iSample+offset+5);i<=iSample+offset+44;++i)
-	    {
-	      mean+= treeStruct_.digiSampleValue[i];
-	    }
+	timestamp[numchan] = 0;
+	numchan++;
 
-            mean=mean/(double)(44-5+1);
-*/
-
-	for (uint iSample = offset ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	for (uint iSample = 6 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
-		
-	varplots["MAXIMUMPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample]-mean,1.);
-	varplots["MAXIMUMPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample]-mean,1.);
-//	if(channel == 1) varplots["MAXIMUMPLOTTEST2"]->Fill2D((iSample-offset), treeStruct_.digiSampleValue[iSample]-mean,1.);
+		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+window+5] < treeStruct_.digiSampleIndex[iSample+window-5]) 
+		{
+			timestamp[numchan] = iSample;
+			numchan++;
+		}
 	  }
+
+	//window = timestamp[2] - timestamp[1];
+	//if(window > 500) window = 150; 
+
+	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	  {		
+		varplots["newPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleIndex[iSample],1.);
+		varplots["newPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
+		//varplots["newpulseplot_0"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
+	  }
+
+	double mean[numchan];
+
+	for(int channel = 0; channel < numchan; channel++)
+     {
+
+	TString thisname = Form("newpulseplot_%d", channel);
+
+	
+	mean[channel] = 0;
+	int stamp = timestamp[channel];
+
+//	  for (unsigned int i(iSample+offset+5);i<=iSample+offset+44;++i)
+  	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
+	    {
+	      mean[channel]+= treeStruct_.digiSampleValue[j];
+	    }
+            mean[channel] = mean[channel]/(double)(44-5+1);
+
+	//cout << "For this channel, " << channel << " The timestamp being used is " << stamp << endl; 
+	//cout << "window is " << window << endl;
+
+	for (uint iSample = stamp ; iSample < stamp + window ; ++iSample)
+	  {		
+	varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample] - mean[channel],1.);
+	  }
+
      }
 //END MORE TRYING
+
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
@@ -2025,7 +2069,7 @@ cout << "The channel2's counter is " << chtest2 << endl;
 cout << "The channel1's counter is " << chtest1 << endl;
 cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSamples << endl;
 */
-//varplots["MAXIMUMPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
+//varplots["newPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
 
 //END MY TESTING OF THINGS WITH DIGI STUFF */
 
@@ -2087,7 +2131,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
 	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
 	    }
-	    
+	    /*
 	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
@@ -2108,6 +2152,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	    varplots["allCh_pedestal_map"]->Fill2D(x,y,wave_pedestal.pedestal); // pedestal already subtracted
 	    varplots["allCh_pedestal_rms_map"]->Fill2D(x,y,wave_pedestal.rms); // pedestal already subtracted
 	    sum_amplitudes+=wave_max.max_amplitude;
+	    */
 	  } // End of iterator loop
 	
 //MORE TESTING
@@ -2145,7 +2190,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
     }
 //      cout << "EA_Y value calculated is " << EA_Y << endl;
 //      cout << "tdc_recoy found is " << tdc_recoy << endl;
-//    varplots["MAXIMUMPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
+//    varplots["newPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
 
 //END TESTING*/
 
@@ -2194,7 +2239,7 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 //  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
   addPlot(1,"WCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
-//  addPlot(1,"MAXIMUMPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
+//  addPlot(1,"newPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F

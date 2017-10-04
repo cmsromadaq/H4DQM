@@ -45,6 +45,7 @@ echo $input $output $run $spill $runtype
     mkdir DAQ
     mkdir ADC
     mkdir TDC 
+    mkdir new
     mkdir root
     mkdir digitizer
 
@@ -52,6 +53,7 @@ echo $input $output $run $spill $runtype
     mv total/DAQStatus_* DAQ/
     mv total/ADC_* ADC/
     mv total/TDC_* TDC/
+    mv total/digitizer_new* new/
     mv total/digitizer_* digitizer/
     mv total/*.root root/
 
