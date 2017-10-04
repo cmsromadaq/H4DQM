@@ -1506,7 +1506,7 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 //  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
   addPlot(1,"newPLOTTEST", xNbins, xmin, xmax*13, yNbins, ymin, 1000, "iSample", "digiSampleIndex", "2D", group_, module_, 1, true) ;
-  addPlot(1,"newPLOTTEST2", xNbins, xmax*6, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+  addPlot(1,"newPLOTTEST2", xNbins, xmin, xmax*5, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1985,6 +1985,8 @@ while ( read != EOF ) { // keep reading until end-of-file
 	int stamp = timestamp[channel];
 
 //	  for (unsigned int i(iSample+offset+5);i<=iSample+offset+44;++i)
+
+
   	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
 	    {
 	      mean[channel]+= treeStruct_.digiSampleValue[j];
@@ -2131,7 +2133,10 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
 	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
 	    }
-	    /*
+ 
+
+
+	    /* Cutting things out to see if it will run faster.
 	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
