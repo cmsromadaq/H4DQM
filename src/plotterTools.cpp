@@ -1497,7 +1497,8 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
     }
 //  addPlot(1,"MAXIMUMPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"MAXIMUMPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
-  addPlot(1,"MAXIMUMPLOTTEST", xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+  addPlot(1,"MAXIMUMPLOTTEST", xNbins, xmin, xmax*6, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+  addPlot(1,"MAXIMUMPLOTTEST2", xNbins, xmax*6, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1923,7 +1924,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 	  }
 	}
 
-
+      cout << "Number of digisamples is follows " << treeStruct_.nDigiSamples << endl;
 
       if (wantDigiplots){
 
@@ -1932,25 +1933,28 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 //TRYING A LOOP WHERE CHANNELS ARE "FED"
 
-	int offset;
+	int offset = 0;
 
-	for(int channel = 0; channel < 25; channel++)
+//	for(int channel = 0; channel < 25; channel++)
      {
-	offset = channel*nentries;
-	for (uint iSample = offset ; iSample < offset+nentries ; ++iSample)
-	  {
+//	offset = channel*nentries;
 
-	 double mean = 0;
-
-	  for (unsigned int i(iSample+5);i<=iSample+44;++i)
+	double mean = 0;
+/*
+	  for (unsigned int i(iSample+offset+5);i<=iSample+offset+44;++i)
 	    {
 	      mean+= treeStruct_.digiSampleValue[i];
 	    }
 
             mean=mean/(double)(44-5+1);
+*/
 
+	for (uint iSample = offset ; iSample < treeStruct_.nDigiSamples ; ++iSample)
+	  {
 		
-	if(channel == 0) varplots["MAXIMUMPLOTTEST"]->Fill2D((iSample-offset), treeStruct_.digiSampleValue[iSample]-mean,1.);
+	varplots["MAXIMUMPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample]-mean,1.);
+	varplots["MAXIMUMPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample]-mean,1.);
+//	if(channel == 1) varplots["MAXIMUMPLOTTEST2"]->Fill2D((iSample-offset), treeStruct_.digiSampleValue[iSample]-mean,1.);
 	  }
      }
 //END MORE TRYING

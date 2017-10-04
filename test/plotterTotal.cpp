@@ -65,7 +65,7 @@ int main (int argc, char ** argv)
   plotter.setPlotsFormat () ;
   plotter.readInputTree();  
   int nentries = plotter.getTreeEntries();
-  plotter.setStepHistoryPlots(20); //changed from 20 to this value
+  plotter.setStepHistoryPlots(1); //changed from 20 to this value
   plotter.setModule("beam");
   plotter.setGroup("hodo");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
