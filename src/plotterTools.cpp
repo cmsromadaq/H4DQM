@@ -1500,13 +1500,16 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
    {
 	TString thisname = Form("newpulseplot_%d", i);
 	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
-	//cout << "Here's the name " << thisname << endl;
+
+	TString thatname = Form("newmaxplot_%d", i);
+	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
+
    }
 
 //  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
   addPlot(1,"newPLOTTEST", xNbins, xmin, xmax*13, yNbins, ymin, 1000, "iSample", "digiSampleIndex", "2D", group_, module_, 1, true) ;
-  addPlot(1,"newPLOTTEST2", xNbins, xmin, xmax*5, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+  addPlot(1,"newPLOTTEST2", xNbins, xmin, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1941,6 +1944,8 @@ while ( read != EOF ) { // keep reading until end-of-file
 
 //TRYING A LOOP WHERE CHANNELS ARE "FED"
 
+	//NOTE: Many of the declarations in the next few lines can be fairly "fed" as they are in the H4Reco config file. 
+
 	int timestamp[40]; 
 	int numchan = 0;
 	int window = 150;
@@ -1963,28 +1968,26 @@ while ( read != EOF ) { // keep reading until end-of-file
 		}
 	  }
 
-	//window = timestamp[2] - timestamp[1];
-	//if(window > 500) window = 150; 
-
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {		
 		varplots["newPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleIndex[iSample],1.);
 		varplots["newPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
-		//varplots["newpulseplot_0"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
 	  }
 
 	double mean[numchan];
+	float max[numchan];
+	float imax[numchan];
 
 	for(int channel = 0; channel < numchan; channel++)
      {
 
 	TString thisname = Form("newpulseplot_%d", channel);
+	TString thatname = Form("newmaxplot_%d", channel);
 
-	
+	max[channel] = -1;
+	imax[channel] = -1;
 	mean[channel] = 0;
 	int stamp = timestamp[channel];
-
-//	  for (unsigned int i(iSample+offset+5);i<=iSample+offset+44;++i)
 
 
   	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
@@ -1999,7 +2002,15 @@ while ( read != EOF ) { // keep reading until end-of-file
 	for (uint iSample = stamp ; iSample < stamp + window ; ++iSample)
 	  {		
 	varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample] - mean[channel],1.);
+
+             if (treeStruct_.digiSampleValue[iSample] - mean[channel] >=max[channel])
+		{
+		  max[channel]= treeStruct_.digiSampleValue[iSample]  - mean[channel];
+		  imax[channel]=iSample;
+		}
+
 	  }
+	varplots[thatname]->Fill(max[channel], 1.);
 
      }
 //END MORE TRYING
@@ -2146,8 +2157,6 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 //            varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,wave_max.max_amplitude); // testing a recoY versus maximum plot. 	   
  
-	    int x = getDigiChannelX(it->second->name); //This gives the channel!
-	    //cout << "x channel value versus the plot name " << x << "and then " << thisname.Data() << endl; //These two things should match up
 	    max_amp[x] = wave_max.max_amplitude;
 	    Int_C[x] = it->second->waveform->charge_integrated(0,900);
 	    //max_amp[x] = it->second->waveform->charge_integrated(0,900);
