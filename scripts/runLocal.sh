@@ -1,7 +1,8 @@
 #!/bin/bash
 
 input="/tmp/kyee"
-output="/tmp/kyee/output"
+#output="/tmp/kyee/output"
+output="/eos/user/k/kyee/www/DQMoutput"
 run="7290"
 #run="5860"
 spill="2"
@@ -49,6 +50,7 @@ echo $input $output $run $spill $runtype
     mkdir root
     mkdir digitizer
 
+    mv total/hodo_new* new/
     mv total/hodo_* hodo/
     mv total/DAQStatus_* DAQ/
     mv total/ADC_* ADC/

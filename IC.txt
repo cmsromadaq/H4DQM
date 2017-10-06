@@ -1,3 +1,41 @@
+4550	4500	3950	3950	3840	2800	3940	3830	4300	4150	3450	3600	4010	4820	4740	3400	4180	3750	4010	3180	4430	4230	3800	4600	4680
+-1	-1	-1	-1	-1	0	0	0	0	0	2	2	2	2	2	1	1	1	1	1	-2	-2	-2	-2	-2
+-2	-1	0	1	2	2	1	0	-1	-2	2	1	0	-1	-2	-2	-1	0	1	2	2	1	0	-1	-2
+7
+
+Here are some instructions on how to use this document. It will be read by the DQM code and is used to calculate EA_X and EA_Y values, which require intercalibration values and confirmed channel mapping. 
+
+The first row is the intercalibration values, the peak positions of the maximum ADC plots. 
+
+TThe second row is the x positions. 
+
+The third row is the y positions. 
+
+Thhe fourth line is the reference. Put in the channel number (basically the column number of the peak, x, and y data) of the crystal you're shooting at. This will be used to display a maximum[channel]:EA_X plot, which should show energy containment. 
+
+Note: in order for this to work at all, the channel mapping needs to be correct, and the H4Reco channeling doesn't match the DQM channeling. Here is a little help.
+
+Newer runs from July 2017 test beam (7000s+) use this calibration 
+4550	4500	3950	3950	3840	2800	3940	3830	4300	4150	3450	3600	4010	4820	4740	3400	4180	3750	4010	3180	4430	4230	3800	4600	4680
+-1	-1	-1	-1	-1	0	0	0	0	0	2	2	2	2	2	1	1	1	1	1	-2	-2	-2	-2	-2
+-2	-1	0	1	2	2	1	0	-1	-2	2	1	0	-1	-2	-2	-1	0	1	2	2	1	0	-1	-2
+B5	B4	B3	B2	B1	C1	C2	C3	C4	C5	E1	E2	E3	E4	E5	D5	D4	D3	D2	D1	A1	A2	A3	A4	A5
+
+
+
+Runs around 6103 from summer 2017 use this calibration as there were only 3 digiboards. 
+
+2800	3940	3830	4300	4150	3400	4180	3750	4010	3180	4550	4500	3950	3950	3840
+0	0	0	0	0	1	1	1	1	1	-1	-1	-1	-1	-1
+2	1	0	-1	-2	-2	-1	0	1	2	-2	-1	0	1	2
+C1	C2	C3	C4	C5	D5	D4	D3	D2	D1	B5	B4	B3	B2	B1
+
+
+
+
+
+Here's a list of crystals and their positions. Be careful of order though.
 2800	3940	3830	4300	4150	3450	3600	4010	4820	4740	3400	4180	3750	4010	3180	4550	4500	3950	3950	3840	4430	4230	3800	4600	4680
 0	0	0	0	0	2	2	2	2	2	1	1	1	1	1	-1	-1	-1	-1	-1	-2	-2	-2	-2	-2
 2	1	0	-1	-2	2	1	0	-1	-2	-2	-1	0	1	2	-2	-1	0	1	2	2	1	0	-1	-2
+C1	C2	C3	C4	C5	E1	E2	E3	E4	E5	D5	D4	D3	D2	D1	B5	B4	B3	B2	B1	A1	A2	A3	A4	A5

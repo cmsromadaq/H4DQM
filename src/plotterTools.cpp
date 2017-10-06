@@ -868,7 +868,7 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
- }else if(name=="WCvsHodo"){
+ }else if(name=="newWCvsHodo"){
 
    float pos=0;
    int nFibersOn=0;
@@ -1505,6 +1505,11 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
 
    }
+	addPlot(1,"newmaxref_vs_EA_X", 66,-30,30,-999999,999999,"1DProf",group_,module_); 
+	addPlot(1,"newmaxref_vs_EA_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_WC_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_WC_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+
 
 //  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
@@ -1828,8 +1833,7 @@ void plotterTools::fillTreeVars(){
 void  plotterTools::Loop()
 {
 
-//THIS IS A TEST TO SEE WHAT HAPPENS
-//cout << "SUCCESSFUL TEST" << endl;
+//THIS IS A TEST TO SEE WHAT HAPPENS. Start a /* comment in the above line if you don't want EA_X and EA_Y plots
 
  ifstream indata;
  char read;
@@ -1838,6 +1842,7 @@ void  plotterTools::Loop()
  int numelems = 1;
  int tracker = 0;
  int count = 0;
+ bool warn = 1;
 
   FILE*datapts;
   datapts = fopen("IC.txt","r");
@@ -1846,19 +1851,20 @@ void  plotterTools::Loop()
 }
   read = getc(datapts);
 
-while ( read != EOF ) { // keep reading until end-of-file
+while ( read != EOF && b1 != 0) { // keep reading until end-of-file
 	if(read == '\t' && b1 == 1) numelems++;
 	if(read == '\n') b1 = 0;
 	read = getc(datapts);
 }
   fclose(datapts);
-  cout << numelems << endl;
+  cout << "number of elements read from IC.txt " << numelems << endl;
 
   float channel_peak[numelems];
   float channel_x[numelems];
   float channel_y[numelems];
   float max_amp[numelems];
   float Int_C[numelems];
+  int ref = 0;
   int value = 0;
 
  indata.open("IC.txt"); // opens the file
@@ -1867,15 +1873,18 @@ while ( read != EOF ) { // keep reading until end-of-file
  if(tracker == 0) {channel_peak[count] = num; count++;}
  if(tracker == 1) {channel_x[count] = num; count++;}
  if(tracker == 2) {channel_y[count] = num; count++;}
+ if(tracker == 3) {ref = num;}
  if(count == numelems) {tracker++; count = 0;}
 
 }  indata.close();
+
+cout << "ref value found is " << ref << endl;
 
 //for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_y[i] << endl;
 
-	 //END TEST IT WORKED
+//END TEST IT WORKED, but comment this part out if you don't want EA_X and EA_Y plots */
 
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
@@ -1974,6 +1983,8 @@ while ( read != EOF ) { // keep reading until end-of-file
 		varplots["newPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
 	  }
 
+	if((numchan != numelems) && warn == 1) {cout << "WARNING: number of channels detected != number of channels written in the text file." << endl; cout << "numelems = " << numelems << endl; cout << "numchan = " << endl; warn = 0;}
+
 	double mean[numchan];
 	float max[numchan];
 	float imax[numchan];
@@ -1989,7 +2000,7 @@ while ( read != EOF ) { // keep reading until end-of-file
 	mean[channel] = 0;
 	int stamp = timestamp[channel];
 
-
+	//Calculation of the pedestal
   	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
 	    {
 	      mean[channel]+= treeStruct_.digiSampleValue[j];
@@ -2013,8 +2024,70 @@ while ( read != EOF ) { // keep reading until end-of-file
 	varplots[thatname]->Fill(max[channel], 1.);
 
      }
+
+/*
+	    int x1 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
+	      if(fibersOn_[hodoX1][i]==1 && x1!=-1) { x1 = -1; break; }
+	    }
+	    int y1 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoY1][i]==1 && y1==-1) y1 = i;
+	      if(fibersOn_[hodoY1][i]==1 && y1!=-1) { y1 = -1; break; }
+	    }
+	    int x2 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoX2][i]==1 && x2==-1) x2 = i;
+	      if(fibersOn_[hodoX2][i]==1 && x2!=-1) { x2 = -1; break; }
+	    }
+	    int y2 = -1;
+	    for(int i=0;i<64;i++){
+	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
+	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
+	    }
+*/
+
+//	cout << "tcd_recox from up here is " << tdc_recox << endl; //x1 calculation is not correct...
+//	cout << "max[7] is " << max[7] << endl; //max[7] is, indeed the right move
+
+//	varplots["newmaxref_vs_EA_X"]->Fill(tdc_recox, max[ref]); //This is a successful fill of a WC versus EA_X plot
+
 //END MORE TRYING
 
+    float energy_sum = 0;
+    float position_weight_sum = 0;
+    float position_weight[numchan];
+
+//    for (int i = 0;i < numelems;i++) cout << "max_amp of " << i << " is " << max_amp[i] << endl;
+	//This bit works as well, but, of course, the channels 8-25 are blank. For now I'm going to set numelems = 8.
+
+    for (int i = 0;i < numchan;i++) energy_sum += max[i]/channel_peak[i];
+
+//    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
+
+    for(int channel = 0;channel < numchan;channel++){
+      position_weight[channel] = 3.8 + log(max[channel]/(channel_peak[channel]*energy_sum));
+      if (position_weight[channel] < 0) position_weight[channel] = 0;
+      position_weight_sum += position_weight[channel];
+    }
+
+    if(position_weight_sum != 0){
+    EA_X = 0;
+    for(int channel = 0;channel < numchan;channel++) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
+//    cout << "EA_X value calculated is " << EA_X << endl;
+
+    EA_Y = 0;
+    for(int channel = 0;channel < numchan;channel++) EA_Y += 22.0 * channel_y[channel] * position_weight[channel]/position_weight_sum;
+//    cout << "EA_Y value calculated is " << EA_Y << endl;
+    }
+//     cout << "EA_Y value calculated is " << EA_Y << endl;
+//      cout << "tdc_recoy found is " << tdc_recoy << endl;
+
+   varplots["newmaxref_vs_EA_X"]->Fill(EA_X, max[ref]);
+   varplots["newmaxref_vs_EA_Y"]->Fill(EA_Y, max[ref]);
+   varplots["newmaxref_vs_WC_X"]->Fill(tdc_recox, max[ref]);
+   varplots["newmaxref_vs_WC_Y"]->Fill(tdc_recoy, max[ref]);
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
@@ -2145,7 +2218,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
 	    }
  
-
+	    //cout << "Lower calculation of x1 " << x1 << endl; //This calculation of x1 doesn't appear tot be correct.
 
 	    /* Cutting things out to see if it will run faster.
 	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
@@ -2169,17 +2242,17 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	    */
 	  } // End of iterator loop
 	
-//MORE TESTING
+/*//MORE TESTING
     float energy_sum = 0;
     float position_weight_sum = 0;
     float position_weight[numelems];
     numelems = 5;
-	/*for (int i = 0;i < numelems;i++)
+	for (int i = 0;i < numelems;i++)
 	{
 	cout << "channel peak " << channel_peak[i] << endl;
 	cout << "channel_x " << channel_x[i] << endl;
 	cout << "channel_y " << channel_y[i] << endl;
-	}*/ //This check is successful. The peak values are reasonable. 
+	} //This check is successful. The peak values are reasonable. 
 
 //    for (int i = 0;i < numelems;i++) cout << "max_amp of " << i << " is " << max_amp[i] << endl;
 	//This bit works as well, but, of course, the channels 8-25 are blank. For now I'm going to set numelems = 8.
@@ -2252,7 +2325,7 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
 
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 //  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
-  addPlot(1,"WCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
+  addPlot(1,"newWCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
 //  addPlot(1,"newPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
