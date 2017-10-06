@@ -868,7 +868,7 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
- }else if(name=="newWCvsHodo"){
+/* }else if(name=="newWC_XvsHodo_X"){
 
    float pos=0;
    int nFibersOn=0;
@@ -884,7 +884,7 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill2D(pos,tdc_recox,1.);
-
+*/
 
 /*//TEST
  }else if(name=="beamPositionTEST"){
@@ -1509,7 +1509,16 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 	addPlot(1,"newmaxref_vs_EA_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
 	addPlot(1,"newmaxref_vs_WC_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
 	addPlot(1,"newmaxref_vs_WC_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_hodo_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_hodo_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
 
+
+	addPlot(1,"newWC_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newWC_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newHodo_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newHodo_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newWC_Y_vs_Hodo_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newWC_X_vs_Hodo_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
 
 //  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
 //  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
@@ -2084,10 +2093,61 @@ cout << "ref value found is " << ref << endl;
 //     cout << "EA_Y value calculated is " << EA_Y << endl;
 //      cout << "tdc_recoy found is " << tdc_recoy << endl;
 
+
+   float hs_x1 =0;
+   int nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[hodoX1][i]==1){
+	 nFibersOn++;
+	 hs_x1+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     hs_x1=hs_x1/nFibersOn;
+   }else{
+     hs_x1=-1;
+   }
+
+   float hs_y1 =0;
+   nFibersOn=0;
+   for (int i=0;i<64;++i){   
+       if(fibersOn_[hodoY1][i]==1){
+	 nFibersOn++;
+	 hs_y1+=i; 
+       }
+     }
+   if(nFibersOn>1){
+     hs_y1=hs_y1/nFibersOn;
+   }else{
+     hs_y1=-1;
+   }
+//   cout << "possible hodoscope value is " << hs_x1 << endl; //This appears good! :D
+
+
+
    varplots["newmaxref_vs_EA_X"]->Fill(EA_X, max[ref]);
    varplots["newmaxref_vs_EA_Y"]->Fill(EA_Y, max[ref]);
    varplots["newmaxref_vs_WC_X"]->Fill(tdc_recox, max[ref]);
    varplots["newmaxref_vs_WC_Y"]->Fill(tdc_recoy, max[ref]);
+   varplots["newmaxref_vs_hodo_X"]->Fill(tdc_recox, max[ref]);
+   varplots["newmaxref_vs_hodo_Y"]->Fill(tdc_recoy, max[ref]);
+
+   varplots["newWC_X_vs_EA_X"]->Fill2D(tdc_recox,EA_X,1.);
+   varplots["newWC_Y_vs_EA_Y"]->Fill2D(tdc_recoy,EA_Y,1.);
+   varplots["newHodo_X_vs_EA_X"]->Fill2D(hs_x1,EA_X,1.);
+   varplots["newHodo_Y_vs_EA_Y"]->Fill2D(hs_y1,EA_Y,1.);
+   varplots["newWC_Y_vs_Hodo_Y"]->Fill2D(tdc_recoy,hs_y1,1.);
+   varplots["newWC_X_vs_Hodo_X"]->Fill2D(tdc_recox,hs_x1,1.);
+
+/*
+	addPlot(1,"newWC_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newWC_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newHodo_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newHodo_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	addPlot(1,"newWC_Y_vs_Hodo_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
+	  varplots[name]->Fill2D(pos,tdc_recox,1.);
+
+*/
 
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
@@ -2196,7 +2256,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
 	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
 
-
+/*
 	    int x1 = -1;
 	    for(int i=0;i<64;i++){
 	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
@@ -2216,7 +2276,7 @@ cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSa
 	    for(int i=0;i<64;i++){
 	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
 	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
-	    }
+	    }*/
  
 	    //cout << "Lower calculation of x1 " << x1 << endl; //This calculation of x1 doesn't appear tot be correct.
 
@@ -2325,7 +2385,6 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
 
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 //  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
-  addPlot(1,"newWCvsHodo",100,-50,50,100,-50,50,"X","Y","2D",group_,module_); //THIS IS A TEST2
 //  addPlot(1,"newPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
