@@ -1497,13 +1497,30 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
     }
    
 	for(int i = 0; i < 25; i++)
-   {
+   {	
+
 	TString thisname = Form("newpulseplot_%d", i);
 	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
 
 	TString thatname = Form("newmaxplot_%d", i);
 	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
 
+	/*
+	if(i < 10){
+	TString thisname = Form("newpulseplot_0%d", i);
+	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
+
+	TString thatname = Form("newmaxplot_0%d", i);
+	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
+	}
+	else{
+	TString thisname = Form("newpulseplot_%d", i);
+	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
+
+	TString thatname = Form("newmaxplot_%d", i);
+	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
+	}
+	*/
    }
 	addPlot(1,"newmaxref_vs_EA_X", 66,-30,30,-999999,999999,"1DProf",group_,module_); 
 	addPlot(1,"newmaxref_vs_EA_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
@@ -1889,6 +1906,16 @@ while ( read != EOF && b1 != 0) { // keep reading until end-of-file
 
 cout << "ref value found is " << ref << endl;
 
+  int xref = channel_x[ref];
+  int yref = channel_y[ref];
+
+/*
+  for(int i = 0; i < 25; i++){
+    channel_x[i] = channel_x[i] - xref;
+    channel_y[i] = channel_y[i] - yref;
+	}
+*/
+
 //for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_y[i] << endl;
@@ -1974,8 +2001,11 @@ cout << "ref value found is " << ref << endl;
 		timestamp[i] = -1;
 	}
 
+	if(treeStruct_.digiSampleIndex[window+5] < treeStruct_.digiSampleIndex[window-5]) 
+	{
 	timestamp[numchan] = 0;
 	numchan++;
+	}
 
 	for (uint iSample = 6 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
@@ -1983,6 +2013,10 @@ cout << "ref value found is " << ref << endl;
 		{
 			timestamp[numchan] = iSample;
 			numchan++;
+			//if(iSample+window+5 > treeStruct_.nDigiSamples){ cout << "This is how I cope with larger than window things. treeStruct_.digiSampleIndex[iSample+window+5] = " << treeStruct_.digiSampleIndex[iSample+window+5] << endl; //Conclusion from this cout debugging - treeStruct_.digiSampleIndex[iSample+window+5] = 0 because it's out of the range. Handy!
+		//cout << "The value of treeStruct_.digiSampleIndex[iSample+window-5] is " << treeStruct_.digiSampleIndex[iSample+window-5] << endl; //And thtis value is 145. 
+		//}
+
 		}
 	  }
 
@@ -1997,17 +2031,22 @@ cout << "ref value found is " << ref << endl;
 	double mean[numchan];
 	float max[numchan];
 	float imax[numchan];
+	//int chanval[numchan];
+
+	
 
 	for(int channel = 0; channel < numchan; channel++)
      {
 
-	TString thisname = Form("newpulseplot_%d", channel);
-	TString thatname = Form("newmaxplot_%d", channel);
-
-	max[channel] = -1;
-	imax[channel] = -1;
+	//max[channel] = -1;
+	//imax[channel] = -1;
 	mean[channel] = 0;
 	int stamp = timestamp[channel];
+	int board;
+	int chanval = -1;
+	TString thatname;
+	TString thisname;
+	
 
 	//Calculation of the pedestal
   	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
@@ -2021,16 +2060,34 @@ cout << "ref value found is " << ref << endl;
 
 	for (uint iSample = stamp ; iSample < stamp + window ; ++iSample)
 	  {		
+
+	if(treeStruct_.digiBoard[iSample] == 3) board = 0;
+	if(treeStruct_.digiBoard[iSample] == 4) board = 1;
+	if(treeStruct_.digiBoard[iSample] == 5) board = 2;
+	if(treeStruct_.digiBoard[iSample] == 7) board = 3;
+	if(treeStruct_.digiBoard[iSample] == 8) board = 4;
+
+	chanval = board*5 + treeStruct_.digiChannel[iSample];
+
+	thisname = Form("newpulseplot_%d", chanval);
+	thatname = Form("newmaxplot_%d", chanval);
+
 	varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample] - mean[channel],1.);
 
-             if (treeStruct_.digiSampleValue[iSample] - mean[channel] >=max[channel])
+             if (treeStruct_.digiSampleValue[iSample] - mean[channel] >=max[chanval])
 		{
-		  max[channel]= treeStruct_.digiSampleValue[iSample]  - mean[channel];
-		  imax[channel]=iSample;
+		  //cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; //Always 0 of course...
+		  //cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
+		  //cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense. 
+		  //cout <<"Chanval associated is " << chanval << endl;
+		  max[chanval]= treeStruct_.digiSampleValue[iSample]  - mean[channel];
+		  //cout << "max[" << chanval << "] = " << max[chanval] << endl; //All of this checks out okay. 
 		}
 
 	  }
-	varplots[thatname]->Fill(max[channel], 1.);
+
+
+	varplots[thatname]->Fill(max[chanval], 1.);
 
      }
 
@@ -2068,14 +2125,12 @@ cout << "ref value found is " << ref << endl;
     float position_weight_sum = 0;
     float position_weight[numchan];
 
-//    for (int i = 0;i < numelems;i++) cout << "max_amp of " << i << " is " << max_amp[i] << endl;
-	//This bit works as well, but, of course, the channels 8-25 are blank. For now I'm going to set numelems = 8.
-
     for (int i = 0;i < numchan;i++) energy_sum += max[i]/channel_peak[i];
 
 //    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
 
     for(int channel = 0;channel < numchan;channel++){
+	//cout << "max for channel " << channel << " is " << max[channel] << endl; //Fine I think? 
       position_weight[channel] = 3.8 + log(max[channel]/(channel_peak[channel]*energy_sum));
       if (position_weight[channel] < 0) position_weight[channel] = 0;
       position_weight_sum += position_weight[channel];
@@ -2091,7 +2146,7 @@ cout << "ref value found is " << ref << endl;
 //    cout << "EA_Y value calculated is " << EA_Y << endl;
     }
 //     cout << "EA_Y value calculated is " << EA_Y << endl;
-//      cout << "tdc_recoy found is " << tdc_recoy << endl;
+//     cout << "tdc_recoy found is " << tdc_recoy << endl;
 
 
    float hs_x1 =0;

@@ -1,7 +1,7 @@
-4550	4500	3950	3950	3840	2800	3940	3830	4300	4150	3450	3600	4010	4820	4740	3400	4180	3750	4010	3180	4430	4230	3800	4600	4680
--1	-1	-1	-1	-1	0	0	0	0	0	2	2	2	2	2	1	1	1	1	1	-2	-2	-2	-2	-2
--2	-1	0	1	2	2	1	0	-1	-2	2	1	0	-1	-2	-2	-1	0	1	2	2	1	0	-1	-2
-7
+2800	3940	3830	4300	4150	3450	3600	4010	4820	4740	3400	4180	3750	4010	3180	4550	4500	3950	3950	3840	4430	4230	3800	4600	4680
+0	0	0	0	0	2	2	2	2	2	1	1	1	1	1	-1	-1	-1	-1	-1	-2	-2	-2	-2	-2
+2	1	0	-1	-2	2	1	0	-1	-2	-2	-1	0	1	2	-2	-1	0	1	2	2	1	0	-1	-2
+17
 
 Here are some instructions on how to use this document. It will be read by the DQM code and is used to calculate EA_X and EA_Y values, which require intercalibration values and confirmed channel mapping. 
 
