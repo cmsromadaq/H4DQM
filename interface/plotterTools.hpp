@@ -26,6 +26,14 @@
 #define nActiveDigitizerChannels 8
 #define nChannels 5
 #define nBoards 5
+#define tunit 6.25
+#define nSamples 150
+
+#define Board0 3
+#define Board1 4 
+#define Board2 5
+#define Board3 7
+#define Board4 8
 
 #define nPlanesHodo 4
 #define nFibersHodo 64

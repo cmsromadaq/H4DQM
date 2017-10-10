@@ -1615,12 +1615,12 @@ int plotterTools::getBoardVal(int board){
  //For older runs
 */
 
-  if(board == 3) return 0;
-  if(board == 4) return 1;
-  if(board == 5) return 2;
-  if(board == 7) return 3;
-  if(board == 8) return 4;
-
+  if(board == Board0) return 0;
+  if(board == Board1) return 1;
+  if(board == Board2) return 2;
+  if(board == Board3) return 3;
+  if(board == Board4) return 4;
+  return -1;
 }
 
 
@@ -1893,6 +1893,7 @@ void  plotterTools::Loop()
  int tracker = 0;
  int count = 0;
  bool warn = 1;
+ bool warn2 = 1;
 
   FILE*datapts;
   datapts = fopen("IC.txt","r");
@@ -2018,15 +2019,13 @@ cout << "ref value found is " << ref << endl;
 
 	int timestamp[Chtotal]; 
 	int numchan = 0;
-	int window = 150;
-	float tunit = 6.25;
 
 	for(int i = 0; i < Chtotal; i++)
 	{
 		timestamp[i] = -1;
 	}
 
-	if(treeStruct_.digiSampleIndex[window+5] < treeStruct_.digiSampleIndex[window-5]) 
+	if(treeStruct_.digiSampleIndex[nSamples+5] < treeStruct_.digiSampleIndex[nSamples-5]) 
 	{
 	timestamp[numchan] = 0;
 	numchan++;
@@ -2034,7 +2033,7 @@ cout << "ref value found is " << ref << endl;
 
 	for (uint iSample = 6 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
-		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+window+5] < treeStruct_.digiSampleIndex[iSample+window-5]) 
+		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+nSamples+5] < treeStruct_.digiSampleIndex[iSample+nSamples-5]) 
 		{
 			timestamp[numchan] = iSample;
 			numchan++; 
@@ -2067,7 +2066,7 @@ cout << "ref value found is " << ref << endl;
 	TString thisname;
 	
 
-	//Calculation of the pedestal
+	//Calculation of the pedestal and do a quick check to see if digiBoard values make sense. 
   	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
 	    {
 	      mean[channel]+= treeStruct_.digiSampleValue[j];
@@ -2075,23 +2074,17 @@ cout << "ref value found is " << ref << endl;
             mean[channel] = mean[channel]/(double)(44-5+1);
 	
 	//cout << "For this channel, " << channel << " The timestamp being used is " << stamp << endl; 
-	//cout << "window is " << window << endl;
+	//cout << "nSamples is " << nSamples << endl;
 
-	for (uint iSample = stamp ; iSample < stamp + window ; ++iSample)
+	for (uint iSample = stamp ; iSample < stamp + nSamples ; ++iSample)
 	  {		
 
 //	cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; //Always 0
 //        cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
 //        cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense.
 
-/*	if(treeStruct_.digiBoard[iSample] == 3) board = 0;
-	if(treeStruct_.digiBoard[iSample] == 4) board = 1;
-	if(treeStruct_.digiBoard[iSample] == 5) board = 2;
-	if(treeStruct_.digiBoard[iSample] == 7) board = 3;
-	if(treeStruct_.digiBoard[iSample] == 8) board = 4;
-*/
 	board = plotterTools::getBoardVal(treeStruct_.digiBoard[iSample]);
-
+	if(board == -1 && warn2 == 1) {warn2 = 0; cout << "WARNING: you may want to check over board values." << endl; cout << "The board value of this active channel is " << treeStruct_.digiBoard[iSample] << endl;}
 	chanval = board*nChannels + treeStruct_.digiChannel[iSample];
 
 	if(chanval < 10){
