@@ -24,6 +24,8 @@
 #include "interface/Waveform.hpp"
 
 #define nActiveDigitizerChannels 8
+#define nChannels 5
+#define nBoards 5
 
 #define nPlanesHodo 4
 #define nFibersHodo 64
@@ -206,6 +208,7 @@ public:
   TString getDigiChannelName(int group, int channel);
   int getDigiChannelX(TString name);
   int getDigiChannelY(TString name);
+  int getBoardVal(int board);
 
   void bookPlotsADC();
   bool wantADCplots;

@@ -1496,13 +1496,20 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
         }
     }
    
-	for(int i = 0; i < 25; i++)
+	for(int i = 0; i < (nChannels*nBoards); i++)
    {	
 
-	TString thisname = Form("newpulseplot_%d", i);
-	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
+	TString thisname, thatname;
 
-	TString thatname = Form("newmaxplot_%d", i);
+	if(i < 10){
+	thisname = Form("newpulseplot_0%d", i);
+	thatname = Form("newmaxplot_0%d", i);
+	}else{
+	thisname = Form("newpulseplot_%d", i);
+	thatname = Form("newmaxplot_%d", i);
+	}
+
+	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
 	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
 
 	/*
@@ -1526,8 +1533,8 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 	addPlot(1,"newmaxref_vs_EA_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
 	addPlot(1,"newmaxref_vs_WC_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
 	addPlot(1,"newmaxref_vs_WC_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_hodo_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_hodo_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_hodo_X", 66,-20,50,-999999,999999,"1DProf",group_,module_);
+	addPlot(1,"newmaxref_vs_hodo_Y", 66,-20,50,-999999,999999,"1DProf",group_,module_);
 
 
 	addPlot(1,"newWC_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
@@ -1597,6 +1604,23 @@ int plotterTools::getDigiChannelX(TString name){
   if( chId == 30 ) return 6;
   if( chId == 31 ) return 7; */
   return -1;
+}
+
+int plotterTools::getBoardVal(int board){
+
+/*
+  if(board == 5) return 0;
+  if(board == 7) return 1;
+  if(board == 8) return 2;
+ //For older runs
+*/
+
+  if(board == 3) return 0;
+  if(board == 4) return 1;
+  if(board == 5) return 2;
+  if(board == 7) return 3;
+  if(board == 8) return 4;
+
 }
 
 
@@ -1909,12 +1933,11 @@ cout << "ref value found is " << ref << endl;
   int xref = channel_x[ref];
   int yref = channel_y[ref];
 
-/*
-  for(int i = 0; i < 25; i++){
+
+  for(int i = 0; i < (nChannels*nBoards); i++){
     channel_x[i] = channel_x[i] - xref;
     channel_y[i] = channel_y[i] - yref;
 	}
-*/
 
 //for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
 //for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
@@ -1991,12 +2014,14 @@ cout << "ref value found is " << ref << endl;
 
 	//NOTE: Many of the declarations in the next few lines can be fairly "fed" as they are in the H4Reco config file. 
 
-	int timestamp[40]; 
+	int Chtotal = nBoards*nChannels;
+
+	int timestamp[Chtotal]; 
 	int numchan = 0;
 	int window = 150;
 	float tunit = 6.25;
 
-	for(int i = 0; i < 40; i++)
+	for(int i = 0; i < Chtotal; i++)
 	{
 		timestamp[i] = -1;
 	}
@@ -2012,11 +2037,7 @@ cout << "ref value found is " << ref << endl;
 		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+window+5] < treeStruct_.digiSampleIndex[iSample+window-5]) 
 		{
 			timestamp[numchan] = iSample;
-			numchan++;
-			//if(iSample+window+5 > treeStruct_.nDigiSamples){ cout << "This is how I cope with larger than window things. treeStruct_.digiSampleIndex[iSample+window+5] = " << treeStruct_.digiSampleIndex[iSample+window+5] << endl; //Conclusion from this cout debugging - treeStruct_.digiSampleIndex[iSample+window+5] = 0 because it's out of the range. Handy!
-		//cout << "The value of treeStruct_.digiSampleIndex[iSample+window-5] is " << treeStruct_.digiSampleIndex[iSample+window-5] << endl; //And thtis value is 145. 
-		//}
-
+			numchan++; 
 		}
 	  }
 
@@ -2024,16 +2045,14 @@ cout << "ref value found is " << ref << endl;
 	  {		
 		varplots["newPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleIndex[iSample],1.);
 		varplots["newPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
+		
 	  }
 
 	if((numchan != numelems) && warn == 1) {cout << "WARNING: number of channels detected != number of channels written in the text file." << endl; cout << "numelems = " << numelems << endl; cout << "numchan = " << endl; warn = 0;}
 
 	double mean[numchan];
 	float max[numchan];
-	float imax[numchan];
-	//int chanval[numchan];
-
-	
+	for(int channel = 0; channel < numchan; channel++) max[channel] = -1;
 
 	for(int channel = 0; channel < numchan; channel++)
      {
@@ -2054,23 +2073,34 @@ cout << "ref value found is " << ref << endl;
 	      mean[channel]+= treeStruct_.digiSampleValue[j];
 	    }
             mean[channel] = mean[channel]/(double)(44-5+1);
-
+	
 	//cout << "For this channel, " << channel << " The timestamp being used is " << stamp << endl; 
 	//cout << "window is " << window << endl;
 
 	for (uint iSample = stamp ; iSample < stamp + window ; ++iSample)
 	  {		
 
-	if(treeStruct_.digiBoard[iSample] == 3) board = 0;
+//	cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; //Always 0
+//        cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
+//        cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense.
+
+/*	if(treeStruct_.digiBoard[iSample] == 3) board = 0;
 	if(treeStruct_.digiBoard[iSample] == 4) board = 1;
 	if(treeStruct_.digiBoard[iSample] == 5) board = 2;
 	if(treeStruct_.digiBoard[iSample] == 7) board = 3;
 	if(treeStruct_.digiBoard[iSample] == 8) board = 4;
+*/
+	board = plotterTools::getBoardVal(treeStruct_.digiBoard[iSample]);
 
-	chanval = board*5 + treeStruct_.digiChannel[iSample];
+	chanval = board*nChannels + treeStruct_.digiChannel[iSample];
 
+	if(chanval < 10){
+	thisname = Form("newpulseplot_0%d", chanval);
+	thatname = Form("newmaxplot_0%d", chanval);
+	}else{
 	thisname = Form("newpulseplot_%d", chanval);
 	thatname = Form("newmaxplot_%d", chanval);
+	}
 
 	varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample] - mean[channel],1.);
 
@@ -2127,10 +2157,11 @@ cout << "ref value found is " << ref << endl;
 
     for (int i = 0;i < numchan;i++) energy_sum += max[i]/channel_peak[i];
 
+
+//    for (int i = 0;i < numchan;i++) cout << "max[" << i << "] = " << max[i] << endl;
 //    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
 
     for(int channel = 0;channel < numchan;channel++){
-	//cout << "max for channel " << channel << " is " << max[channel] << endl; //Fine I think? 
       position_weight[channel] = 3.8 + log(max[channel]/(channel_peak[channel]*energy_sum));
       if (position_weight[channel] < 0) position_weight[channel] = 0;
       position_weight_sum += position_weight[channel];
@@ -2179,18 +2210,19 @@ cout << "ref value found is " << ref << endl;
 //   cout << "possible hodoscope value is " << hs_x1 << endl; //This appears good! :D
 
 
-
+  if(max[ref] > 100) {
    varplots["newmaxref_vs_EA_X"]->Fill(EA_X, max[ref]);
    varplots["newmaxref_vs_EA_Y"]->Fill(EA_Y, max[ref]);
    varplots["newmaxref_vs_WC_X"]->Fill(tdc_recox, max[ref]);
    varplots["newmaxref_vs_WC_Y"]->Fill(tdc_recoy, max[ref]);
-   varplots["newmaxref_vs_hodo_X"]->Fill(tdc_recox, max[ref]);
-   varplots["newmaxref_vs_hodo_Y"]->Fill(tdc_recoy, max[ref]);
+   varplots["newmaxref_vs_hodo_X"]->Fill(hs_x1/2, max[ref]);
+   varplots["newmaxref_vs_hodo_Y"]->Fill(hs_y1/2, max[ref]);
+}
 
    varplots["newWC_X_vs_EA_X"]->Fill2D(tdc_recox,EA_X,1.);
    varplots["newWC_Y_vs_EA_Y"]->Fill2D(tdc_recoy,EA_Y,1.);
-   varplots["newHodo_X_vs_EA_X"]->Fill2D(hs_x1,EA_X,1.);
-   varplots["newHodo_Y_vs_EA_Y"]->Fill2D(hs_y1,EA_Y,1.);
+   varplots["newHodo_X_vs_EA_X"]->Fill2D(hs_x1/2,EA_X,1.);
+   varplots["newHodo_Y_vs_EA_Y"]->Fill2D(hs_y1/2,EA_Y,1.);
    varplots["newWC_Y_vs_Hodo_Y"]->Fill2D(tdc_recoy,hs_y1,1.);
    varplots["newWC_X_vs_Hodo_X"]->Fill2D(tdc_recox,hs_x1,1.);
 
