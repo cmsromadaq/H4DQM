@@ -1606,20 +1606,38 @@ int plotterTools::getDigiChannelX(TString name){
   return -1;
 }
 
-int plotterTools::getBoardVal(int board){
+//Note below are modifications K.Y. made to give consistent channel mapping based on the digiBoard, digiChannel, and digiGroup values in the raw root files. 
 
-/*
-  if(board == 5) return 0;
-  if(board == 7) return 1;
-  if(board == 8) return 2;
- //For older runs
-*/
+int plotterTools::getBoardVal(int board){
 
   if(board == Board0) return 0;
   if(board == Board1) return 1;
   if(board == Board2) return 2;
   if(board == Board3) return 3;
   if(board == Board4) return 4;
+  return -1;
+
+}
+
+int plotterTools::getGroupVal(int group){
+
+  if(group == Group0) return 0;
+  return -1;
+}
+
+int plotterTools::getChanVal(int channel){
+
+  if(channel == Channel0) return 0;
+  if(channel == Channel1) return 1;
+  if(channel == Channel2) return 2;
+  if(channel == Channel3) return 3;
+  if(channel == Channel4) return 4;
+
+/*
+  if(channel == Channel5) return 5;
+  if(channel == Channel6) return 6;
+  if(channel == Channel7) return 7;
+*/
   return -1;
 }
 
@@ -1913,10 +1931,10 @@ while ( read != EOF && b1 != 0) { // keep reading until end-of-file
   float channel_peak[numelems];
   float channel_x[numelems];
   float channel_y[numelems];
-  float max_amp[numelems];
-  float Int_C[numelems];
+//  float max_amp[numelems];
+//  float Int_C[numelems];
   int ref = 0;
-  int value = 0;
+//  int value = 0;
 
  indata.open("IC.txt"); // opens the file
  while ( indata>>num ) { // keep reading until end-of-file
@@ -2011,10 +2029,6 @@ cout << "ref value found is " << ref << endl;
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  if (it->second->waveform) it->second->waveform->clear();
 
-//TRYING A LOOP WHERE CHANNELS ARE "FED"
-
-	//NOTE: Many of the declarations in the next few lines can be fairly "fed" as they are in the H4Reco config file. 
-
 	int Chtotal = nBoards*nChannels;
 
 	int timestamp[Chtotal]; 
@@ -2025,7 +2039,7 @@ cout << "ref value found is " << ref << endl;
 		timestamp[i] = -1;
 	}
 
-	if(treeStruct_.digiSampleIndex[nSamples+5] < treeStruct_.digiSampleIndex[nSamples-5]) 
+	if(treeStruct_.digiSampleIndex[nSamples+5] < treeStruct_.digiSampleIndex[nSamples-5] && plotterTools::getBoardVal(treeStruct_.digiBoard[5]) != -1 && plotterTools::getChanVal(treeStruct_.digiChannel[5]) != -1 && plotterTools::getGroupVal(treeStruct_.digiGroup[5]) != -1) 
 	{
 	timestamp[numchan] = 0;
 	numchan++;
@@ -2033,7 +2047,7 @@ cout << "ref value found is " << ref << endl;
 
 	for (uint iSample = 6 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
-		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+nSamples+5] < treeStruct_.digiSampleIndex[iSample+nSamples-5]) 
+		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+nSamples+5] < treeStruct_.digiSampleIndex[iSample+nSamples-5] && plotterTools::getBoardVal(treeStruct_.digiBoard[iSample + 5]) != -1 && plotterTools::getChanVal(treeStruct_.digiChannel[iSample + 5]) != -1 && plotterTools::getGroupVal(treeStruct_.digiGroup[iSample + 5]) != -1) 
 		{
 			timestamp[numchan] = iSample;
 			numchan++; 
@@ -2047,7 +2061,8 @@ cout << "ref value found is " << ref << endl;
 		
 	  }
 
-	if((numchan != numelems) && warn == 1) {cout << "WARNING: number of channels detected != number of channels written in the text file." << endl; cout << "numelems = " << numelems << endl; cout << "numchan = " << endl; warn = 0;}
+	if((numchan != numelems) && warn == 1) {cout << "WARNING: number of channels detected != number of channels written in the text file." << endl; cout << "number of elements found in text file = " << numelems << endl; cout << "number of channels detected = " << numchan << endl; warn = 0;}
+	if((numchan != Chtotal) && warn2 == 1) {cout << "WARNING: the number of channels detected does not equal the number of boards (or groups) times nChannels." << endl; cout << "number of channels detected = " << numchan << endl; cout <<  "nChannels * nBoards = " << Chtotal << endl;  warn2 = 0;}
 
 	double mean[numchan];
 	float max[numchan];
@@ -2079,13 +2094,12 @@ cout << "ref value found is " << ref << endl;
 	for (uint iSample = stamp ; iSample < stamp + nSamples ; ++iSample)
 	  {		
 
-//	cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; //Always 0
+//	  cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; 
 //        cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
 //        cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense.
 
 	board = plotterTools::getBoardVal(treeStruct_.digiBoard[iSample]);
-	if(board == -1 && warn2 == 1) {warn2 = 0; cout << "WARNING: you may want to check over board values." << endl; cout << "The board value of this active channel is " << treeStruct_.digiBoard[iSample] << endl;}
-	chanval = board*nChannels + treeStruct_.digiChannel[iSample];
+	chanval = board*nChannels + plotterTools::getChanVal(treeStruct_.digiChannel[iSample]) + plotterTools::getGroupVal(treeStruct_.digiGroup[iSample]);
 
 	if(chanval < 10){
 	thisname = Form("newpulseplot_0%d", chanval);
@@ -2113,36 +2127,6 @@ cout << "ref value found is " << ref << endl;
 	varplots[thatname]->Fill(max[chanval], 1.);
 
      }
-
-/*
-	    int x1 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
-	      if(fibersOn_[hodoX1][i]==1 && x1!=-1) { x1 = -1; break; }
-	    }
-	    int y1 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoY1][i]==1 && y1==-1) y1 = i;
-	      if(fibersOn_[hodoY1][i]==1 && y1!=-1) { y1 = -1; break; }
-	    }
-	    int x2 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoX2][i]==1 && x2==-1) x2 = i;
-	      if(fibersOn_[hodoX2][i]==1 && x2!=-1) { x2 = -1; break; }
-	    }
-	    int y2 = -1;
-	    for(int i=0;i<64;i++){
-	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
-	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
-	    }
-*/
-
-//	cout << "tcd_recox from up here is " << tdc_recox << endl; //x1 calculation is not correct...
-//	cout << "max[7] is " << max[7] << endl; //max[7] is, indeed the right move
-
-//	varplots["newmaxref_vs_EA_X"]->Fill(tdc_recox, max[ref]); //This is a successful fill of a WC versus EA_X plot
-
-//END MORE TRYING
 
     float energy_sum = 0;
     float position_weight_sum = 0;
@@ -2243,61 +2227,10 @@ cout << "ref value found is " << ref << endl;
 
 	    thisname=Form("%s_%s",thisname.Data(),"pulse");
 	    //varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.); //Original pulse plots
-	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*6.25, treeStruct_.digiSampleValue[iSample],1.);
+	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample],1.);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
 
 	  }
-
-/*/NOTE THIS IS MY OWN TEST LOOP DOWN HERE
-
-  double mean = 0;
-
-  for (unsigned int i(5);i<=44;++i)
-    {
-      mean+= treeStruct_.digiSampleValue[i];
-    }
-
-  mean=mean/(double)(44-5+1);
-//  cout << "calculated pedestal is " << mean << endl; //Mean is, indeed, calculating good values. 
-
-  int channel = 0;
-  int chpergroup = 5; //NOTE THIS COULD STAND CHANGING. 
-  int ngroups = 5; //NOTE THIS AS WELL
-  int tchan = ngroups*chpergroup;
-  int imax[tchan];
-  float max[tchan];
-
-  int chtest1 = 0;
-  int chtest2 = 0;
-
-
-for (int i = 0; i < tchan; i++) imax[i] = -1;
-for (int i = 0; i < tchan; i++) max[i] = -9999;
-
-for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
-	  {
-	     //channel = (treeStruct_.digiGroup[iSample] * chpergroup) + treeStruct_.digiChannel[iSample]
-	     if(channel == 25) channel = 0;
-	     //cout << "Channel is this " << channel << endl; //Weird results, long, long chains of Channel 2, 2, 2, 2, 2, etc...
-             if (treeStruct_.digiSampleValue[iSample] >=max[channel])
-		{
-		  max[channel]= treeStruct_.digiSampleValue[iSample];
-		  imax[channel]=iSample;
-		}
-	     if(channel == 2) chtest2++;
-	     if(channel == 1) chtest1++;
-	     channel++;
-	     
-	     
-	  }
-/*
-cout << "The channel2's counter is " << chtest2 << endl;
-cout << "The channel1's counter is " << chtest1 << endl;
-cout << "And then for good measure, the nDigiSamples is " << treeStruct_.nDigiSamples << endl;
-*/
-//varplots["newPLOTTEST"]->Fill(max[2], 1.); //THIS WORKS!!! :D
-
-//END MY TESTING OF THINGS WITH DIGI STUFF */
 
 
 	float sum_amplitudes = 0;

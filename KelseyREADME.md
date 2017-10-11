@@ -58,4 +58,7 @@ In order to work on newer runs, the line 53 in interface/Event.hpp needs to be e
 
 After all of this, the code should work. Compile in H4DQM with 'make' and then run codes from there. 
 
-Note: If you make changes to the C++ code (not including the .sh codes as far as I know), you will need to recompile by executing 'make clean' followed by 'make'. 
+Note: If you make changes to the code (not including the .sh codes as far as I know), you will need to recompile by executing 'make clean' followed by 'make', but if it's just the plotterTools.cpp file, then just 'make' should be acceptable.
+
+During the October 2017 test beam taking, it may be necessary to copy over a root file from the cms-h4-04 computer. This can be accomplished with an scp
+scp cmsdaq@cms-h4-04:/data/raw/DataTree/8920/0002.root /tmp/kyee/8920

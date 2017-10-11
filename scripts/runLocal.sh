@@ -4,8 +4,8 @@ input="/tmp/kyee"
 #input = "/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jun2017/raw/DataTree"
 #output="/tmp/kyee/output"
 output="/eos/user/k/kyee/www/DQMoutput"
-run="7290"
-#run="5860"
+run="7459"
+#run="5862"
 spill="2"
 prescale=1
 

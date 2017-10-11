@@ -24,6 +24,9 @@
 #include "interface/Waveform.hpp"
 
 #define nActiveDigitizerChannels 8
+
+//For newer runs
+
 #define nChannels 5
 #define nBoards 5
 #define tunit 6.25
@@ -34,6 +37,35 @@
 #define Board2 5
 #define Board3 7
 #define Board4 8
+
+#define Channel0 0
+#define Channel1 1 
+#define Channel2 2
+#define Channel3 3
+#define Channel4 4
+
+#define Group0 0
+
+/*
+//For runs ~ 5860
+#define nChannels 8
+#define nBoards 1
+#define tunit 1
+#define nSamples 1024
+
+#define Board0 50397185
+
+#define Channel0 0
+#define Channel1 1 
+#define Channel2 2
+#define Channel3 3
+#define Channel4 4
+#define Channel5 5
+#define Channel6 6 
+#define Channel7 7
+
+#define Group0 3
+*/
 
 #define nPlanesHodo 4
 #define nFibersHodo 64
@@ -217,6 +249,8 @@ public:
   int getDigiChannelX(TString name);
   int getDigiChannelY(TString name);
   int getBoardVal(int board);
+  int getGroupVal(int group);
+  int getChanVal(int channel);
 
   void bookPlotsADC();
   bool wantADCplots;
