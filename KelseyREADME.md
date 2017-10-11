@@ -40,17 +40,19 @@ To run code in the scripts folder, run the following command:
 Depending on what you change the input and output to, you'll need to make designated folders and copy the data you want into those folders:
 
 For runs from July 2017 between ~6000 and 6300, they are in a slightly different directory
-/eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jun2017/data/raw/DataTree/6130/2.root
+    mkdir /tmp/kyee/6103
+    /eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jun2017/data/raw/DataTree/6103/2.root /tmp/kyee/6103
 
 For newer runs,
     mkdir /tmp/kyee/7290
-    mkdir /tmp/kyee/output
     cp  /eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jun2017/raw/DataTree/7290/2.root /tmp/kyee/7290
 
 For older runs, the eos directory is differentt
     mkdir /tmp/kyee/5860
-    mkdir /tmp/kyee/output
     cp  /eos/cms/store/group/dpg_ecal/comm_ecal/upgrade/testbeam/ECALTB_H4_Jul2016/raw/DataTree/5860/2.root /tmp/kyee/5860
+
+And then in the www folder, to make the page visible
+    cp /eos/user/k/kyee/www/index.php /eos/user/k/kyee/www/DQMoutput/7290/2/beam/new
 
 In order to work on newer runs, the line 53 in interface/Event.hpp needs to be editted from float digiSampleValue[MAX_DIGI_SAMPLES] to UShort_t digiSampleValue[MAX_DIGI_SAMPLES]
 
