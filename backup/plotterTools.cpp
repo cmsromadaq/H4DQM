@@ -1,7 +1,7 @@
 #include <plotterTools.hpp>
 #include <assert.h>
 
-#define VERBOSE 0 //Changed from 0 to see what happens
+#define VERBOSE 0
 
 template <class T, class D> void outTreeBranch<T,D>::addMember(TString name, int pos){
   if (varplots->find(name)==varplots->end()) {std::cout << "WRONG ADDMEMBER " << name.Data() << std::endl; return;}
@@ -145,7 +145,7 @@ plotterTools::getMinimumP (TProfile * p)
   for (int i = 2 ; i <= p->GetNbinsX () ; ++i)
     {
       if (p->GetBinError (i) == 0) continue ;
-     // cout << min << p->GetBinContent (i) << endl ;
+//      cout << min << " " << p->GetBinContent (i) << endl ;
       if (p->GetBinContent (i) < min) min = p->GetBinContent (i) ;
     }
   return min ;
@@ -171,17 +171,6 @@ plotterTools::plotterTools(TString filename, TString outfname, TString outdname,
 
   setPlotsFormat () ;
   inputFile_ = TFile::Open(filename);
-/*
-  cout << "TString filename " << filename << endl; 
-  cout << "TString outfname " << outfname << endl;
-  cout << "TString outdname " << outdname << endl; 
-  cout << "TString triggerType " << triggerType << endl;
-*/
-
-  cout << "TString filename " << filename.Data() << endl; 
-  cout << "TString outfname " << outfname.Data() << endl;
-  cout << "TString outdname " << outdname.Data() << endl; 
-  cout << "TString triggerType " << triggerType.Data() << endl;
 
   if( inputFile_==0 ) {
     std::cout << "ERROR! Din't find file " << filename << std::endl;
@@ -868,42 +857,6 @@ void plotterTools::computeVariable(TString name){
      pos=-1;
    }
    varplots[name]->Fill(pos,1.);
-/* }else if(name=="newWC_XvsHodo_X"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX1][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill2D(pos,tdc_recox,1.);
-*/
-
-/*//TEST
- }else if(name=="beamPositionTEST"){
-
-   float pos=0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX1][i]==1){
-	 nFibersOn++;
-	 pos+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     pos=pos/nFibersOn;
-   }else{
-     pos=-1;
-   }
-   varplots[name]->Fill(pos,1.);
-//TEST END*/
 
  }else if(name=="beamPositionY1"){
 
@@ -1422,7 +1375,6 @@ void plotterTools::initDigiPlots(){
 
   std::set<int> channels = listElements (treeStruct_.digiChannel,  treeStruct_.nDigiSamples) ;
   std::set<int> groups = listElements (treeStruct_.digiGroup,  treeStruct_.nDigiSamples) ;
-  std::set<int> boards = listElements (treeStruct_.digiBoard,  treeStruct_.nDigiSamples) ;
   
   int xNbins = 1024 ;
   float xmin = 0 ;
@@ -1432,48 +1384,19 @@ void plotterTools::initDigiPlots(){
   float ymin = 0;
   float ymax = 4096;
   
-
-  /*
-inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTree_->SetBranchAddress("digiGroup" ,treeStruct_.digiGroup);inputTree_->SetBranchAddress("digiChannel" ,treeStruct_.digiChannel);inputTree_->SetBranchAddress("digiSampleIndex",treeStruct_.digiSampleIndex);inputTree_->SetBranchAddress("digiSampleValue",treeStruct_.digiSampleValue);inputTree_->SetBranchAddress("digiBoard" ,treeStruct_.digiBoard);
-*/
-
-//for(int k = 0; k < boards.size(); k++) cout << boards[i] << endl; 
-
-
-/*  cout << "From the inputTree->SetBranchAddress" << endl << endl;
-//  cout << "treeStruct_.nDigiSamples[0] value " << treeStruct_.nDigiSamples[0] << endl;
-  cout << "Digigroup[0] value is " << treeStruct_.digiGroup[0] << endl;
-  cout << "TreeStruct_.digiChannel[0] value is " << treeStruct_.digiChannel[0] << endl;
-  cout << "TreeStruct_.digiChannel[0] value is " << treeStruct_.digiChannel[0] << endl;
-  cout << "treeStruct_.digiSampleIndex[0] value is " << treeStruct_.digiSampleIndex[0] << endl;
-  cout << "treeStruct_.digiSampleValue[0] value is " << treeStruct_.digiSampleValue[0] << endl;
-  cout << "treeStruct_.digiBoard[0] value is " << treeStruct_.digiBoard[0] << endl;
-  cout << "boards size is " << boards.size() << endl;
-
-  cout << endl;  
-  cout << "channel size " << channels.size() << endl; 
-  cout << "Digigroup position 0 is " << treeStruct_.digiGroup[0] << endl;
-  cout << "Groups.size is " <<  groups.size() << endl;
-  cout << "nActivedigi channels value is " << nActiveDigitizerChannels << endl;
-  cout << "treeStruct_.nDigisamples is " << treeStruct_.nDigiSamples << endl; 
-*/
-
-  for (set<int>::iterator iGroup = groups.begin () ;
-   
+  for (set<int>::iterator iGroup = groups.begin () ; 
        iGroup != groups.end () ; ++iGroup)
     {
-	cout << "iGroup = " << *iGroup << endl;
       for (set<int>::iterator iChannel = channels.begin () ; 
            iChannel != channels.end () ; ++iChannel)
-        { //Note to self, for run 7290, which should have 25 channels, only 7 are registered?
+        {
 	  if (*iChannel>=nActiveDigitizerChannels) continue;
-
+	  
           TString name = getDigiChannelName(*iGroup,*iChannel);
-	  int nametest = *iChannel;
           addPlot(1,Form("%s_pulse",name.Data()), xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
 	  addPlot(1,Form("%s_pedestal",name.Data()),4096,0,4096,"1D",group_,module_);
 	  addPlot(1,Form("%s_pedestal_rms",name.Data()),200,0,50,"1D",group_,module_);
-	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,5000,"1D",group_,module_);
+	  addPlot(1,Form("%s_max_amplitude",name.Data()),300,0,3000,"1D",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated",name.Data()),200,0,5e4,"1D",group_,module_);
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoX1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
 	  addPlot(0,Form("%s_charge_integrated_vs_hodoY1",name.Data()),65,-1,64,-999999,999999,"1DProf",group_,module_);
@@ -1482,72 +1405,16 @@ inputTree_->SetBranchAddress("nDigiSamples" ,&treeStruct_.nDigiSamples);inputTre
 
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoX",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 	  addPlot(1,Form("%s_charge_integrated_vs_TDCrecoY",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
-          //addPlot(1,Form("newPLOTTEST",name.Data()),66,-33,33,-999999,999999,"1DProf",group_,module_);
 
 	  addPlot(0,Form("%s_time_at_max",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac30",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
 	  addPlot(0,Form("%s_time_at_frac50",name.Data()),xNbins,xmin,xmax,"1D",group_,module_);
-		  
-	  //cout << "Here is name.Data() " << name.Data() << endl;
- 	  //cout << "Here is nametest " << nametest << endl; //nametest works up here...
-
+	  
 	  TString thisname = Form("%s_%s",name.Data(),"pulse");
  	  varplots[thisname]->waveform = new Waveform();
         }
     }
-   
-	for(int i = 0; i < (nChannels*nBoards); i++)
-   {	
-
-	TString thisname, thatname;
-
-	if(i < 10){
-	thisname = Form("newpulseplot_0%d", i);
-	thatname = Form("newmaxplot_0%d", i);
-	}else{
-	thisname = Form("newpulseplot_%d", i);
-	thatname = Form("newmaxplot_%d", i);
-	}
-
-	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
-	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
-
-	/*
-	if(i < 10){
-	TString thisname = Form("newpulseplot_0%d", i);
-	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
-
-	TString thatname = Form("newmaxplot_0%d", i);
-	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
-	}
-	else{
-	TString thisname = Form("newpulseplot_%d", i);
-	addPlot(1,thisname, xNbins, xmin, xmax, yNbins, ymin, ymax, "time", "Voltage", "2D", group_, module_, 1, true) ;
-
-	TString thatname = Form("newmaxplot_%d", i);
-	addPlot(1,thatname, 300,0,5000,"1D",group_,module_) ;
-	}
-	*/
-   }
-	addPlot(1,"newmaxref_vs_EA_X", 66,-30,30,-999999,999999,"1DProf",group_,module_); 
-	addPlot(1,"newmaxref_vs_EA_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_WC_X", 66,-30,30,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_WC_Y", 66,-30,30,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_hodo_X", 66,-20,50,-999999,999999,"1DProf",group_,module_);
-	addPlot(1,"newmaxref_vs_hodo_Y", 66,-20,50,-999999,999999,"1DProf",group_,module_);
-
-
-	addPlot(1,"newWC_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newWC_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newHodo_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newHodo_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newWC_Y_vs_Hodo_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newWC_X_vs_Hodo_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-
-//  addPlot(1,"newPLOTTEST",300,0,5000,"1D",group_,module_); //1d for things like a maximum plot
-//  addPlot(1,"newPLOTTEST",66,-33,33,-999999,999999,"1DProf",group_,module_);
-  addPlot(1,"newPLOTTEST", xNbins, xmin, xmax*13, yNbins, ymin, 1000, "iSample", "digiSampleIndex", "2D", group_, module_, 1, true) ;
-  addPlot(1,"newPLOTTEST2", xNbins, xmin, xmax*13, yNbins, ymin, ymax, "time", "voltage", "2D", group_, module_, 1, true) ;
+  
   addPlot(0,Form("allCh_charge_integrated_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_max_amplitude_map"), 8, 0, 8, 8, 0, 8, -999999, 999999, "x", "y", "2DProf", group_, module_, 1, true) ;
   addPlot(0,Form("allCh_pedestal_map"), 8, 0, 8, 8, 0, 8, 3200., 3800., "x", "y", "2DProf", group_, module_, 1, true) ;
@@ -1570,8 +1437,7 @@ int plotterTools::getDigiChannelX(TString name){
   std::size_t pos = nameStr.find("ch");
   std::string chStr = nameStr.substr(pos+2,2);
   int chId = atoi(chStr.c_str());
-  if(chId >= 0 && chId < 32) return chId;
-/*  if( chId ==  0 ) return 0;
+  if( chId ==  0 ) return 0;
   if( chId ==  1 ) return 1;
   if( chId ==  2 ) return 3;
   if( chId ==  3 ) return 4;
@@ -1602,42 +1468,7 @@ int plotterTools::getDigiChannelX(TString name){
   if( chId == 28 ) return 3;
   if( chId == 29 ) return 4;
   if( chId == 30 ) return 6;
-  if( chId == 31 ) return 7; */
-  return -1;
-}
-
-//Note below are modifications K.Y. made to give consistent channel mapping based on the digiBoard, digiChannel, and digiGroup values in the raw root files. 
-
-int plotterTools::getBoardVal(int board){
-
-  if(board == Board0) return 0;
-  if(board == Board1) return 1;
-  if(board == Board2) return 2;
-  if(board == Board3) return 3;
-  if(board == Board4) return 4;
-  return -1;
-
-}
-
-int plotterTools::getGroupVal(int group){
-
-  if(group == Group0) return 0;
-  return -1;
-}
-
-int plotterTools::getChanVal(int channel){
-
-  if(channel == Channel0) return 0;
-  if(channel == Channel1) return 1;
-  if(channel == Channel2) return 2;
-  if(channel == Channel3) return 3;
-  if(channel == Channel4) return 4;
-
-/*
-  if(channel == Channel5) return 5;
-  if(channel == Channel6) return 6;
-  if(channel == Channel7) return 7;
-*/
+  if( chId == 31 ) return 7;
   return -1;
 }
 
@@ -1647,8 +1478,7 @@ int plotterTools::getDigiChannelY(TString name){
   std::size_t pos = nameStr.find("ch");
   std::string chStr = nameStr.substr(pos+2,2);
   int chId = atoi(chStr.c_str());
-  if(chId >= 0 && chId < 32) return chId;
-/*  if( chId ==  0 ) return 7;
+  if( chId ==  0 ) return 7;
   if( chId ==  1 ) return 7;
   if( chId ==  2 ) return 7;
   if( chId ==  3 ) return 7;
@@ -1679,7 +1509,7 @@ int plotterTools::getDigiChannelY(TString name){
   if( chId == 28 ) return 0;
   if( chId == 29 ) return 0;
   if( chId == 30 ) return 0;
-  if( chId == 31 ) return 0; */
+  if( chId == 31 ) return 0;
   return -1;
 }
 
@@ -1837,14 +1667,6 @@ void plotterTools::initTreeVars(){
   br->addMember("TDCrecoX"); br->addMember("TDCrecoY"); // WIRE CHAMBER  
   treevars[br->name]=br;
 
-/*
-//THIS IS A TEST
-  br = new outTreeBranch<float,float>("HODO1reco",&varplots);
-  br->addMember("beamPositionTEST"); // HODO1
-  treevars[br->name]=br;
-//END
-*/
-
   br = new outTreeBranch<float,float>("HODO1reco",&varplots);
   br->addMember("beamPositionX1"); br->addMember("beamPositionY1"); // HODO1
   treevars[br->name]=br;
@@ -1901,73 +1723,9 @@ void plotterTools::fillTreeVars(){
 void  plotterTools::Loop()
 {
 
-//THIS IS A TEST TO SEE WHAT HAPPENS. Start a /* comment in the above line if you don't want EA_X and EA_Y plots
-
- ifstream indata;
- char read;
- int num;
- bool b1 = 1;
- int numelems = 1;
- int tracker = 0;
- int count = 0;
- bool warn = 1;
- bool warn2 = 1;
-
-  FILE*datapts;
-  datapts = fopen("IC.txt","r");
-  if(!datapts){ // file couldn't be opened
-  std::cerr << "Error: the calibration file " << "IC.txt" << " could not be opened" << std::endl;
-}
-  read = getc(datapts);
-
-while ( read != EOF && b1 != 0) { // keep reading until end-of-file
-	if(read == '\t' && b1 == 1) numelems++;
-	if(read == '\n') b1 = 0;
-	read = getc(datapts);
-}
-  fclose(datapts);
-  cout << "number of elements read from IC.txt " << numelems << endl;
-
-  float channel_peak[numelems];
-  float channel_x[numelems];
-  float channel_y[numelems];
-//  float max_amp[numelems];
-//  float Int_C[numelems];
-  int ref = 0;
-//  int value = 0;
-
- indata.open("IC.txt"); // opens the file
- while ( indata>>num ) { // keep reading until end-of-file
-//  cout << "IC number read is " << num << endl;
- if(tracker == 0) {channel_peak[count] = num; count++;}
- if(tracker == 1) {channel_x[count] = num; count++;}
- if(tracker == 2) {channel_y[count] = num; count++;}
- if(tracker == 3) {ref = num;}
- if(count == numelems) {tracker++; count = 0;}
-
-}  indata.close();
-
-cout << "ref value found is " << ref << endl;
-
-  int xref = channel_x[ref];
-  int yref = channel_y[ref];
-
-
-  for(int i = 0; i < (nChannels*nBoards); i++){
-    channel_x[i] = channel_x[i] - xref;
-    channel_y[i] = channel_y[i] - yref;
-	}
-
-//for(int i = 0; i < numelems; i++) cout << channel_peak[i] << endl;
-//for(int i = 0; i < numelems; i++) cout << channel_x[i] << endl;
-//for(int i = 0; i < numelems; i++) cout << channel_y[i] << endl;
-
-//END TEST IT WORKED, but comment this part out if you don't want EA_X and EA_Y plots */
 
   uint nentries = getTreeEntries();
   int nBinsHistory=nentries/getStepHistoryPlots();
-
-//cout << "This is a test to see if a loop can be put here, ndigisamples value " << treeStruct_.nDigiSamples << endl;
 
   //  nentries=1;
 
@@ -2024,221 +1782,28 @@ cout << "ref value found is " << ref << endl;
 	  }
 	}
 
+
       if (wantDigiplots){
 
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  if (it->second->waveform) it->second->waveform->clear();
-
-	int Chtotal = nBoards*nChannels;
-
-	int timestamp[Chtotal]; 
-	int numchan = 0;
-
-	for(int i = 0; i < Chtotal; i++)
-	{
-		timestamp[i] = -1;
-	}
-
-	if(treeStruct_.digiSampleIndex[nSamples+5] < treeStruct_.digiSampleIndex[nSamples-5] && plotterTools::getBoardVal(treeStruct_.digiBoard[5]) != -1 && plotterTools::getChanVal(treeStruct_.digiChannel[5]) != -1 && plotterTools::getGroupVal(treeStruct_.digiGroup[5]) != -1) 
-	{
-	timestamp[numchan] = 0;
-	numchan++;
-	}
-
-	for (uint iSample = 6 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
-	  {
-		if(treeStruct_.digiSampleIndex[iSample] == 0 && treeStruct_.digiSampleIndex[iSample+nSamples+5] < treeStruct_.digiSampleIndex[iSample+nSamples-5] && plotterTools::getBoardVal(treeStruct_.digiBoard[iSample + 5]) != -1 && plotterTools::getChanVal(treeStruct_.digiChannel[iSample + 5]) != -1 && plotterTools::getGroupVal(treeStruct_.digiGroup[iSample + 5]) != -1) 
-		{
-			timestamp[numchan] = iSample;
-			numchan++; 
-		}
-	  }
-
-	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
-	  {		
-		varplots["newPLOTTEST"]->Fill2D((iSample), treeStruct_.digiSampleIndex[iSample],1.);
-		varplots["newPLOTTEST2"]->Fill2D((iSample), treeStruct_.digiSampleValue[iSample],1.);
-		
-	  }
-
-	if((numchan != numelems) && warn == 1) {cout << "WARNING: number of channels detected != number of channels written in the text file." << endl; cout << "number of elements found in text file = " << numelems << endl; cout << "number of channels detected = " << numchan << endl; warn = 0;}
-	if((numchan != Chtotal) && warn2 == 1) {cout << "WARNING: the number of channels detected does not equal the number of boards (or groups) times nChannels." << endl; cout << "number of channels detected = " << numchan << endl; cout <<  "nChannels * nBoards = " << Chtotal << endl;  warn2 = 0;}
-
-	double mean[numchan];
-	float max[numchan];
-	for(int channel = 0; channel < numchan; channel++) max[channel] = -1;
-
-	for(int channel = 0; channel < numchan; channel++)
-     {
-
-	//max[channel] = -1;
-	//imax[channel] = -1;
-	mean[channel] = 0;
-	int stamp = timestamp[channel];
-	int board;
-	int chanval = -1;
-	TString thatname;
-	TString thisname;
 	
-
-	//Calculation of the pedestal and do a quick check to see if digiBoard values make sense. 
-  	  for (uint j = stamp+5 ; j < stamp + 44 ; ++j)
-	    {
-	      mean[channel]+= treeStruct_.digiSampleValue[j];
-	    }
-            mean[channel] = mean[channel]/(double)(44-5+1);
-	
-	//cout << "For this channel, " << channel << " The timestamp being used is " << stamp << endl; 
-	//cout << "nSamples is " << nSamples << endl;
-
-	for (uint iSample = stamp ; iSample < stamp + nSamples ; ++iSample)
-	  {		
-
-//	  cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; 
-//        cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
-//        cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense.
-
-	board = plotterTools::getBoardVal(treeStruct_.digiBoard[iSample]);
-	chanval = board*nChannels + plotterTools::getChanVal(treeStruct_.digiChannel[iSample]) + plotterTools::getGroupVal(treeStruct_.digiGroup[iSample]);
-
-	if(chanval < 10){
-	thisname = Form("newpulseplot_0%d", chanval);
-	thatname = Form("newmaxplot_0%d", chanval);
-	}else{
-	thisname = Form("newpulseplot_%d", chanval);
-	thatname = Form("newmaxplot_%d", chanval);
-	}
-
-	varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample] - mean[channel],1.);
-
-             if (treeStruct_.digiSampleValue[iSample] - mean[channel] >=max[chanval])
-		{
-		  //cout <<" DEBUG TIME: The digigroup associated with channel " << channel << " is " << treeStruct_.digiGroup[iSample] << endl; //Always 0 of course...
-		  //cout <<" DEBUG TIME: The digiBoard associated with channel " << channel << " is " << treeStruct_.digiBoard[iSample] << endl; //This part actually makes a lot of sense
-		  //cout <<" DEBUG TIME: The digiChannel associated with channel " << channel << " is " << treeStruct_.digiChannel[iSample] << endl; //Tthis part is reasonable and makes sense. 
-		  //cout <<"Chanval associated is " << chanval << endl;
-		  max[chanval]= treeStruct_.digiSampleValue[iSample]  - mean[channel];
-		  //cout << "max[" << chanval << "] = " << max[chanval] << endl; //All of this checks out okay. 
-		}
-
-	  }
-
-
-	varplots[thatname]->Fill(max[chanval], 1.);
-
-     }
-
-    float energy_sum = 0;
-    float position_weight_sum = 0;
-    float position_weight[numchan];
-
-    for (int i = 0;i < numchan;i++) energy_sum += max[i]/channel_peak[i];
-
-
-//    for (int i = 0;i < numchan;i++) cout << "max[" << i << "] = " << max[i] << endl;
-//    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
-
-    for(int channel = 0;channel < numchan;channel++){
-      position_weight[channel] = 3.8 + log(max[channel]/(channel_peak[channel]*energy_sum));
-      if (position_weight[channel] < 0) position_weight[channel] = 0;
-      position_weight_sum += position_weight[channel];
-    }
-
-    if(position_weight_sum != 0){
-    EA_X = 0;
-    for(int channel = 0;channel < numchan;channel++) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
-//    cout << "EA_X value calculated is " << EA_X << endl;
-
-    EA_Y = 0;
-    for(int channel = 0;channel < numchan;channel++) EA_Y += 22.0 * channel_y[channel] * position_weight[channel]/position_weight_sum;
-//    cout << "EA_Y value calculated is " << EA_Y << endl;
-    }
-//     cout << "EA_Y value calculated is " << EA_Y << endl;
-//     cout << "tdc_recoy found is " << tdc_recoy << endl;
-
-
-   float hs_x1 =0;
-   int nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoX1][i]==1){
-	 nFibersOn++;
-	 hs_x1+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     hs_x1=hs_x1/nFibersOn;
-   }else{
-     hs_x1=-1;
-   }
-
-   float hs_y1 =0;
-   nFibersOn=0;
-   for (int i=0;i<64;++i){   
-       if(fibersOn_[hodoY1][i]==1){
-	 nFibersOn++;
-	 hs_y1+=i; 
-       }
-     }
-   if(nFibersOn>1){
-     hs_y1=hs_y1/nFibersOn;
-   }else{
-     hs_y1=-1;
-   }
-//   cout << "possible hodoscope value is " << hs_x1 << endl; //This appears good! :D
-
-
-  if(max[ref] > 100) {
-   varplots["newmaxref_vs_EA_X"]->Fill(EA_X, max[ref]);
-   varplots["newmaxref_vs_EA_Y"]->Fill(EA_Y, max[ref]);
-   varplots["newmaxref_vs_WC_X"]->Fill(tdc_recox, max[ref]);
-   varplots["newmaxref_vs_WC_Y"]->Fill(tdc_recoy, max[ref]);
-   varplots["newmaxref_vs_hodo_X"]->Fill(hs_x1/2, max[ref]);
-   varplots["newmaxref_vs_hodo_Y"]->Fill(hs_y1/2, max[ref]);
-}
-
-   varplots["newWC_X_vs_EA_X"]->Fill2D(tdc_recox,EA_X,1.);
-   varplots["newWC_Y_vs_EA_Y"]->Fill2D(tdc_recoy,EA_Y,1.);
-   varplots["newHodo_X_vs_EA_X"]->Fill2D(hs_x1/2,EA_X,1.);
-   varplots["newHodo_Y_vs_EA_Y"]->Fill2D(hs_y1/2,EA_Y,1.);
-   varplots["newWC_Y_vs_Hodo_Y"]->Fill2D(tdc_recoy,hs_y1,1.);
-   varplots["newWC_X_vs_Hodo_X"]->Fill2D(tdc_recox,hs_x1,1.);
-
-/*
-	addPlot(1,"newWC_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newWC_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newHodo_X_vs_EA_X",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newHodo_Y_vs_EA_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	addPlot(1,"newWC_Y_vs_Hodo_Y",100,-50,50,100,-50,50,"X","Y","2D",group_,module_);
-	  varplots[name]->Fill2D(pos,tdc_recox,1.);
-
-*/
-
 	for (uint iSample = 0 ; iSample < treeStruct_.nDigiSamples ; ++iSample)
 	  {
 
 	    if (treeStruct_.digiChannel[iSample]>=nActiveDigitizerChannels) continue;
 
 	    TString thisname = getDigiChannelName(treeStruct_.digiGroup[iSample],treeStruct_.digiChannel[iSample]);
-	    TString thisval = Form("%02d",treeStruct_.digiChannel[iSample]);
-	    //cout << "My attempt at reading the thing... " << thisval.Data() << endl; //This works, but now I need to find out how to make sure I'm not falling for the super repeat. 
-
-//	    int nametest = treeStruct_.digiChannel[iSample]; //This also works, but again, I gotta make sure I'm not falling for the super repeat. 
-//	    cout << "nametest over here " << nametest << endl;
-
 	    thisname=Form("%s_%s",thisname.Data(),"pulse");
-	    //varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.); //Original pulse plots
-	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample]*tunit, treeStruct_.digiSampleValue[iSample],1.);
+	    varplots[thisname]->Fill2D(treeStruct_.digiSampleIndex[iSample], treeStruct_.digiSampleValue[iSample],1.);
 	    varplots[thisname]->waveform->addTimeAndSample(treeStruct_.digiSampleIndex[iSample]*timeSampleUnit(treeStruct_.digiFrequency[iSample]),treeStruct_.digiSampleValue[iSample]);
-
 	  }
-
 
 	float sum_amplitudes = 0;
 
 	//Add reconstruction of waveforms
 	for (std::map<TString,varPlot<float>*>::iterator it=varplots.begin();it!=varplots.end();++it)
 	  {
-
 	    if (!(it->second->waveform)) continue;
 	    
 	    Waveform::baseline_informations wave_pedestal;
@@ -2259,7 +1824,7 @@ cout << "ref value found is " << ref << endl;
 		else //stay with negative signals
 		  it->second->waveform->rescale(-1); 
 	      }
-
+	    
 	    TString thisname = it->second->name.ReplaceAll("_pulse","");
 	    varplots[Form("%s_pedestal",thisname.Data())]->Fill(wave_pedestal.pedestal,1.);
 	    varplots[Form("%s_pedestal_rms",thisname.Data())]->Fill(wave_pedestal.rms,1.);
@@ -2268,8 +1833,7 @@ cout << "ref value found is " << ref << endl;
 	    varplots[Form("%s_time_at_max",thisname.Data())]->Fill(wave_max.time_at_max*1.e9,1.);
 	    varplots[Form("%s_time_at_frac30",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.3,wave_max,7)*1.e9,1.);
 	    varplots[Form("%s_time_at_frac50",thisname.Data())]->Fill(it->second->waveform->time_at_frac(wave_max.time_at_max-1.3e-8,wave_max.time_at_max,0.5,wave_max,7)*1.e9,1.);
-
-/*
+	    
 	    int x1 = -1;
 	    for(int i=0;i<64;i++){
 	      if(fibersOn_[hodoX1][i]==1 && x1==-1) x1 = i;
@@ -2289,11 +1853,8 @@ cout << "ref value found is " << ref << endl;
 	    for(int i=0;i<64;i++){
 	      if(fibersOn_[hodoY2][i]==1 && y2==-1) y2 = i;
 	      if(fibersOn_[hodoY2][i]==1 && y2!=-1) { y2 = -1; break; }
-	    }*/
- 
-	    //cout << "Lower calculation of x1 " << x1 << endl; //This calculation of x1 doesn't appear tot be correct.
-
-	    /* Cutting things out to see if it will run faster.
+	    }
+	    
 	    varplots[Form("%s_charge_integrated_vs_hodoX1",thisname.Data())]->Fill(x1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoY1",thisname.Data())]->Fill(y1,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_hodoX2",thisname.Data())]->Fill(x2,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
@@ -2301,64 +1862,18 @@ cout << "ref value found is " << ref << endl;
 
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoX",thisname.Data())]->Fill(tdc_recox,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
 	    varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
-//            varplots[Form("%s_charge_integrated_vs_TDCrecoY",thisname.Data())]->Fill(tdc_recoy,wave_max.max_amplitude); // testing a recoY versus maximum plot. 	   
- 
-	    max_amp[x] = wave_max.max_amplitude;
-	    Int_C[x] = it->second->waveform->charge_integrated(0,900);
-	    //max_amp[x] = it->second->waveform->charge_integrated(0,900);
+	    
+	    
+	    int x = getDigiChannelX(it->second->name);
 	    int y = getDigiChannelY(it->second->name);
-	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted
+	    varplots["allCh_charge_integrated_map"]->Fill2D(x,y,it->second->waveform->charge_integrated(0,900)); // pedestal already subtracted	
 	    varplots["allCh_max_amplitude_map"]->Fill2D(x,y,wave_max.max_amplitude); // pedestal already subtracted
 	    varplots["allCh_pedestal_map"]->Fill2D(x,y,wave_pedestal.pedestal); // pedestal already subtracted
 	    varplots["allCh_pedestal_rms_map"]->Fill2D(x,y,wave_pedestal.rms); // pedestal already subtracted
 	    sum_amplitudes+=wave_max.max_amplitude;
-	    */
-	  } // End of iterator loop
-	
-/*//MORE TESTING
-    float energy_sum = 0;
-    float position_weight_sum = 0;
-    float position_weight[numelems];
-    numelems = 5;
-	for (int i = 0;i < numelems;i++)
-	{
-	cout << "channel peak " << channel_peak[i] << endl;
-	cout << "channel_x " << channel_x[i] << endl;
-	cout << "channel_y " << channel_y[i] << endl;
-	} //This check is successful. The peak values are reasonable. 
-
-//    for (int i = 0;i < numelems;i++) cout << "max_amp of " << i << " is " << max_amp[i] << endl;
-	//This bit works as well, but, of course, the channels 8-25 are blank. For now I'm going to set numelems = 8.
-    for (int i = 0;i < numelems;i++) energy_sum += max_amp[i]/channel_peak[i];
-//    cout << "Energy sum = " << energy_sum << endl; //Reasonable I think
-    for(int channel = 0;channel < numelems;channel++){
-      position_weight[channel] = 3.8 + log(max_amp[channel]/(channel_peak[channel]*energy_sum));
-      if (position_weight[channel] < 0) position_weight[channel] = 0;
-      position_weight_sum += position_weight[channel];
-//      cout << "position weight of " << channel << " is " << position_weight[channel] << endl;
-    }
-//      cout << "Position weight sum = " << position_weight_sum << endl;
-
-    if(position_weight_sum != 0){
-    EA_X = 0;
-    for(int channel = 0;channel < numelems;channel++) EA_X += 22.0 * channel_x[channel] * position_weight[channel]/position_weight_sum;
-//    cout << "EA_X value calculated is " << EA_X << endl; //As of right now, values of mostly 0 are being calculated, but maybe that's expected seeing how we're on C3 o-o
-
-    EA_Y = 0;
-    for(int channel = 0;channel < numelems;channel++) EA_Y += 22.0 * channel_y[channel] * position_weight[channel]/position_weight_sum;
-//    cout << "EA_Y value calculated is " << EA_Y << endl;
-    }
-//      cout << "EA_Y value calculated is " << EA_Y << endl;
-//      cout << "tdc_recoy found is " << tdc_recoy << endl;
-//    varplots["newPLOTTEST"]->Fill(EA_Y, max_amp[2], 1.);
-
-//END TESTING*/
-
-
-//	  cout << "Place of the output " << endl;
-	  //This will be the location of the EA_X and EA_Y calculations. Fill the max_amp[channel value] = maximum waveform
-	  //And then with those values, you should be able to calculate things. 
+	  }
       }
+      
 
       fillTreeVars();
       outputTree->Fill();
@@ -2367,9 +1882,11 @@ cout << "ref value found is " << ref << endl;
 
   //  fillMatrixView();
 
-//  std::cout << outputTree->GetEntries() << std::endl;
+  std::cout << outputTree->GetEntries() << std::endl;
 
 }
+
+
 
 void plotterTools::bookPlotsScaler(int nBinsHistory){
   //in this function you define all the objects for the scaler
@@ -2397,8 +1914,6 @@ void plotterTools::bookPlotsHodo(int nBinsHistory){
   addPlot(1,"nFibersOnY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
 
   addPlot(1,"beamPositionX1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
-//  addPlot(1,"beamPositionTEST", 64,-0.5, 63.5,"1D",group_,module_);//THIS IS A TEST
-//  addPlot(1,"newPLOTTEST",100,-50,50,100,-50,50,"X","Y","2Dprof",group_,module_); //THIS IS A TEST2
   addPlot(1,"beamPositionX2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY1", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
   addPlot(1,"beamPositionY2", 64,-0.5, 63.5,"1D",group_,module_);//simple TH1F
@@ -2782,7 +2297,6 @@ void plotterTools::saveHistos(){
   for (std::map<TString,varPlot<float>*>::const_iterator out=varplots.begin();out!=varplots.end();++out)
     out->second->GetPlot()->Write(out->second->name);
   outputTree->Write();
-//  outputTree->AutoSave();
   outputFile_->Close();
   if(VERBOSE){  std::cout << "outputFile " << outputFile_->GetName() << " closed" << std::endl;
   std::cout << "==================== DQM analysis is done =======================" << std::endl;

@@ -65,7 +65,7 @@ int main (int argc, char ** argv)
   plotter.setPlotsFormat () ;
   plotter.readInputTree();  
   int nentries = plotter.getTreeEntries();
-  plotter.setStepHistoryPlots(20);
+  plotter.setStepHistoryPlots(1); //changed from 20 to this value
   plotter.setModule("beam");
   plotter.setGroup("hodo");
   plotter.bookPlotsHodo(nentries/plotter.getStepHistoryPlots());
@@ -87,6 +87,7 @@ int main (int argc, char ** argv)
 
   plotter.fitHisto("beamPositionX1","gaus");
   plotter.fitHisto("beamPositionX2","gaus");
+  plotter.fitHisto("beamPositionTEST","gaus");
   plotter.fitHisto("beamPositionY1","gaus");
   plotter.fitHisto("beamPositionY2","gaus");
   plotter.fitHisto("beamPositionX","gaus");
