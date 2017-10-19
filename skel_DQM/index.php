@@ -1,6 +1,4 @@
 <html>
-<head>
-
 <?php 
 
 function isRegex($str0) {
@@ -54,6 +52,8 @@ $(function() {
 });
 </script>
 
+<head>
+
 </head>
 
 <body>
@@ -74,13 +74,12 @@ foreach ($allfiles as $filename) {
 if ($has_subs) {
     print "<div class=\"dirlinks\">\n";
     print "<h2>Subfolders\n";
-    if( ! isset($_GET['depth']) || intval($_GET['depth']<2) ) {
+    if( ! $_GET['depth'] || intval($_GET['depth']<2) ) {
 	    print " <a href=\"?".$_SERVER['QUERY_STRING']."&depth=2\">(show plots in subfolders)</a>\n";
     } else {
 	    print " <a href=\"?".$_SERVER['QUERY_STRING']."&depth=1\">(hide plots in subfolders)</a>\n";
     }
     print "</h2>\n";
-    asort($folders);
     foreach ($folders as $filename) {
 	    print " <a href=\"$filename\">[$filename]</a>";
     }
@@ -102,10 +101,10 @@ foreach (array("00_README.txt", "README.txt", "readme.txt") as $readme) {
 <label for="name">Levels to show</label>
 <input name="depth" type="text" size="1" value="<?php if (isset($_GET['depth'])) { print htmlspecialchars($_GET['depth']); } else { print 1; } ?>" />
 </div>
-</form>
+</form></p>
 <div id="piccont">
 <?php
-$matchf = 'matchall';
+$matchf = matchall;
 $match = "";
 if( isset($_GET['match']) ) {
 	$match = $_GET['match'];
@@ -118,13 +117,13 @@ if( isset($_GET['match']) ) {
 	}
 }
 $displayed = array();
-if (isset($_GET['noplots'])) {
+if ($_GET['noplots']) {
     print "Plots will not be displayed.\n";
 } else {
 	$other_exts = array('.pdf', '.cxx', '.eps', '.ps', '.root', '.txt', ".C");
 	$main_exts = array('.png','.gif','.jpg','.jpeg');
 	$folders = array('*');
-	if( isset($_GET['depth']) && intval($_GET['depth'])>1 ) {
+	if( intval($_GET['depth'])>1 ) {
 		$wildc="*";
 		for( $de=2; $de<=intval($_GET['depth']); $de++ ){
 			$wildc = $wildc."/*";
@@ -180,16 +179,29 @@ if (isset($_GET['noplots'])) {
 		// print "<a href=\"$filename\">";
 		print "<img src=\"$imgname\" style=\"border: none; width: 40ex; \">";
 		// print "</a>";
-		foreach ($other_exts as $ex) {
-			$other_filename = $path_parts['filename'].$ex;
-			if (file_exists($other_filename)) {
-				if ($ex != '.txt') { 
-					array_push($others, "<a class=\"file\" href=\"$other_filename\">[" . $ex . "]</a>");
-					array_push($displayed, $other_filename); 
-				} else {
+		                                         foreach ($other_exts as $ex) {
+			                                 $other_filename = $path_parts['filename'].$ex;
+			                                 if (file_exists($other_filename)) {
+                                                         switch ($ex) {
+                                                         case '.txt':                                                         
 					$text = file_get_contents($other_filename);
-					array_push($others, "<span class=\"txt\"><a class=\"file\" href=\"$other_filename\">[" . $ex . "]</a><span class=\"txt_cont\">". $text ."</span></span>");
-									
+					                 array_push($others, "<span class=\"txt\"><a class=\"file\" href=\"$other_filename\">[" . $ex . "]</a><span class=\"txt_cont\">". $text ."</span></span>");
+                                                         break;
+                                                         case '.root':
+                                                         $pruned_uri = $_SERVER['REQUEST_URI'];
+                                                         if( $_SERVER['QUERY_STRING'] ) {
+	                                                 $pos = strpos($_SERVER['REQUEST_URI'], $_SERVER['QUERY_STRING']);
+	                                                 $pruned_uri = substr($_SERVER['REQUEST_URI'],0,$pos-1);
+                                                         }
+                                                         $folder = str_replace($_SERVER['DOCUMENT_ROOT'],"",
+		                                         str_replace("index.php","",$pruned_uri)
+	                                                 );
+					                 array_push($others, "<a href=https://spigazzi.web.cern.ch/spigazzi/jsroot/index.htm?file=$folder$other_filename>[" . $ex . "]</a>");
+					                 array_push($displayed, $other_filename);
+                                                         break;
+                                                         default :
+					array_push($others, "<a class=\"file\" href=\"$other_filename\">[" . $ex . "]</a>");
+					                 array_push($displayed, $other_filename);
 				}
 			}
 		}
@@ -203,26 +215,29 @@ if (isset($_GET['noplots'])) {
 <div style="display: block; clear:both;">
 <h2><a name="files">Other files</a></h2>
 <ul>
-<?php
+<?
 foreach ($allfiles as $filename) {
-  if ( isset($_GET['noplots']) || !in_array($filename, $displayed)) {
-    if( !$matchf($match,$filename) ) continue;
-    if( fnmatch("*_thumb.*", $filename) ) {
-      continue;
+    if ($_GET['noplots'] || !in_array($filename, $displayed)) {
+	    /// if (isset($_GET['match']) && !fnmatch('*'.$_GET['match'].'*', $filename)) continue;
+	    if( ! $matchf($match,$filename) ) { continue; }
+	    if( fnmatch("*_thumb.*", $filename) ) {
+		    continue;
+	    }
+	if ( substr($filename,-1) == "~" ) continue;
+        if (is_dir($filename)) {
+		// print "<li>[DIR] <a href=\"$filename\">$filename</a></li>";
+   } else {
+   print "<li><a href=\"https://spigazzi.web.cern.ch/spigazzi/jsroot/index.htm?file=$folder/$filename\">$filename</a></li>";
+   # print "<li><a href=\"$filename\">$filename</a></li>";
+        }
     }
-    if ( substr($filename,-1) == "~" ) continue;
-    if (is_dir($filename)) {
-      print "<li>[DIR] <a href=\"$filename\">$filename</a></li>";
-    } else {
-      print "<li><a href=\"$filename\">$filename</a></li>";
-    }
-  }
 }
 ?>
 </ul>
 </div>
 <p>
 Like this page? <a href="https://github.com/musella/php-plots">Get it here.</a><br />
+Credits: Giovanni Petrucciani.
 </p>
 </body>
 </html>
