@@ -32,7 +32,7 @@ void Event::createOutBranches (TTree* tree,treeStructData& treeData)
   tree->Branch("digiGroup"	,treeData.digiGroup,"digiGroup[nDigiSamples]/i");
   tree->Branch("digiChannel"	,treeData.digiChannel,"digiChannel[nDigiSamples]/i");
   tree->Branch("digiSampleIndex",treeData.digiSampleIndex,"digiSampleIndex[nDigiSamples]/i");
-  tree->Branch("digiSampleValue",treeData.digiSampleValue,"digiSample[nDigiSamples]/F");
+  tree->Branch("digiSampleValue",treeData.digiSampleValue,"digiSample[nDigiSamples]/s");
   tree->Branch("digiBoard"	,treeData.digiBoard,"digiBoard[nDigiSamples]/i");
 
   tree->Branch("nScalerWords"	,&treeData.nScalerWords,"nScalerWords/i");

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export LD_LIBRARY_PATH=/home/cmsdaq/DAQ/H4Analysis/lib/:/home/cmsdaq/DAQ/H4Analysis/CfgManager/lib/:/home/cmsdaq/DAQ/H4Analysis/DynamicTTree/lib/:$LD_LIBRARY_PATH
+
 input="/tmp/"
 output="/tmp"
 run="0"
@@ -48,78 +50,81 @@ echo "raw/DataTree/${run}/${spill}.root" > /var/spool/tbb/${run}_${spill}_dataTr
 
 if [ $((spill%$prescale)) -eq 0 ] || [ $((spill)) -lt $unprescaledSpills ] ; then
     mkdir -p $unpackFolder
-    echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
-    /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill > /tmp/${run}_${spill}_unpack.log 2>&1 	    
+    #echo "UNPACK => /home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill"
+    #/home/cmsdaq/DAQ/H4DQM/bin/unpack -i $input  -o $unpackFolder -r $run -s $spill > /tmp/${run}_${spill}_unpack.log 2>&1
+    /home/cmsdaq/DAQ/H4Analysis/bin/H4Reco /home/cmsdaq/DAQ/H4Analysis/cfg/VFE_adapter_dqm2.cfg $run $spill > /tmp/${run}_${spill}_h4reco.log 2>&1
+    python /home/cmsdaq/DAQ/H4Analysis/FuriousPlotter/draw.py -c /home/cmsdaq/DAQ/H4Analysis/DQM/dqm_2.cfg -p "file /data/raw/ntuples/${run}_${spill}.root h4" -m "draw.postProcCommands 'ssh cms-h4-06 \"mkdir /data/public_DQM2_plots/${run}\"; scp -r /data/DQM2/${run}/${spill}/ cms-h4-06:/data/public_DQM2_plots/${run}' 'scp -r /home/cmsdaq/DAQ/H4Analysis/DQM/res cms-h4-06:/data/public_DQM2_plots/${run}/' 'scp -r /home/cmsdaq/DAQ/H4Analysis/DQM/res cms-h4-06:/data/public_DQM2_plots/${run}/${spill}/' 'scp /home/cmsdaq/DAQ/H4Analysis/DQM/index.php cms-h4-06:/data/public_DQM2_plots/${run}/' 'scp /home/cmsdaq/DAQ/H4Analysis/DQM/index.php cms-h4-06:/data/public_DQM2_plots/${run}/${spill}/'","draw.outDir /data/DQM2/${run}/${spill}/" > /tmp/${run}_${spill}_dqm2.log 2>&1
+
 #    if [ $((spill)) -ne 6 ]; then #skip spill 3 so that it's faster to see plots of first spill in the run
-	for runtype in led ped beam;do
-	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root  > /tmp/${run}_${spill}_dqm_${runtype}.log 2>&1
-#/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
+# 	for runtype in led ped beam;do
+# 	    /home/cmsdaq/DAQ/H4DQM/bin/plotterTotal -i $unpackFolder -o $output  -r $run -s $spill -t$runtype -I integrated.root  > /tmp/${run}_${spill}_dqm_${runtype}.log 2>&1
+# #/home/cmsdaq/DAQ/H4DQM/bin/plotterDigitizer -i $output -o $output  -r $run -s $spill 
 	    
-	    cd $output/$run/$spill/$dir/$runtype/
-	    mkdir hodo
-	    mkdir DAQ
-	    mkdir ADC
-	    mkdir TDC 
-	    mkdir digitizer 
+# 	    cd $output/$run/$spill/$dir/$runtype/
+# 	    mkdir hodo
+# 	    mkdir DAQ
+# 	    mkdir ADC
+# 	    mkdir TDC 
+# 	    mkdir digitizer 
 	    
-	    mv total/hodo_* hodo/
-	    mv total/DAQStatus_* DAQ/
-	    mv total/ADC_* ADC/
-	    mv total/TDC_* TDC/
-	    mv total/digitizer_* digitizer/
-	    mv total/*.root .
+# 	    mv total/hodo_* hodo/
+# 	    mv total/DAQStatus_* DAQ/
+# 	    mv total/ADC_* ADC/
+# 	    mv total/TDC_* TDC/
+# 	    mv total/digitizer_* digitizer/
+# 	    mv total/*.root .
 	    
-	    rm -r total
-	    cd -
+# 	    rm -r total
+# 	    cd -
 	    
-## hodo , TDC , DAQ 
-# copy skeleton php
-	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
-	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
+# ## hodo , TDC , DAQ 
+# # copy skeleton php
+# 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/ 
+# 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/
 
 	    
-	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
+# 	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
 
 
-	done
+# 	done
 
-	#clean unpack file
-	[ "${keepUnpack}" == "1" ] || rm -rfv $unpackFolder/${run}/${spill.root}
+# 	#clean unpack file
+# 	[ "${keepUnpack}" == "1" ] || rm -rfv $unpackFolder/${run}/${spill.root}
 
-	for runtype in led ped beam;do
-	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
-	    for dir in digitizer hodo DAQ TDC ADC
-#for dir in hodo DAQ ADC TDC
-	    do
- 		rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
-	    done
-	done
+# 	for runtype in led ped beam;do
+# 	    rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/
+# 	    for dir in digitizer hodo DAQ TDC ADC
+# #for dir in hodo DAQ ADC TDC
+# 	    do
+#  		rsync -aP /home/cmsdaq/skel_DQM/ $output/$run/$spill/$runtype/$dir/
+# 	    done
+# 	done
 
 
     
-# touch -R
-	find $output/$run/$spill -type f -exec touch {} \;
+# # touch -R
+# 	find $output/$run/$spill -type f -exec touch {} \;
 	
-	[ -h $output/$run/last ] && rm -v $output/$run/last
-	[ -h $output/last ] && rm -v $output/last
+# 	[ -h $output/$run/last ] && rm -v $output/$run/last
+# 	[ -h $output/last ] && rm -v $output/last
 	
-	ln -s $output/$run/$spill $output/$run/last
-	ln -s $output/$run $output/last
+# 	ln -s $output/$run/$spill $output/$run/last
+# 	ln -s $output/$run $output/last
 	
-	chmod -R a+rx $output/$run/
-	chmod -R g+rx $output/$run/
+# 	chmod -R a+rx $output/$run/
+# 	chmod -R g+rx $output/$run/
 
-	if [ "$webDQM" != "localhost" ] ; then
-	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
-	    rsync -aP $output/last $webDQM:/data/public_DQM_plots/
-	else
-	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
-	    rsync -aP $output/last /data/public_DQM_plots/
-	fi
+# 	if [ "$webDQM" != "localhost" ] ; then
+# 	    rsync -aP $output/$run/ $webDQM:/data/public_DQM_plots/$run/
+# 	    rsync -aP $output/last $webDQM:/data/public_DQM_plots/
+# 	else
+# 	    rsync -aP $output/$run/ /data/public_DQM_plots/$run/
+# 	    rsync -aP $output/last /data/public_DQM_plots/
+# 	fi
 
-	#clean unpack file
-	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
+# 	#clean unpack file
+# 	[ "${clean}" == "1" ] && rm -rfv ${output}/${run}/${spill}
 	
-#    fi
+# #    fi
 
 fi

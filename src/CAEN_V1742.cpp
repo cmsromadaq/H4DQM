@@ -146,7 +146,7 @@ int CAEN_V1742::Unpack (dataType &stream, Event * event, boardHeader &bH)
                   aDigiSample.group = groupId_ ;
                   aDigiSample.frequency = frequency_ ;
                   aDigiSample.sampleIndex = nSamplesRead_ ;
-                  aDigiSample.sampleValue = digRawSample_ ;
+                  aDigiSample.sampleValue = ((int)digRawSample_) & 0xFFFF;
                   if (DEBUG_VERBOSE_UNPACKER) 
                     {
                       cout << "[CAEN_V1742][Unpack]       | sample " 

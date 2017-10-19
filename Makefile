@@ -1,8 +1,8 @@
 INC_DIR = ./
 CXX		=g++
 LD		=g++
-CXXFLAGS	=-O2 -ggdb -std=gnu++0x -Wall
-LDFLAGS		=-L/cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_1/external/slc6_amd64_gcc481/lib/ -lz -lm
+CXXFLAGS	=-O2 -ggdb -std=gnu++0x -Wall 
+#LDFLAGS		=-L/cvmfs/cms.cern.ch/slc6_amd64_gcc481/cms/cmssw/CMSSW_7_2_1/external/slc6_amd64_gcc481/lib/ -lz -lm
 SOFLAGS		=-fPIC -shared 
 SHELL		=bash
 ###

@@ -18,7 +18,7 @@
 #define SMALL_HODO_X_NFIBERS 8
 #define SMALL_HODO_Y_NFIBERS 8
 #define MAX_TRIG_WORDS 32
-#define MAX_RO 10
+#define MAX_RO 100
 
 using namespace std ;
 
@@ -50,7 +50,7 @@ struct treeStructData
   unsigned int digiChannel[MAX_DIGI_SAMPLES] ;
   unsigned int digiSampleIndex[MAX_DIGI_SAMPLES] ;
   unsigned int digiBoard[MAX_DIGI_SAMPLES] ;
-  float digiSampleValue[MAX_DIGI_SAMPLES] ;
+  uint16_t digiSampleValue[MAX_DIGI_SAMPLES] ;
 
   unsigned int nTdcChannels ;
   unsigned int tdcBoard[MAX_TDC_CHANNELS] ;
@@ -95,7 +95,7 @@ struct digiData
   unsigned int frequency ;
   unsigned int channel ;
   unsigned int sampleIndex ;
-  float sampleValue ;
+  uint16_t sampleValue ;
 } ;
 
 struct patternData
