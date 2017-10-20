@@ -196,7 +196,7 @@ if ($_GET['noplots']) {
                                                          $folder = str_replace($_SERVER['DOCUMENT_ROOT'],"",
 		                                         str_replace("index.php","",$pruned_uri)
 	                                                 );
-					                 array_push($others, "<a href=http://localhost/DQM/jsroot/index.htm?file=$folder$other_filename>[" . $ex . "]</a>");
+					                 array_push($others, "<a href=http://cms-h4-06.cern.ch/DQM/jsroot/index.htm?file=$folder$other_filename>[" . $ex . "]</a>");
 					                 array_push($displayed, $other_filename);
                                                          break;
                                                          default :
